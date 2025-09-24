@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Warehouse DB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        form {
+            display: inline;
+        }
+
+        select,
+        input[type=checkbox],
+        button {
+            margin: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Warehouse Items</h1>
+
+    <h3>Add New Item</h3>
+    <form method="POST" action="{{ url_for('update_status') }}">
+        <label>Serial Number:</label>
+        <input type="text" name="serial_number" required>
+        <label>Location:</label>
+        <input type="text" name="kanban_location" required>
+        <button type="submit">Add</button>
+    </form>
+    <hr>
+
+    <table>
+        <tr>
+            <th>Serial Number</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Manual</th>
+            <th>Last In</th>
+            <th>Last Out</th>
+            <th>Update</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+        <tr>
+            <td>{{ item[0] }}</td>
+            <td>{{ item[1] }}</td>
+            <td>{{ item[2] }}</td>
+            <td>{{ "Yes" if item[3] else "No" }}</td>
+            <td>{{ item[4] }}</td>
+            <td>{{ item[5] }}</td>
+        </tr>
+        <td>
+            <form action="{{ url_for('update_status', serial=item.Serial_Number) }}" method="post">
+                <select name="status">
+                    <option value="In Storage" {% if item.Status=="In Storage" %}selected{% endif %}>In Storage</option>
+                    <option value="Out Storage" {% if item.Status=="Out Storage" %}selected{% endif %}>Out Storage
+                    </option>
+                </select>
+                <label>
+                    <input type="checkbox" name="manual" value="1" {% if item.Manual %}checked{% endif %}>
+                    Manual
+                </label>
+                <button type="submit">Save</button>
+            </form>
+        </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>
