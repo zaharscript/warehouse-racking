@@ -1,99 +1,91 @@
 from flask import Flask, render_template, request, redirect, url_for
 import pyodbc
-import datetime
+from datetime import datetime
 
 app = Flask(__name__)
 
-# ⚡ Change this path to your actual Access DB file
-DB_PATH = r"C:\Users\Admin\OneDrive\Desktop\Racking Manager System\NexT level HTML UI upgrade\warehouse-racking\warehouse-racking.accdb"
+# === CONFIG ===
+DB_PATH = r"C:\Users\Admin\OneDrive\Pictures\agv\Warehouse-tracking.accdb"
+CONN_STR = (
+    r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
+    f"DBQ={DB_PATH};"
+)
 
 def get_conn():
-    """Create a new connection to the Access database."""
-    return pyodbc.connect(
-        r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=" + DB_PATH + ";"
-    )
-
-def cleanup_old_records():
-    """Delete records older than 1 month after Last_Update_Out."""
-    conn = get_conn()
-    cur = conn.cursor()
-
-    # Find records with Last_Update_Out older than 30 days
-    cutoff = datetime.datetime.now() - datetime.timedelta(days=30)
-
-    cur.execute("""
-        DELETE FROM warehouse_db
-        WHERE [Last_Update_Out] IS NOT NULL
-        AND [Last_Update_Out] < ?
-    """, (cutoff,))
-    conn.commit()
-    conn.close()
-
+    return pyodbc.connect(CONN_STR)
 
 @app.route("/")
 def index():
-    """Show all warehouse items."""
-    cleanup_old_records()  # auto-clean whenever user loads homepage
-
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT [Serial Number], [Kanban Location], [Status], [Manual],
+        SELECT [Serial_Number], [Kanban_Location], [Status],
                [Last_Update_In], [Last_Update_Out]
-        FROM warehouse_db
+        FROM [Warehouse_db]
     """)
     rows = cur.fetchall()
     conn.close()
-
     return render_template("index.html", items=rows)
 
-
-@app.route("/add", methods=["POST"])
-def add_item():
-    """Add a new warehouse item."""
-    serial = request.form["serial_number"]
-    location = request.form["kanban_location"]
-
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO warehouse_db ([Serial Number], [Kanban Location], [Status], [Manual], [Last_Update_In], [Last_Update_Out])
-        VALUES (?, ?, 'In Storage', False, ?, NULL)
-    """, (serial, location, datetime.datetime.now()))
-    conn.commit()
-    conn.close()
-
-    return redirect(url_for("index"))
-
-
-@app.route("/update", methods=["POST"])
-def update_status():
-    """Update status + manual flag + auto timestamps."""
-    serial = request.form["serial_number"]
-    status = request.form["status"]
-    manual = "manual" in request.form  # True if checked
+@app.route("/update_status/<serial>", methods=["POST"])
+def update_status(serial):
+    new_status = request.form["status"]
+    now = datetime.now()
 
     conn = get_conn()
     cur = conn.cursor()
 
-    if status == "In Storage":
+    if new_status == "In Storage":
         cur.execute("""
-            UPDATE warehouse_db
-            SET [Status] = ?, [Manual] = ?, [Last_Update_In] = ?
-            WHERE [Serial Number] = ?
-        """, (status, manual, datetime.datetime.now(), serial))
-    else:
+            UPDATE [Warehouse_db]
+            SET [Status] = ?, [Last_Update_In] = ?
+            WHERE [Serial_Number] = ?
+        """, (new_status, now, serial))
+    else:  # Out Storage
         cur.execute("""
-            UPDATE warehouse_db
-            SET [Status] = ?, [Manual] = ?, [Last_Update_Out] = ?
-            WHERE [Serial Number] = ?
-        """, (status, manual, datetime.datetime.now(), serial))
+            UPDATE [Warehouse_db]
+            SET [Status] = ?, [Last_Update_Out] = ?
+            WHERE [Serial_Number] = ?
+        """, (new_status, now, serial))
 
     conn.commit()
     conn.close()
-
     return redirect(url_for("index"))
 
+@app.route("/debug_db")
+def debug_db():
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        
+        # Get all table names
+        tables = []
+        for table_info in cur.tables(tableType='TABLE'):
+            tables.append(table_info.table_name)
+        
+        # Get column names for each table
+        table_columns = {}
+        for table in tables:
+            try:
+                columns = []
+                for column in cur.columns(table=table):
+                    columns.append(column.column_name)
+                table_columns[table] = columns
+            except:
+                table_columns[table] = ["Error getting columns"]
+        
+        conn.close()
+        
+        result = "<h2>Database Debug Info:</h2>"
+        result += f"<h3>Tables found: {tables}</h3>"
+        for table, columns in table_columns.items():
+            result += f"<h4>Table: {table}</h4>"
+            result += f"<p>Columns: {', '.join(columns)}</p>"
+        
+        return result
+        
+    except Exception as e:
+        return f"Debug error: {str(e)}"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)
