@@ -10,8 +10,8 @@ import logging
 from datetime import datetime
 
 # === CONFIG ===
-DB_PATH = r"C:\Users\Admin\OneDrive\Pictures\agv\Warehouse-tracking.accdb"   # <-- change this
-LOG_FILE = r"C:\path\to\cleanup.log"     # <-- change if needed
+DB_PATH = r"C:\Users\Admin\OneDrive\Pictures\agv\Warehouse-tracking.accdb"  
+LOG_FILE = r"C:\path\to\cleanup.log"     
 
 CONN_STR = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
@@ -34,7 +34,7 @@ def archive_and_delete():
 
     logging.info("Starting cleanup job...")
 
-    # 1) Ensure archive table exists
+    # 1) To ensure archive table exists
     try:
         cur.execute("SELECT TOP 1 * FROM warehouse_db_archive")
     except Exception:

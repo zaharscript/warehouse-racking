@@ -41,15 +41,17 @@
             <div class="form-section">
                 <!-- Registration Tab -->
                 <div id="registration" class="tab-content active">
+                    <!--------------------------------------------------------------------------------------------------------------------------------------- -->
                     <h2>Item Registration</h2>
-                    <!---------------------------------------------------------------------------------------------------------------------------------------
- -->form for item registration
+
+                    <!--form for item registration-->
+
                     <form method="POST" action="{{ url_for('add_item') }}">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="itemId">Serial Number</label>
                                 <input type="text" id="itemId" class="form-control" name="serial_number" required
-                                    placeholder="Enter Product Serial Number">
+                                    placeholder="Enter Serial Number">
                             </div>
                             <div class="form-group">
                                 <label for="itemName">Storage Location</label>
@@ -78,119 +80,136 @@
                     </form>
                 </div>
                 <!-- --------------------------------------------------------------------------------------------------------------------------------------- -->
-                <!-- Search Tab -->
+                <!-- Search Tab and remove-->
+                <!--search form---->
                 <div id="search" class="tab-content">
                     <h2>Search And Remove Items</h2>
+                    <form method="POST" action="{{url_for('search')}}">
+                        <div class="form-grid">
+                            <div class="form-group" style="flex: 2;">
+                                <label for="searchItemId">Find the Serial Number</label>
+                                <input type="text" id="searchItemId" class="form-control" name="serial_number" required
+                                    placeholder="Enter Serial Number">
+                            </div>
 
-                    <div class="form-grid">
-                        <div class="form-group" style="flex: 2;">
-                            <label for="searchItemId">Find the Serial Number</label>
-                            <input type="text" id="searchItemId" class="form-control" placeholder="Enter Serial Number">
+                            <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn btn-search" onclick="findRecord()">Find Record
+                                    🔍</button>
+                            </div>
+
+                            <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
+                                <button type="reset" class="btn btn-clear" onclick="clearSearch()">Clear</button>
+                            </div>
                         </div>
 
-                        <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
-                            <button class="btn btn-search" onclick="findRecord()">Find Record 🔍</button>
-                        </div>
+                    </form>
 
-                        <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
-                            <button class="btn btn-clear" onclick="clearSearch()">Clear</button>
-                        </div>
-                    </div>
 
-                    <!-- Search Results Table -->
-                    <div class="search-results">
-                        <table class="results-table">
-                            <thead>
-                                <tr>
-                                    <th>Serial Number</th>
-                                    <th>Status</th>
-                                    <th>Location</th>
-                                </tr>
-                            </thead>
-                            <tbody id="searchResults">
-                                <!-- Example row -->
-                                <tr>
-                                    <td>F004866922</td>
-                                    <td>In Storage</td>
-                                    <td>R1_A2_09</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
 
-                    <!-- Push Out Button -->
+                </div>
+
+                <!-- Search Results Table -->
+
+                <div class="search-results">
+                    {% if search_result %}
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Serial Number</th>
+                                <th>Status</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ search_result.Serial_Number }}</td>
+                                <td>{{ search_result.Status }}</td>
+                                <td>{{ search_result.Kanban_Location }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Push Out Button -->
+                <!-- Push Out Form -->
+                <form method="POST" action="{{ url_for('push_out') }}">
+                    <input type="hidden" name="serial_number" id="serial_number_input"
+                        value="{{ search_result.Serial_Number }}">
                     <div class="form-group">
-                        <button class="btn btn-push-out" onclick="pushOutFromSlot()">Push Out From Slot</button>
+                        <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
                     </div>
-                </div>
+                </form>
+
+                {% endif %}
             </div>
+        </div>
 
-            <!-- Map Section -->
-            <div class="map-section">
-                <div class="map-header">
-                    <span>Warehouse Layout</span>
-                    <span style="float: right;">Zoom: <button onclick="zoomMap(1.2)">+</button> <button
-                            onclick="zoomMap(0.8)">-</button></span>
-                </div>
-                <div class="map-container" id="mapContainer">
-                    <div class="warehouse-map" id="warehouseMap">
-                        <!-- Row 1 -->
-                        <div class="rack-slot available" onclick="selectRack('A1')" data-location="A1">
-                            <div class="rack-icon">📦</div>
-                            <div class="rack-label">A1</div>
-                        </div>
-                        <div class="rack-slot occupied" onclick="selectRack('A2')" data-location="A2">
-                            <div class="rack-icon">✓</div>
-                            <div class="rack-label">A2</div>
-                        </div>
-                        <div class="rack-slot occupied" onclick="selectRack('B3')" data-location="B3">
-                            <div class="rack-icon">✓</div>
-                            <div class="rack-label">B3</div>
-                        </div>
-                        <div class="rack-slot occupied" onclick="selectRack('A4')" data-location="A4">
-                            <div class="rack-icon">✓</div>
-                            <div class="rack-label">A4</div>
-                        </div>
+        <!-- Map Section -->
+        <div class="map-section">
+            <div class="map-header">
+                <span>Warehouse Layout</span>
+                <span style="float: right;">Zoom: <button onclick="zoomMap(1.2)">+</button> <button
+                        onclick="zoomMap(0.8)">-</button></span>
+            </div>
+            <div class="map-container" id="mapContainer">
+                <div class="warehouse-map" id="warehouseMap">
+                    <!-- Row 1 -->
+                    <div class="rack-slot available" onclick="selectRack('A1')" data-location="A1">
+                        <div class="rack-icon">📦</div>
+                        <div class="rack-label">A1</div>
+                    </div>
+                    <div class="rack-slot occupied" onclick="selectRack('A2')" data-location="A2">
+                        <div class="rack-icon">✓</div>
+                        <div class="rack-label">A2</div>
+                    </div>
+                    <div class="rack-slot occupied" onclick="selectRack('B3')" data-location="B3">
+                        <div class="rack-icon">✓</div>
+                        <div class="rack-label">B3</div>
+                    </div>
+                    <div class="rack-slot occupied" onclick="selectRack('A4')" data-location="A4">
+                        <div class="rack-icon">✓</div>
+                        <div class="rack-label">A4</div>
+                    </div>
 
-                        <!-- Row 2 -->
-                        <div class="rack-slot occupied" onclick="selectRack('B1')" data-location="B1">
-                            <div class="rack-icon">✓</div>
-                            <div class="rack-label">B1</div>
-                        </div>
-                        <div class="rack-slot occupied" onclick="selectRack('B2')" data-location="B2">
-                            <div class="rack-icon">✓</div>
-                            <div class="rack-label">B2</div>
-                        </div>
-                        <div class="rack-slot available" onclick="selectRack('C2')" data-location="C2">
-                            <div class="rack-icon">📦</div>
-                            <div class="rack-label">C2</div>
-                        </div>
-                        <div class="rack-slot available" onclick="selectRack('C4')" data-location="C4">
-                            <div class="rack-icon">📦</div>
-                            <div class="rack-label">C4</div>
-                        </div>
+                    <!-- Row 2 -->
+                    <div class="rack-slot occupied" onclick="selectRack('B1')" data-location="B1">
+                        <div class="rack-icon">✓</div>
+                        <div class="rack-label">B1</div>
+                    </div>
+                    <div class="rack-slot occupied" onclick="selectRack('B2')" data-location="B2">
+                        <div class="rack-icon">✓</div>
+                        <div class="rack-label">B2</div>
+                    </div>
+                    <div class="rack-slot available" onclick="selectRack('C2')" data-location="C2">
+                        <div class="rack-icon">📦</div>
+                        <div class="rack-label">C2</div>
+                    </div>
+                    <div class="rack-slot available" onclick="selectRack('C4')" data-location="C4">
+                        <div class="rack-icon">📦</div>
+                        <div class="rack-label">C4</div>
+                    </div>
 
-                        <!-- Row 3 -->
-                        <div class="rack-slot available" onclick="selectRack('C1')" data-location="C1">
-                            <div class="rack-icon">📦</div>
-                            <div class="rack-label">C1</div>
-                        </div>
-                        <div class="rack-slot available" onclick="selectRack('C2')" data-location="C2">
-                            <div class="rack-icon">📦</div>
-                            <div class="rack-label">C2</div>
-                        </div>
-                        <div class="rack-slot available" onclick="selectRack('D3')" data-location="D3">
-                            <div class="rack-icon">📦</div>
-                            <div class="rack-label">D3</div>
-                        </div>
-                        <div class="rack-slot available" onclick="selectRack('D4')" data-location="D4">
-                            <div class="rack-icon">📦</div>
-                            <div class="rack-label">D4</div>
-                        </div>
+                    <!-- Row 3 -->
+                    <div class="rack-slot available" onclick="selectRack('C1')" data-location="C1">
+                        <div class="rack-icon">📦</div>
+                        <div class="rack-label">C1</div>
+                    </div>
+                    <div class="rack-slot available" onclick="selectRack('C2')" data-location="C2">
+                        <div class="rack-icon">📦</div>
+                        <div class="rack-label">C2</div>
+                    </div>
+                    <div class="rack-slot available" onclick="selectRack('D3')" data-location="D3">
+                        <div class="rack-icon">📦</div>
+                        <div class="rack-label">D3</div>
+                    </div>
+                    <div class="rack-slot available" onclick="selectRack('D4')" data-location="D4">
+                        <div class="rack-icon">📦</div>
+                        <div class="rack-label">D4</div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
     <script>

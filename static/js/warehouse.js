@@ -324,3 +324,8 @@ function pushOutFromSlot() {
   // Logic to handle pushing out the item from the slot
   console.log("Push Out From Slot clicked");
 }
+
+function pushOutFromSlot() {
+  const serial = document.getElementById("searchItemId").value;
+  document.getElementById("serial_number_input").value = serial;
+}

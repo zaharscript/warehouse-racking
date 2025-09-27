@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 import pyodbc
 from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = "supersecret"  # needed for flash messages
 
 # === CONFIG ===
 DB_PATH = r"C:\Users\Admin\OneDrive\Pictures\agv\Warehouse-tracking.accdb"
@@ -26,7 +27,7 @@ def index():
     rows = cur.fetchall()
     conn.close()
     return render_template("index.html", items=rows)
-
+# experimental route with full page with  css and js
 @app.route("/racking", methods=["GET"])
 def racking_view():
     """Serve warehouse-racking.html page"""
@@ -126,6 +127,52 @@ def add_item():
     conn.close()
 
     return redirect(url_for("index"))
+
+# 🔍 Search serial number
+@app.route("/search", methods=["POST"])
+def search():
+    serial_number = request.form.get("serial_number")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT Serial_Number, Status, Kanban_Location FROM Warehouse_db WHERE Serial_Number = ?",
+        (serial_number,)
+    )
+    row = cur.fetchone()
+    conn.close()
+
+    if row:
+        return render_template("warehouse-racking.html", search_result=row)
+    else:
+        flash(f"Serial number {serial_number} not found!")
+        return redirect(url_for("warehouse_racking"))
+
+
+# ✅ Update status to "Out Storage"
+@app.route("/push_out", methods=["POST"])
+def push_out():
+    serial_number = request.form.get("serial_number")
+    if not serial_number:
+        flash("No serial number provided for push out.")
+        return redirect(url_for("racking_view"))
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE Warehouse_db
+        SET Status = ?, Last_Update_Out = ?
+        WHERE Serial_Number = ?
+    """, ("Out Storage", datetime.now(), serial_number))
+    rows_updated = cur.rowcount
+    conn.commit()
+    conn.close()
+
+    if rows_updated > 0:
+        flash(f"Serial number {serial_number} marked as 'Out Storage'.")
+    else:
+        flash(f"Serial number {serial_number} not found.")
+    return redirect(url_for("racking_view"))
+
 
 
 
