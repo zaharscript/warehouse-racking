@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Tracking System</title>
-    <link rel="stylesheet" href="/warehouse.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
 
 </head>
 
@@ -42,36 +42,42 @@
                 <!-- Registration Tab -->
                 <div id="registration" class="tab-content active">
                     <h2>Item Registration</h2>
+                    <!---------------------------------------------------------------------------------------------------------------------------------------
+ -->form for item registration
+                    <form method="POST" action="{{ url_for('add_item') }}">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="itemId">Serial Number</label>
+                                <input type="text" id="itemId" class="form-control" name="serial_number" required
+                                    placeholder="Enter Product Serial Number">
+                            </div>
+                            <div class="form-group">
+                                <label for="itemName">Storage Location</label>
+                                <input type="text" id="location" class="form-control" name="kanban_location" required
+                                    placeholder="Select from map or type location">
+                            </div>
 
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="itemId">Serial Number</label>
-                            <input type="text" id="itemId" class="form-control"
-                                placeholder="Enter Product Serial Number">
+                            <div class="form-group">
+                                <label for="location">Action</label>
+                                <select id="action" class="form-control" onchange="handleLocationChange(this)"
+                                    name="Status" required>
+                                    <option value="">Select Action</option>
+                                    <option value="In Storage">In storage</option>
+                                    <option value="Out Storage">Out Storage</option>
+                                </select>
+                            </div>
+
                         </div>
-                        <div class="form-group">
-                            <label for="itemName">Storage Location</label>
-                            <input type="text" id="location" class="form-control"
-                                placeholder="Select from map or type location">
-                        </div>
+
+                        <button type="submit" class="btn" onclick="processRegistration()">
+                            <span id="btnText">Register Item</span>
+                        </button>
 
 
-                        <div class="form-group">
-                            <label for="location">Action</label>
-                            <select id="action" class="form-control" onchange="handleLocationChange(this)">
-                                <option value="">Select Action</option>
-                                <option value="A1">In storage</option>
-                                <option value="A2">Out Storage</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button class="btn" onclick="processRegistration()">
-                        <span id="btnText">Register Item</span>
-                    </button>
+                    </form>
                 </div>
-
+                <!-- --------------------------------------------------------------------------------------------------------------------------------------- -->
                 <!-- Search Tab -->
                 <div id="search" class="tab-content">
                     <h2>Search And Remove Items</h2>
@@ -186,32 +192,9 @@
             </div>
         </div>
     </div>
-    <script src="/warehouse.js"></script>
+    <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
     <script>
-        function handleLocationChange(selectElement) {
-            const locationInput = document.getElementById('location');
-            if (selectElement.value === "A2") { // "A2" corresponds to "Out Storage"
-                locationInput.disabled = true; // Disable the text box
-            } else {
-                locationInput.disabled = false; // Enable the text box for other options
-            }
-        }
 
-        function findRecord() {
-            // Logic to find the record based on the serial number
-            console.log("Find Record clicked");
-        }
-
-        function clearSearch() {
-            // Logic to clear the search input and results
-            document.getElementById('searchItemId').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-        }
-
-        function pushOutFromSlot() {
-            // Logic to handle pushing out the item from the slot
-            console.log("Push Out From Slot clicked");
-        }
     </script>
 
 </body>

@@ -27,6 +27,22 @@ def index():
     conn.close()
     return render_template("index.html", items=rows)
 
+@app.route("/racking", methods=["GET"])
+def racking_view():
+    """Serve warehouse-racking.html page"""
+    # if this page also needs database data, fetch it here
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT [Serial_Number], [Kanban_Location], [Status],
+               [Last_Update_In], [Last_Update_Out]
+        FROM [Warehouse_db]
+    """)
+    rows = cur.fetchall()
+    conn.close()
+
+    return render_template("warehouse-racking.html", items=rows)
+
 @app.route("/update_status/<serial>", methods=["POST"])
 def update_status(serial):
     new_status = request.form["status"]
@@ -86,6 +102,32 @@ def debug_db():
         
     except Exception as e:
         return f"Debug error: {str(e)}"
+
+@app.route("/add_item", methods=["POST"])
+def add_item():
+    serial_number = request.form["serial_number"]
+    kanban_location = request.form["kanban_location"]
+    status = request.form["Status"]
+    now = datetime.now()
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO [Warehouse_db] ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        serial_number,
+        kanban_location,
+        status,
+        now if status == "In Storage" else None,
+        now if status == "Out Storage" else None
+    ))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("index"))
+
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

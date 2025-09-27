@@ -298,3 +298,29 @@ document.addEventListener("keydown", function (e) {
     }
   }
 });
+
+function handleLocationChange(selectElement) {
+  const locationInput = document.getElementById("location");
+  if (selectElement.value === "A2") {
+    // "A2" corresponds to "Out Storage"
+    locationInput.disabled = true; // Disable the text box
+  } else {
+    locationInput.disabled = false; // Enable the text box for other options
+  }
+}
+
+function findRecord() {
+  // Logic to find the record based on the serial number
+  console.log("Find Record clicked");
+}
+
+function clearSearch() {
+  // Logic to clear the search input and results
+  document.getElementById("searchItemId").value = "";
+  document.getElementById("searchResults").innerHTML = "";
+}
+
+function pushOutFromSlot() {
+  // Logic to handle pushing out the item from the slot
+  console.log("Push Out From Slot clicked");
+}
