@@ -27,6 +27,7 @@ def index():
     rows = cur.fetchall()
     conn.close()
     return render_template("index.html", items=rows)
+
 # experimental route with full page with  css and js
 @app.route("/racking", methods=["GET"])
 def racking_view():
@@ -126,7 +127,50 @@ def add_item():
     conn.commit()
     conn.close()
 
-    return redirect(url_for("index"))
+    return redirect(url_for("racking_view"))
+
+#----------------------------------------------------------------------------------------
+# ➕ Add new item
+@app.route("/addItem", methods=["POST"])
+def addItem():
+    try:
+        serial_number = request.form.get("serial_number")
+        kanban_location = request.form.get("kanban_location")
+        status = request.form.get("Status")
+        
+        # Validation
+        if not serial_number or not kanban_location or not status:
+            flash("Please fill in all required fields.", 'error')
+            return redirect(url_for("index"))
+        
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # ✅ MS Access-friendly timestamp
+        
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO Warehouse_db (Serial_Number, Kanban_Location, Status, Last_Update_In, Last_Update_Out)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            serial_number,
+            kanban_location,
+            status,
+            now_str if status == "In Storage" else None,
+            now_str if status == "Out Storage" else None
+        ))
+        conn.commit()
+        conn.close()
+        
+        # Flash success message
+        flash(f"Serial number {serial_number} added successfully.", 'success')
+        
+    except Exception as e:
+        flash(f"Error occurred during processing: {str(e)}", 'error')
+        
+    return redirect(url_for("index"))  # ✅ redirect to index page
+
+
+#----------------------------------------------------------------------------------------
+
 
 # 🔍 Search serial number
 @app.route("/search", methods=["POST"])

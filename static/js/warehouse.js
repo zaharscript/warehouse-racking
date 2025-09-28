@@ -219,7 +219,10 @@ function selectRack(rackId) {
   const statusColor = isAvailable ? "#28a745" : "#007bff";
 
   // Create a temporary notification
-  showNotification(`Rack ${rackId} selected - Status: ${status}`, statusColor);
+  showNotification(
+    `Rack ${rackId} is selected - Status: ${status}`,
+    statusColor
+  );
 }
 
 // Show notification function

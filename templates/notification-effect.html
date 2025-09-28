@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pure CSS Sliding Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Rack Slots */
+        .rack-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .rack-slot {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .rack-slot.occupied {
+            background-color: #e3f2fd;
+            border-color: #007bff;
+        }
+
+        .rack-slot.available {
+            background-color: #e8f5e8;
+            border-color: #28a745;
+        }
+
+        .rack-slot:hover {
+            transform: translateY(-5px);
+        }
+
+        .rack-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .rack-label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Pure CSS Notification System */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .notification {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+            margin-bottom: 10px;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.occupied {
+            background: #007bff;
+        }
+
+        .notification.available {
+            background: #28a745;
+        }
+
+        /* CSS-only trigger using :target pseudo-class */
+        #rack-b2:target~.notification-container .notification-b2,
+        #rack-c2:target~.notification-container .notification-c2,
+        #rack-d2:target~.notification-container .notification-d2 {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        /* Alternative method using checkbox hack */
+        .checkbox-trigger {
+            display: none;
+        }
+
+        .checkbox-trigger:checked+.notification-container .notification {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        /* Method 3: Using :hover for instant feedback */
+        .hover-notification {
+            position: relative;
+        }
+
+        .hover-notification::after {
+            content: attr(data-message);
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--notification-color, #667eea);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        .hover-notification:hover::after {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .demo-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .method-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        /* Animation keyframes for more complex effects */
+        @keyframes slideInBounce {
+            0% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            60% {
+                transform: translateX(-10px);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-bounce {
+            animation: slideInBounce 0.4s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Pure CSS Sliding Notifications</h1>
+
+        <!-- Method 1: Using :target pseudo-class -->
+        <div class="demo-section">
+            <h2>Method 1: Using :target Pseudo-class</h2>
+            <div class="method-info">
+                <strong>How it works:</strong> Click a rack to change the URL hash, triggering the :target selector.
+            </div>
+
+            <div class="rack-container">
+                <a href="#rack-b2" class="rack-slot occupied">
+                    <div class="rack-icon">✓</div>
+                    <div class="rack-label">B2</div>
+                </a>
+                <a href="#rack-c2" class="rack-slot available">
+                    <div class="rack-icon">📦</div>
+                    <div class="rack-label">C2</div>
+                </a>
+                <a href="#rack-d2" class="rack-slot occupied">
+                    <div class="rack-icon">✓</div>
+                    <div class="rack-label">D2</div>
+                </a>
+            </div>
+
+            <!-- Hidden targets for CSS :target -->
+            <div id="rack-b2"></div>
+            <div id="rack-c2"></div>
+            <div id="rack-d2"></div>
+
+            <div class="notification-container">
+                <div class="notification notification-b2 occupied">Rack B2 is selected - Status: Occupied</div>
+                <div class="notification notification-c2 available">Rack C2 is selected - Status: Available</div>
+                <div class="notification notification-d2 occupied">Rack D2 is selected - Status: Occupied</div>
+            </div>
+        </div>
+
+        <!-- Method 2: Using :hover -->
+        <div class="demo-section">
+            <h2>Method 2: Using :hover (Instant Feedback)</h2>
+            <div class="method-info">
+                <strong>How it works:</strong> Hover over a rack to show notification using CSS ::after pseudo-element.
+            </div>
+
+            <div class="rack-container">
+                <div class="rack-slot occupied hover-notification" data-message="Rack E2 is selected - Status: Occupied"
+                    style="--notification-color: #007bff;">
+                    <div class="rack-icon">✓</div>
+                    <div class="rack-label">E2</div>
+                </div>
+                <div class="rack-slot available hover-notification"
+                    data-message="Rack F2 is selected - Status: Available" style="--notification-color: #28a745;">
+                    <div class="rack-icon">📦</div>
+                    <div class="rack-label">F2</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Method 3: Checkbox hack (most flexible) -->
+        <div class="demo-section">
+            <h2>Method 3: Checkbox Hack</h2>
+            <div class="method-info">
+                <strong>How it works:</strong> Hidden checkboxes control the notification state via CSS selectors.
+            </div>
+
+            <div class="rack-container">
+                <label for="check-g2" class="rack-slot occupied">
+                    <div class="rack-icon">✓</div>
+                    <div class="rack-label">G2</div>
+                </label>
+                <label for="check-h2" class="rack-slot available">
+                    <div class="rack-icon">📦</div>
+                    <div class="rack-label">H2</div>
+                </label>
+            </div>
+
+            <input type="checkbox" id="check-g2" class="checkbox-trigger">
+            <div class="notification-container">
+                <div class="notification occupied notification-bounce">Rack G2 is selected - Status: Occupied</div>
+            </div>
+
+            <input type="checkbox" id="check-h2" class="checkbox-trigger">
+            <div class="notification-container">
+                <div class="notification available notification-bounce">Rack H2 is selected - Status: Available</div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Limitations & Notes</h2>
+            <div class="method-info">
+                <ul>
+                    <li><strong>No auto-dismiss:</strong> Pure CSS can't automatically hide notifications after a
+                        timeout</li>
+                    <li><strong>Limited dynamic content:</strong> Messages must be pre-defined in HTML</li>
+                    <li><strong>State management:</strong> More complex than JavaScript for managing multiple
+                        notifications</li>
+                    <li><strong>Browser support:</strong> :target and checkbox hacks work in all modern browsers</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

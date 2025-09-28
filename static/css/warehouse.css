@@ -448,3 +448,112 @@ td {
 th {
     background-color: #f2f2f2;
 }
+
+/* flash message */
+
+/* Flash Messages Notification System */
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 350px;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.flash-messages ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.flash-messages li {
+    background: #28a745;
+    /* Success green */
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    margin-bottom: 10px;
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: auto;
+    position: relative;
+    animation: slideInNotification 0.5s ease-out forwards;
+}
+
+/* Different message types */
+.flash-messages li.error {
+    background: #dc3545;
+    /* Error red */
+}
+
+.flash-messages li.warning {
+    background: #ffc107;
+    /* Warning yellow */
+    color: #333;
+}
+
+.flash-messages li.info {
+    background: #17a2b8;
+    /* Info blue */
+}
+
+/* Close button */
+.flash-messages li::after {
+    content: '×';
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.flash-messages li:hover::after {
+    opacity: 1;
+}
+
+/* Auto-hide animation */
+.flash-messages li {
+    animation: slideInNotification 0.5s ease-out forwards,
+        slideOutNotification 0.5s ease-in 4s forwards;
+}
+
+/* Animation keyframes */
+@keyframes slideInNotification {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    60% {
+        transform: translateX(-10px);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutNotification {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Hover to pause auto-hide */
+.flash-messages li:hover {
+    animation-play-state: paused;
+}
