@@ -105,6 +105,7 @@ def debug_db():
     except Exception as e:
         return f"Debug error: {str(e)}"
 
+# Add item route for index.html
 @app.route("/add_item", methods=["POST"])
 def add_item():
     serial_number = request.form["serial_number"]
@@ -114,23 +115,29 @@ def add_item():
 
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO [Warehouse_db] ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        serial_number,
-        kanban_location,
-        status,
-        now if status == "In Storage" else None,
-        now if status == "Out Storage" else None
-    ))
+
+    if status == "In Storage":
+        # Insert new record
+        cur.execute("""
+            INSERT INTO [Warehouse_db] 
+            ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+            VALUES (?, ?, ?, ?, ?)
+        """, (serial_number, kanban_location, status, now, None))
+    else:
+        # Update existing record (mark as Out Storage)
+        cur.execute("""
+            UPDATE Warehouse_db
+            SET Status = ?, Last_Update_Out = ?
+            WHERE Serial_Number = ?
+        """, (status, now, serial_number))
+
     conn.commit()
     conn.close()
 
     return redirect(url_for("index"))
 
-# Add item route for warehouse-racking.html
 
+# Add item route for warehouse-racking.html
 @app.route("/add_item_racking", methods=["POST"])
 def add_item_racking():
     serial_number = request.form["serial_number"]
@@ -140,20 +147,27 @@ def add_item_racking():
 
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO [Warehouse_db] ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        serial_number,
-        kanban_location,
-        status,
-        now if status == "In Storage" else None,
-        now if status == "Out Storage" else None
-    ))
+
+    if status == "In Storage":
+        # Insert new record
+        cur.execute("""
+            INSERT INTO [Warehouse_db] 
+            ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+            VALUES (?, ?, ?, ?, ?)
+        """, (serial_number, kanban_location, status, now, None))
+    else:
+        # Update existing record (mark as Out Storage)
+        cur.execute("""
+            UPDATE Warehouse_db
+            SET Status = ?, Last_Update_Out = ?
+            WHERE Serial_Number = ?
+        """, (status, now, serial_number))
+
     conn.commit()
     conn.close()
 
     return redirect(url_for("racking_view"))
+
 
 
 # 🔍 Search serial number 

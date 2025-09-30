@@ -75,8 +75,6 @@
                         <button type="submit" class="btn" onclick="processRegistration()">
                             <span id="btnText">Register Item</span>
                         </button>
-
-
                     </form>
                 </div>
                 <!-- --------------------------------------------------------------------------------------------------------------------------------------- -->
@@ -104,43 +102,45 @@
 
                     </form>
 
+                    <!-- Search Results Table -->
 
-
-                </div>
-
-                <!-- Search Results Table -->
-
-                <div class="search-results">
-                    {% if search_result %}
-                    <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>Serial Number</th>
-                                <th>Status</th>
-                                <th>Location</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ search_result.Serial_Number }}</td>
-                                <td>{{ search_result.Status }}</td>
-                                <td>{{ search_result.Kanban_Location }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Push Out Button -->
-                <!-- Push Out Form -->
-                <form method="POST" action="{{ url_for('push_out') }}">
-                    <input type="hidden" name="serial_number" id="serial_number_input"
-                        value="{{ search_result.Serial_Number }}">
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
+                    <div class="search-results">
+                        {% if search_result %}
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Serial Number</th>
+                                    <th>Status</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ search_result.Serial_Number }}</td>
+                                    <td>{{ search_result.Status }}</td>
+                                    <td>{{ search_result.Kanban_Location }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </form>
 
-                {% endif %}
+                    <!-- Push Out Button -->
+                    <!-- Push Out Form -->
+                    <form method="POST" action="{{ url_for('push_out') }}">
+                        <input type="hidden" name="serial_number" id="serial_number_input"
+                            value="{{ search_result.Serial_Number }}">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
+                        </div>
+                    </form>
+
+                    {% endif %}
+
+
+
+                </div>
+
+
             </div>
         </div>
 
