@@ -27,7 +27,8 @@ def index():
     rows = cur.fetchall()
     conn.close()
     return render_template("index.html", items=rows)
-# experimental route with full page with  css and js
+
+# New route for warehouse-racking.html
 @app.route("/racking", methods=["GET"])
 def racking_view():
     """Serve warehouse-racking.html page"""
@@ -128,7 +129,34 @@ def add_item():
 
     return redirect(url_for("index"))
 
-# 🔍 Search serial number
+# Add item route for warehouse-racking.html
+
+@app.route("/add_item_racking", methods=["POST"])
+def add_item_racking():
+    serial_number = request.form["serial_number"]
+    kanban_location = request.form["kanban_location"]
+    status = request.form["Status"]
+    now = datetime.now()
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO [Warehouse_db] ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        serial_number,
+        kanban_location,
+        status,
+        now if status == "In Storage" else None,
+        now if status == "Out Storage" else None
+    ))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("racking_view"))
+
+
+# 🔍 Search serial number 
 @app.route("/search", methods=["POST"])
 def search():
     serial_number = request.form.get("serial_number")
