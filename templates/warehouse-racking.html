@@ -6,32 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Tracking System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
-
 </head>
 
 <body>
-    <!-- Flash Messages (rendered by Flask) -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="flash-messages">
-        <ul>
-            {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-    {% endwith %}
-
-
     <div class="container">
         <!-- Header with Navigation and Statistics -->
         <div class="header">
             <h1>Warehouse Tracking System</h1>
 
             <div class="nav-tabs">
-                <button class="nav-tab active" onclick="switchTab('registration')">Item Registration</button>
-                <button class="nav-tab" onclick="switchTab('search')">Search & Remove</button>
+                <button class="nav-tab {% if active_tab == 'registration' or not active_tab %}active{% endif %}"
+                    onclick="switchTab('registration', event)">Item Registration</button>
+                <button class="nav-tab {% if active_tab == 'search' %}active{% endif %}"
+                    onclick="switchTab('search', event)">Search & Remove</button>
             </div>
 
             <div class="stats-bar">
@@ -54,13 +41,10 @@
             <!-- Form Section -->
             <div class="form-section">
                 <!-- Registration Tab -->
-                <div id="registration" class="tab-content active">
-                    <!--------------------------------------------------------------------------------------------------------------------------------------- -->
+                <div id="registration"
+                    class="tab-content {% if active_tab == 'registration' or not active_tab %}active{% endif %}">
                     <h2>Item Registration</h2>
-
-                    <!--form for item registration-->
-
-                    <form method="POST" action="{{ url_for('add_item') }}">
+                    <form method="POST" action="{{ url_for('add_item_racking') }}">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="itemId">Serial Number</label>
@@ -68,14 +52,12 @@
                                     placeholder="Enter Serial Number">
                             </div>
                             <div class="form-group">
-                                <label for="itemName">Storage Location</label>
+                                <label for="location">Storage Location</label>
                                 <input type="text" id="location" class="form-control" name="kanban_location" required
                                     placeholder="Select from map or type location">
                             </div>
-
-
                             <div class="form-group">
-                                <label for="location">Action</label>
+                                <label for="action">Action</label>
                                 <select id="action" class="form-control" onchange="handleLocationChange(this)"
                                     name="Status" required>
                                     <option value="">Select Action</option>
@@ -83,81 +65,84 @@
                                     <option value="Out Storage">Out Storage</option>
                                 </select>
                             </div>
-
                         </div>
-
                         <button type="submit" class="btn" onclick="processRegistration()">
                             <span id="btnText">Register Item</span>
                         </button>
-
                     </form>
                 </div>
-                <!-- --------------------------------------------------------------------------------------------------------------------------------------- -->
-                <!-- Search Tab and remove-->
-                <!--search form---->
-                <div id="search" class="tab-content">
+
+                <!-- Search Tab -->
+                <div id="search" class="tab-content {% if active_tab == 'search' %}active{% endif %}">
                     <h2>Search And Remove Items</h2>
-                    <form method="POST" action="{{url_for('search')}}">
+                    <form method="POST" action="{{ url_for('search') }}">
                         <div class="form-grid">
                             <div class="form-group" style="flex: 2;">
                                 <label for="searchItemId">Find the Serial Number</label>
                                 <input type="text" id="searchItemId" class="form-control" name="serial_number" required
                                     placeholder="Enter Serial Number">
                             </div>
-
                             <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
                                 <button type="submit" class="btn btn-search" onclick="findRecord()">Find Record
                                     🔍</button>
                             </div>
-
                             <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
                                 <button type="reset" class="btn btn-clear" onclick="clearSearch()">Clear</button>
                             </div>
                         </div>
-
                     </form>
 
-
-
-                </div>
-
-                <!-- Search Results Table -->
-
-                <div class="search-results">
-                    {% if search_result %}
-                    <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>Serial Number</th>
-                                <th>Status</th>
-                                <th>Location</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ search_result.Serial_Number }}</td>
-                                <td>{{ search_result.Status }}</td>
-                                <td>{{ search_result.Kanban_Location }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Push Out Button -->
-                <!-- Push Out Form -->
-                <form method="POST" action="{{ url_for('push_out') }}">
-                    <input type="hidden" name="serial_number" id="serial_number_input"
-                        value="{{ search_result.Serial_Number }}">
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
+                    <!-- Search Results Table -->
+                    <div class="search-results">
+                        {% if search_result %}
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Serial Number</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>
+                                        {% if search_result.Last_Update_Out %}
+                                        Date Out
+                                        {% else %}
+                                        Date In
+                                        {% endif %}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ search_result.Serial_Number }}</td>
+                                    <td>{{ search_result.Kanban_Location }}</td>
+                                    <td>{{ search_result.Status }}</td>
+                                    <td>
+                                        {% if search_result.Last_Update_Out %}
+                                        {{ search_result.Last_Update_Out }}
+                                        {% else %}
+                                        {{ search_result.Last_Update_In }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </form>
 
-                {% endif %}
+                    <!-- Push Out Button -->
+                    {% if search_result and not search_result.Last_Update_Out %}
+                    <form method="POST" action="{{ url_for('push_out') }}">
+                        <input type="hidden" name="serial_number" id="serial_number_input"
+                            value="{{ search_result.Serial_Number }}">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </div>
             </div>
         </div>
 
-        <!-- Map Section -->
+        <!-- Warehouse Map Section -->
         <div class="map-section">
             <div class="map-header">
                 <span>Warehouse Layout</span>
@@ -222,13 +207,10 @@
                 </div>
             </div>
         </div>
+
     </div>
-    </div>
+
     <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
-    <script>
-
-    </script>
-
 </body>
 
 </html>

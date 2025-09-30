@@ -28,7 +28,7 @@ def index():
     conn.close()
     return render_template("index.html", items=rows)
 
-# experimental route with full page with  css and js
+# New route for warehouse-racking.html
 @app.route("/racking", methods=["GET"])
 def racking_view():
     """Serve warehouse-racking.html page"""
@@ -105,6 +105,7 @@ def debug_db():
     except Exception as e:
         return f"Debug error: {str(e)}"
 
+# Add item route for index.html
 @app.route("/add_item", methods=["POST"])
 def add_item():
     serial_number = request.form["serial_number"]
@@ -114,82 +115,84 @@ def add_item():
 
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO [Warehouse_db] ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        serial_number,
-        kanban_location,
-        status,
-        now if status == "In Storage" else None,
-        now if status == "Out Storage" else None
-    ))
+
+    if status == "In Storage":
+        # Insert new record
+        cur.execute("""
+            INSERT INTO [Warehouse_db] 
+            ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+            VALUES (?, ?, ?, ?, ?)
+        """, (serial_number, kanban_location, status, now, None))
+    else:
+        # Update existing record (mark as Out Storage)
+        cur.execute("""
+            UPDATE Warehouse_db
+            SET Status = ?, Last_Update_Out = ?
+            WHERE Serial_Number = ?
+        """, (status, now, serial_number))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("index"))
+
+
+# Add item route for warehouse-racking.html
+@app.route("/add_item_racking", methods=["POST"])
+def add_item_racking():
+    serial_number = request.form["serial_number"]
+    kanban_location = request.form["kanban_location"]
+    status = request.form["Status"]
+    now = datetime.now()
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    if status == "In Storage":
+        # Insert new record
+        cur.execute("""
+            INSERT INTO [Warehouse_db] 
+            ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+            VALUES (?, ?, ?, ?, ?)
+        """, (serial_number, kanban_location, status, now, None))
+    else:
+        # Update existing record (mark as Out Storage)
+        cur.execute("""
+            UPDATE Warehouse_db
+            SET Status = ?, Last_Update_Out = ?
+            WHERE Serial_Number = ?
+        """, (status, now, serial_number))
+
     conn.commit()
     conn.close()
 
     return redirect(url_for("racking_view"))
 
-#----------------------------------------------------------------------------------------
-# ➕ Add new item
-@app.route("/addItem", methods=["POST"])
-def addItem():
-    try:
-        serial_number = request.form.get("serial_number")
-        kanban_location = request.form.get("kanban_location")
-        status = request.form.get("Status")
-        
-        # Validation
-        if not serial_number or not kanban_location or not status:
-            flash("Please fill in all required fields.", 'error')
-            return redirect(url_for("index"))
-        
-        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # ✅ MS Access-friendly timestamp
-        
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO Warehouse_db (Serial_Number, Kanban_Location, Status, Last_Update_In, Last_Update_Out)
-            VALUES (?, ?, ?, ?, ?)
-        """, (
-            serial_number,
-            kanban_location,
-            status,
-            now_str if status == "In Storage" else None,
-            now_str if status == "Out Storage" else None
-        ))
-        conn.commit()
-        conn.close()
-        
-        # Flash success message
-        flash(f"Serial number {serial_number} added successfully.", 'success')
-        
-    except Exception as e:
-        flash(f"Error occurred during processing: {str(e)}", 'error')
-        
-    return redirect(url_for("index"))  # ✅ redirect to index page
 
 
-#----------------------------------------------------------------------------------------
-
-
-# 🔍 Search serial number
+# 🔍 Search serial number 
 @app.route("/search", methods=["POST"])
 def search():
     serial_number = request.form.get("serial_number")
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "SELECT Serial_Number, Status, Kanban_Location FROM Warehouse_db WHERE Serial_Number = ?",
+        """
+        SELECT Serial_Number, Kanban_Location, Status, Last_Update_In, Last_Update_Out
+        FROM Warehouse_db
+        WHERE Serial_Number = ?
+        """,
         (serial_number,)
     )
     row = cur.fetchone()
     conn.close()
 
     if row:
-        return render_template("warehouse-racking.html", search_result=row)
+        return render_template("warehouse-racking.html", search_result=row, active_tab="search")
     else:
         flash(f"Serial number {serial_number} not found!")
         return redirect(url_for("warehouse_racking"))
+
 
 
 # ✅ Update status to "Out Storage"

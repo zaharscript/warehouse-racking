@@ -3,20 +3,10 @@ let currentOperation = "in";
 let currentZoom = 1;
 let warehouseData = [];
 
-// Sample data for demonstration with updated locations
-const sampleItems = [
-  {
-    id: "ITM001",
-    name: "Laptop Dell XPS 13",
-    category: "electronics",
-    location: "A2",
-    quantity: 15,
-  },
-];
-
 // Tab switching functionality
-function switchTab(tabName) {
-  // Remove active class from all tabs and content
+function switchTab(tabName, e) {
+  if (e) e.preventDefault();
+
   document
     .querySelectorAll(".nav-tab")
     .forEach((tab) => tab.classList.remove("active"));
@@ -24,11 +14,10 @@ function switchTab(tabName) {
     .querySelectorAll(".tab-content")
     .forEach((content) => content.classList.remove("active"));
 
-  // Add active class to selected tab and content
-  event.target.classList.add("active");
+  document
+    .querySelector(`.nav-tab[onclick*="${tabName}"]`)
+    .classList.add("active");
   document.getElementById(tabName).classList.add("active");
-
-  // Add fade-in animation
   document.getElementById(tabName).classList.add("fade-in");
 }
 
