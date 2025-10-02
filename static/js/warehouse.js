@@ -321,3 +321,15 @@ function pushOutFromSlot() {
   const serial = document.getElementById("searchItemId").value;
   document.getElementById("serial_number_input").value = serial;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Find all flash messages
+  const flashMessages = document.querySelectorAll(".flash-message");
+
+  flashMessages.forEach((msg) => {
+    // After 3 seconds, fade out
+    setTimeout(() => {
+      msg.style.animation = "fadeOut 0.8s ease forwards";
+    }, 3000); // 3 seconds visible
+  });
+});

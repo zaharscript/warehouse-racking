@@ -28,11 +28,10 @@ def index():
     conn.close()
     return render_template("index.html", items=rows)
 
+
 # New route for warehouse-racking.html
 @app.route("/racking", methods=["GET"])
 def racking_view():
-    """Serve warehouse-racking.html page"""
-    # if this page also needs database data, fetch it here
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -43,7 +42,13 @@ def racking_view():
     rows = cur.fetchall()
     conn.close()
 
-    return render_template("warehouse-racking.html", items=rows)
+    active_tab = request.args.get("tab", "registration")
+    error_serial = request.args.get("error_serial")  # 👈 capture error serial if any
+
+    return render_template("warehouse-racking.html", items=rows,
+                           active_tab=active_tab, error_serial=error_serial)
+
+
 
 @app.route("/update_status/<serial>", methods=["POST"])
 def update_status(serial):
@@ -191,7 +196,8 @@ def search():
         return render_template("warehouse-racking.html", search_result=row, active_tab="search")
     else:
         flash(f"Serial number {serial_number} not found!")
-        return redirect(url_for("warehouse_racking"))
+        return redirect(url_for("racking_view", tab="search", error_serial=serial_number))
+
 
 
 

@@ -13,6 +13,18 @@
         <!-- Header with Navigation and Statistics -->
         <div class="header">
             <h1>Warehouse Tracking System</h1>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
 
             <div class="nav-tabs">
                 <button class="nav-tab {% if active_tab == 'registration' or not active_tab %}active{% endif %}"
@@ -38,6 +50,16 @@
         </div>
 
         <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul class="flash-messages">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
             <!-- Form Section -->
             <div class="form-section">
                 <!-- Registration Tab -->
@@ -79,9 +101,12 @@
                         <div class="form-grid">
                             <div class="form-group" style="flex: 2;">
                                 <label for="searchItemId">Find the Serial Number</label>
-                                <input type="text" id="searchItemId" class="form-control" name="serial_number" required
-                                    placeholder="Enter Serial Number">
+                                <input type="text" id="searchItemId"
+                                    class="form-control {% if error_serial %}input-error{% endif %}"
+                                    name="serial_number" value="{% if error_serial %}{{ error_serial }}{% endif %}"
+                                    required placeholder="Enter Serial Number">
                             </div>
+
                             <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
                                 <button type="submit" class="btn btn-search" onclick="findRecord()">Find Record
                                     🔍</button>
