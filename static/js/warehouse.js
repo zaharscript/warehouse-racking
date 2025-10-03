@@ -333,3 +333,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3000); // 3 seconds visible
   });
 });
+
+// show a confirm() popup to set the hidden input
+
+document.addEventListener("DOMContentLoaded", () => {
+  const flashWarning = document.querySelector(".flash-message.warning");
+  const confirmedInput = document.getElementById("confirmed");
+
+  if (flashWarning && confirmedInput) {
+    // Show popup confirmation
+    const proceed = confirm(
+      flashWarning.textContent + "\n\nClick OK to confirm."
+    );
+    if (proceed) {
+      confirmedInput.value = "yes";
+      document.querySelector("form").submit();
+    }
+  }
+});

@@ -150,28 +150,68 @@ def add_item_racking():
     status = request.form["Status"]
     now = datetime.now()
 
+    # Confirmation flag (hidden input in form if user already confirmed)
+    confirmed = request.form.get("confirmed", "no")
+
     conn = get_conn()
     cur = conn.cursor()
 
-    if status == "In Storage":
-        # Insert new record
+    # 🔎 Check if serial already exists
+    cur.execute("""
+        SELECT Serial_Number, Kanban_Location, Status
+        FROM Warehouse_db
+        WHERE Serial_Number = ?
+    """, (serial_number,))
+    existing = cur.fetchone()
+
+    if existing:
+        # Case 1: already in DB, and status is In Storage
+        if status == "In Storage":
+            old_location = existing.Kanban_Location
+
+            if old_location != kanban_location and confirmed != "yes":
+                # Ask for confirmation instead of updating right away
+                conn.close()
+                flash(f"⚠️ Serial {serial_number} already exists at {old_location}. "
+                      f"Do you want to move it to {kanban_location}?", "warning")
+
+                # Render the same form but include hidden confirmation
+                return render_template(
+                    "warehouse-racking.html",
+                    confirm_serial=serial_number,
+                    confirm_location=kanban_location,
+                    confirm_status=status,
+                    active_tab="registration"
+                )
+
+            # User already confirmed → update location
+            cur.execute("""
+                UPDATE Warehouse_db
+                SET Kanban_Location = ?, Status = ?, Last_Update_In = ?, Last_Update_Out = NULL
+                WHERE Serial_Number = ?
+            """, (kanban_location, status, now, serial_number))
+
+        else:
+            # Case 2: status "Out Storage" → mark as out
+            cur.execute("""
+                UPDATE Warehouse_db
+                SET Status = ?, Last_Update_Out = ?
+                WHERE Serial_Number = ?
+            """, (status, now, serial_number))
+    else:
+        # Case 3: new serial → insert
         cur.execute("""
             INSERT INTO [Warehouse_db] 
             ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
             VALUES (?, ?, ?, ?, ?)
         """, (serial_number, kanban_location, status, now, None))
-    else:
-        # Update existing record (mark as Out Storage)
-        cur.execute("""
-            UPDATE Warehouse_db
-            SET Status = ?, Last_Update_Out = ?
-            WHERE Serial_Number = ?
-        """, (status, now, serial_number))
 
     conn.commit()
     conn.close()
 
-    return redirect(url_for("racking_view"))
+     flash(f"✅ Serial {serial_number} saved successfully!", "success")
+    return redirect(url_for("racking_view", tab="registration"))
+
 
 
 
