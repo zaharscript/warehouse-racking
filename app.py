@@ -156,6 +156,19 @@ def add_item_racking():
     conn = get_conn()
     cur = conn.cursor()
 
+        # 🔍 Check if the location is already occupied
+    cur.execute("""
+        SELECT COUNT(*) FROM Warehouse_db
+        WHERE Kanban_Location = ? AND Status = 'In Storage'
+    """, (kanban_location,))
+    location_exists = cur.fetchone()[0]
+
+    if location_exists > 0:
+        conn.close()
+        flash(f"❌ Location '{kanban_location}' is already occupied! Please choose another slot.")
+        return redirect(url_for("racking_view"))
+
+
     # 🔎 Check if serial already exists
     cur.execute("""
         SELECT Serial_Number, Kanban_Location, Status
@@ -209,7 +222,7 @@ def add_item_racking():
     conn.commit()
     conn.close()
 
-     flash(f"✅ Serial {serial_number} saved successfully!", "success")
+    flash(f"✅ Serial {serial_number} saved successfully!", "success")
     return redirect(url_for("racking_view", tab="registration"))
 
 
