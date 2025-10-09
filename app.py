@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "supersecret"  # needed for flash messages
 
 # === CONFIG ===
-DB_PATH = r"C:\Users\Admin\OneDrive\Pictures\agv\Warehouse-tracking.accdb"
+DB_PATH = r"C:\Users\Admin\OneDrive\Pictures\agv\static\Warehouse-tracking.accdb"
 CONN_STR = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
     f"DBQ={DB_PATH};"

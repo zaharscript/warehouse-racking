@@ -9,15 +9,16 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
     color: #333;
+    padding: 20px;
 }
 
 .container {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
-    padding: 20px;
+    /* padding: 20px;
     height: 100vh;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; */
 }
 
 /* Header */

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Racking Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .racking-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .racking-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .racking-title {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .racking-grid {
+            display: flex;
+            gap: 2px;
+            position: relative;
+        }
+
+        .level-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .level-row {
+            display: flex;
+            gap: 2px;
+            height: 60px;
+        }
+
+        .cell {
+            min-width: 85px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cell:hover::before {
+            opacity: 1;
+        }
+
+        .cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        /* Occupied cells - Red gradient */
+        .cell.occupied-high {
+            background: linear-gradient(135deg, #8b0000 0%, #b22222 100%);
+        }
+
+        .cell.occupied-medium {
+            background: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);
+        }
+
+        .cell.occupied-low {
+            background: linear-gradient(135deg, #dc143c 0%, #ff6b6b 100%);
+        }
+
+        /* Available cells - Green gradient */
+        .cell.available-high {
+            background: linear-gradient(135deg, #006400 0%, #228b22 100%);
+        }
+
+        .cell.available-medium {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .cell.available-low {
+            background: linear-gradient(135deg, #3cb371 0%, #90ee90 100%);
+        }
+
+        .level-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-left: 10px;
+        }
+
+        .level-label {
+            height: 60px;
+            min-width: 100px;
+            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tooltip.show {
+            display: block;
+        }
+
+        .tooltip-row {
+            margin: 5px 0;
+        }
+
+        .tooltip-label {
+            color: #ffa500;
+            font-weight: bold;
+        }
+
+        .legend {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 40px;
+            height: 25px;
+            border-radius: 5px;
+        }
+
+        .legend-text {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .search-box {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .cell.highlight {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(255, 215, 0, 1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search location ID (e.g., R1_A4_12)">
+            <button class="control-btn" onclick="filterStatus('all')">Show All</button>
+            <button class="control-btn" onclick="filterStatus('occupied')">Occupied Only</button>
+            <button class="control-btn" onclick="filterStatus('available')">Available Only</button>
+            <button class="control-btn" onclick="randomizeData()">Randomize Data</button>
+        </div>
+
+        <div class="racking-section">
+            <div class="racking-header">
+                <div class="icon">⚡</div>
+                <div class="racking-title">RACKING 1</div>
+            </div>
+            <div class="racking-grid">
+                <div id="racking1" class="level-column"></div>
+                <div class="level-labels">
+                    <div class="level-label">4th Level</div>
+                    <div class="level-label">3rd Level</div>
+                    <div class="level-label">2nd Level</div>
+                    <div class="level-label">Floor Level</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="racking-section">
+            <div class="racking-header">
+                <div class="icon">🚛</div>
+                <div class="racking-title">RACKING 2</div>
+            </div>
+            <div class="racking-grid">
+                <div id="racking2" class="level-column"></div>
+                <div class="level-labels">
+                    <div class="level-label">4th Level</div>
+                    <div class="level-label">3rd Level</div>
+                    <div class="level-label">2nd Level</div>
+                    <div class="level-label">Floor Level</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #8b0000 0%, #b22222 100%);"></div>
+                <div class="legend-text">High Occupancy</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);"></div>
+                <div class="legend-text">Medium Occupancy</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #dc143c 0%, #ff6b6b 100%);"></div>
+                <div class="legend-text">Low Occupancy</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #006400 0%, #228b22 100%);"></div>
+                <div class="legend-text">Available (Recent)</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);"></div>
+                <div class="legend-text">Available (Medium)</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #3cb371 0%, #90ee90 100%);"></div>
+                <div class="legend-text">Available (Standard)</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+        const levels = ['A4', 'A3', 'A2', 'A1'];
+        const cellsPerLevel = [12, 12, 12, 6];
+
+        let rackingData = {};
+
+        function generateRackingData(rackNum) {
+            const data = {};
+            levels.forEach((level, levelIndex) => {
+                for (let i = 1; i <= cellsPerLevel[levelIndex]; i++) {
+                    const id = `R${rackNum}_${level}_${String(i).padStart(2, '0')}`;
+                    const isOccupied = Math.random() > 0.3;
+                    const intensity = Math.random();
+
+                    data[id] = {
+                        id: id,
+                        level: level,
+                        status: isOccupied ? 'occupied' : 'available',
+                        occupancy: isOccupied ? Math.floor(60 + intensity * 40) : 0,
+                        items: isOccupied ? Math.floor(10 + Math.random() * 50) : 0,
+                        lastUpdated: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+                        intensity: intensity
+                    };
+                }
+            });
+            return data;
+        }
+
+        function getCellClass(cell) {
+            if (cell.status === 'occupied') {
+                if (cell.intensity > 0.66) return 'occupied-high';
+                if (cell.intensity > 0.33) return 'occupied-medium';
+                return 'occupied-low';
+            } else {
+                if (cell.intensity > 0.66) return 'available-high';
+                if (cell.intensity > 0.33) return 'available-medium';
+                return 'available-low';
+            }
+        }
+
+        function createRacking(rackNum, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            levels.forEach((level, levelIndex) => {
+                const row = document.createElement('div');
+                row.className = 'level-row';
+
+                for (let i = 1; i <= cellsPerLevel[levelIndex]; i++) {
+                    const id = `R${rackNum}_${level}_${String(i).padStart(2, '0')}`;
+                    const cellData = rackingData[id];
+
+                    const cell = document.createElement('div');
+                    cell.className = `cell ${getCellClass(cellData)}`;
+                    cell.textContent = id;
+                    cell.dataset.id = id;
+
+                    cell.addEventListener('mouseenter', (e) => showTooltip(e, cellData));
+                    cell.addEventListener('mousemove', (e) => moveTooltip(e));
+                    cell.addEventListener('mouseleave', hideTooltip);
+                    cell.addEventListener('click', () => handleCellClick(cellData));
+
+                    row.appendChild(cell);
+                }
+
+                container.appendChild(row);
+            });
+        }
+
+        function showTooltip(e, data) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.innerHTML = `
+                <div class="tooltip-row"><span class="tooltip-label">Location:</span> ${data.id}</div>
+                <div class="tooltip-row"><span class="tooltip-label">Status:</span> ${data.status.toUpperCase()}</div>
+                <div class="tooltip-row"><span class="tooltip-label">Occupancy:</span> ${data.occupancy}%</div>
+                <div class="tooltip-row"><span class="tooltip-label">Items:</span> ${data.items}</div>
+                <div class="tooltip-row"><span class="tooltip-label">Last Updated:</span> ${data.lastUpdated}</div>
+            `;
+            tooltip.classList.add('show');
+            moveTooltip(e);
+        }
+
+        function moveTooltip(e) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+
+        function handleCellClick(data) {
+            alert(`Location: ${data.id}\nStatus: ${data.status}\nOccupancy: ${data.occupancy}%\nItems: ${data.items}\n\nClick OK to continue`);
+        }
+
+        function filterStatus(status) {
+            document.querySelectorAll('.cell').forEach(cell => {
+                const id = cell.dataset.id;
+                const data = rackingData[id];
+
+                if (status === 'all') {
+                    cell.style.display = 'flex';
+                } else if (status === data.status) {
+                    cell.style.display = 'flex';
+                } else {
+                    cell.style.display = 'none';
+                }
+            });
+
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function randomizeData() {
+            rackingData = {
+                ...generateRackingData(1),
+                ...generateRackingData(2)
+            };
+            createRacking(1, 'racking1');
+            createRacking(2, 'racking2');
+        }
+
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toUpperCase();
+
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('highlight');
+                if (searchTerm && cell.dataset.id.includes(searchTerm)) {
+                    cell.classList.add('highlight');
+                    cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        });
+
+        // Initialize
+        rackingData = {
+            ...generateRackingData(1),
+            ...generateRackingData(2)
+        };
+        createRacking(1, 'racking1');
+        createRacking(2, 'racking2');
+    </script>
+</body>
+
+</html>
