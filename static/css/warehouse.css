@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     min-height: 100vh;
     color: #333;
     padding: 20px;
@@ -15,10 +15,10 @@ body {
 .container {
     max-width: 1600px;
     margin: 0 auto;
-    /* padding: 20px;
+    padding: 20px;
     height: 100vh;
     display: flex;
-    flex-direction: column; */
+    flex-direction: column;
 }
 
 /* Header */
@@ -254,6 +254,7 @@ body {
 }
 
 .map-container {
+    /* height: 50vh; */
     height: calc(100% - 60px);
     overflow: auto;
     position: relative;

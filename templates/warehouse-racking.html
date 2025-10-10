@@ -7,24 +7,6 @@
     <title>Warehouse Tracking System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
         .racking-wrapper {
             overflow-x: auto;
             overflow-y: hidden;
@@ -68,10 +50,11 @@
         }
 
         .racking-title {
-            color: white;
+            color: rgb(103, 51, 226);
             font-size: 28px;
             font-weight: bold;
             letter-spacing: 2px;
+
         }
 
         .icon {
@@ -145,30 +128,17 @@
         }
 
         /* Occupied cells - Red gradient */
-        .cell.occupied-high {
+        .cell.occupied {
             background: linear-gradient(135deg, #8b0000 0%, #b22222 100%);
         }
 
-        .cell.occupied-medium {
-            background: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);
-        }
-
-        .cell.occupied-low {
-            background: linear-gradient(135deg, #dc143c 0%, #ff6b6b 100%);
-        }
-
         /* Available cells - Green gradient */
-        .cell.available-high {
+        .cell.available {
             background: linear-gradient(135deg, #006400 0%, #228b22 100%);
         }
 
-        .cell.available-medium {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        }
 
-        .cell.available-low {
-            background: linear-gradient(135deg, #3cb371 0%, #90ee90 100%);
-        }
+
 
         .level-labels {
             display: flex;
@@ -223,7 +193,7 @@
             gap: 30px;
             margin-top: 20px;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(7, 72, 168, 0.8);
             border-radius: 10px;
             flex-wrap: wrap;
         }
@@ -550,7 +520,7 @@
                 <div class="warehouse-map" id="warehouseMap">
                     <div class="container">
                         <div class="controls">
-                            <input type="text" class="search-box" id="searchBox"
+                            <input type="text" class="search-box" id="location"
                                 placeholder="Search location ID (e.g., R1_A4_12)">
                             <button class="control-btn" onclick="filterStatus('all')">Show All</button>
                             <button class="control-btn" onclick="filterStatus('occupied')">Occupied Only</button>
@@ -560,67 +530,46 @@
 
                         <div class="racking-section">
                             <div class="racking-header">
-                                <div class="icon">⚡</div>
+                                <div class="icon">📦</div>
                                 <div class="racking-title">RACKING 1</div>
                             </div>
-                            <div class="racking-grid">
-                                <div id="racking1" class="level-column"></div>
-                                <div class="level-labels">
-                                    <div class="level-label">4th Level</div>
-                                    <div class="level-label">3rd Level</div>
-                                    <div class="level-label">2nd Level</div>
-                                    <div class="level-label">Floor Level</div>
+                            <div class="racking-wrapper">
+                                <div class="racking-grid">
+                                    <div id="racking1" class="level-column"></div>
+                                    <div class="level-labels">
+                                        <div class="level-label">4th Level</div>
+                                        <div class="level-label">3rd Level</div>
+                                        <div class="level-label">2nd Level</div>
+                                        <div class="level-label">Floor Level</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="racking-section">
+
+
                             <div class="racking-header">
-                                <div class="icon">🚛</div>
+                                <div class="icon">📦</div>
                                 <div class="racking-title">RACKING 2</div>
                             </div>
-                            <div class="racking-grid">
-                                <div id="racking2" class="level-column"></div>
-                                <div class="level-labels">
-                                    <div class="level-label">4th Level</div>
-                                    <div class="level-label">3rd Level</div>
-                                    <div class="level-label">2nd Level</div>
-                                    <div class="level-label">Floor Level</div>
+                            <div class="racking-wrapper">
+                                <div class="racking-grid">
+                                    <div id="racking2" class="level-column"></div>
+                                    <div class="level-labels">
+                                        <div class="level-label">4th Level</div>
+                                        <div class="level-label">3rd Level</div>
+                                        <div class="level-label">2nd Level</div>
+                                        <div class="level-label">Floor Level</div>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
 
+
+
                         <div class="legend">
-                            <div class="legend-item">
-                                <div class="legend-color"
-                                    style="background: linear-gradient(135deg, #8b0000 0%, #b22222 100%);"></div>
-                                <div class="legend-text">High Occupancy</div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color"
-                                    style="background: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);"></div>
-                                <div class="legend-text">Medium Occupancy</div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color"
-                                    style="background: linear-gradient(135deg, #dc143c 0%, #ff6b6b 100%);"></div>
-                                <div class="legend-text">Low Occupancy</div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color"
-                                    style="background: linear-gradient(135deg, #006400 0%, #228b22 100%);"></div>
-                                <div class="legend-text">Available (Recent)</div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color"
-                                    style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);"></div>
-                                <div class="legend-text">Available (Medium)</div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color"
-                                    style="background: linear-gradient(135deg, #3cb371 0%, #90ee90 100%);"></div>
-                                <div class="legend-text">Available (Standard)</div>
-                            </div>
+                            <div class="legend-item">Occupied (Red)</div>
+                            <div class="legend-item">Available (Green)</div>
                         </div>
                     </div>
 
@@ -661,13 +610,9 @@
 
                     function getCellClass(cell) {
                         if (cell.status === 'occupied') {
-                            if (cell.intensity > 0.66) return 'occupied-high';
-                            if (cell.intensity > 0.33) return 'occupied-medium';
-                            return 'occupied-low';
+                            return 'occupied';
                         } else {
-                            if (cell.intensity > 0.66) return 'available-high';
-                            if (cell.intensity > 0.33) return 'available-medium';
-                            return 'available-low';
+                            return 'available';
                         }
                     }
 
@@ -688,10 +633,12 @@
                                 cell.textContent = id;
                                 cell.dataset.id = id;
 
-                                cell.addEventListener('mouseenter', (e) => showTooltip(e, cellData));
+                                cell.addEventListener('mouseenter', (e) => {
+                                    showTooltip(e, cellData);
+                                    updateSearchBox(cellData.id);
+                                });
                                 cell.addEventListener('mousemove', (e) => moveTooltip(e));
                                 cell.addEventListener('mouseleave', hideTooltip);
-                                cell.addEventListener('click', () => handleCellClick(cellData));
 
                                 row.appendChild(cell);
                             }
@@ -703,12 +650,12 @@
                     function showTooltip(e, data) {
                         const tooltip = document.getElementById('tooltip');
                         tooltip.innerHTML = `
-                <div class="tooltip-row"><span class="tooltip-label">Location:</span> ${data.id}</div>
-                <div class="tooltip-row"><span class="tooltip-label">Status:</span> ${data.status.toUpperCase()}</div>
-                <div class="tooltip-row"><span class="tooltip-label">Occupancy:</span> ${data.occupancy}%</div>
-                <div class="tooltip-row"><span class="tooltip-label">Items:</span> ${data.items}</div>
-                <div class="tooltip-row"><span class="tooltip-label">Last Updated:</span> ${data.lastUpdated}</div>
-            `;
+                            <div class="tooltip-row"><span class="tooltip-label">Location:</span> ${data.id}</div>
+                            <div class="tooltip-row"><span class="tooltip-label">Status:</span> ${data.status.toUpperCase()}</div>
+                            <div class="tooltip-row"><span class="tooltip-label">Occupancy:</span> ${data.occupancy}%</div>
+                            <div class="tooltip-row"><span class="tooltip-label">Items:</span> ${data.items}</div>
+                            <div class="tooltip-row"><span class="tooltip-label">Last Updated:</span> ${data.lastUpdated}</div>
+                        `;
                         tooltip.classList.add('show');
                         moveTooltip(e);
                     }
@@ -723,8 +670,17 @@
                         document.getElementById('tooltip').classList.remove('show');
                     }
 
-                    function handleCellClick(data) {
-                        alert(`Location: ${data.id}\nStatus: ${data.status}\nOccupancy: ${data.occupancy}%\nItems: ${data.items}\n\nClick OK to continue`);
+                    function updateSearchBox(locationId) {
+                        const searchBox = document.getElementById('location');
+                        searchBox.value = locationId;
+
+                        // Trigger the search highlighting
+                        document.querySelectorAll('.cell').forEach(cell => {
+                            cell.classList.remove('highlight');
+                            if (cell.dataset.id === locationId) {
+                                cell.classList.add('highlight');
+                            }
+                        });
                     }
 
                     function filterStatus(status) {
@@ -756,7 +712,7 @@
                         createRacking(2, 'racking2');
                     }
 
-                    document.getElementById('searchBox').addEventListener('input', (e) => {
+                    document.getElementById('location').addEventListener('input', (e) => {
                         const searchTerm = e.target.value.toUpperCase();
 
                         document.querySelectorAll('.cell').forEach(cell => {

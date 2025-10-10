@@ -24,6 +24,32 @@
             margin: 0 auto;
         }
 
+        .racking-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 165, 0, 0.5) rgba(255, 255, 255, 0.1);
+        }
+
+        .racking-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .racking-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .racking-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 165, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        .racking-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 165, 0, 0.7);
+        }
+
         .racking-section {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
@@ -62,6 +88,7 @@
             display: flex;
             gap: 2px;
             position: relative;
+            min-width: max-content;
         }
 
         .level-column {
@@ -116,23 +143,7 @@
             z-index: 10;
         }
 
-        /* Occupied cells - Red gradient */
-        .cell.occupied-high {
-            background: linear-gradient(135deg, #8b0000 0%, #b22222 100%);
-        }
 
-        .cell.occupied-medium {
-            background: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);
-        }
-
-        .cell.occupied-low {
-            background: linear-gradient(135deg, #dc143c 0%, #ff6b6b 100%);
-        }
-
-        /* Available cells - Green gradient */
-        .cell.available-high {
-            background: linear-gradient(135deg, #006400 0%, #228b22 100%);
-        }
 
         .cell.available-medium {
             background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
@@ -223,6 +234,13 @@
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(30, 60, 114, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
         }
 
         .control-btn {
@@ -261,6 +279,65 @@
             color: rgba(255, 255, 255, 0.6);
         }
 
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .controls {
+                position: sticky;
+                top: 0;
+                background: rgba(30, 60, 114, 0.98);
+                padding: 10px;
+                margin-bottom: 15px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+
+            .search-box {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .control-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .racking-section {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .racking-title {
+                font-size: 20px;
+            }
+
+            .cell {
+                min-width: 70px;
+                font-size: 9px;
+            }
+
+            .level-label {
+                min-width: 80px;
+                font-size: 11px;
+            }
+
+            .legend {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .legend-text {
+                font-size: 12px;
+            }
+
+            .tooltip {
+                font-size: 11px;
+                padding: 10px;
+                max-width: 200px;
+            }
+        }
+
         .cell.highlight {
             animation: pulse 1s infinite;
         }
@@ -294,13 +371,15 @@
                 <div class="icon">⚡</div>
                 <div class="racking-title">RACKING 1</div>
             </div>
-            <div class="racking-grid">
-                <div id="racking1" class="level-column"></div>
-                <div class="level-labels">
-                    <div class="level-label">4th Level</div>
-                    <div class="level-label">3rd Level</div>
-                    <div class="level-label">2nd Level</div>
-                    <div class="level-label">Floor Level</div>
+            <div class="racking-wrapper">
+                <div class="racking-grid">
+                    <div id="racking1" class="level-column"></div>
+                    <div class="level-labels">
+                        <div class="level-label">4th Level</div>
+                        <div class="level-label">3rd Level</div>
+                        <div class="level-label">2nd Level</div>
+                        <div class="level-label">Floor Level</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -310,13 +389,15 @@
                 <div class="icon">🚛</div>
                 <div class="racking-title">RACKING 2</div>
             </div>
-            <div class="racking-grid">
-                <div id="racking2" class="level-column"></div>
-                <div class="level-labels">
-                    <div class="level-label">4th Level</div>
-                    <div class="level-label">3rd Level</div>
-                    <div class="level-label">2nd Level</div>
-                    <div class="level-label">Floor Level</div>
+            <div class="racking-wrapper">
+                <div class="racking-grid">
+                    <div id="racking2" class="level-column"></div>
+                    <div class="level-labels">
+                        <div class="level-label">4th Level</div>
+                        <div class="level-label">3rd Level</div>
+                        <div class="level-label">2nd Level</div>
+                        <div class="level-label">Floor Level</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -324,27 +405,11 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color" style="background: linear-gradient(135deg, #8b0000 0%, #b22222 100%);"></div>
-                <div class="legend-text">High Occupancy</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);"></div>
-                <div class="legend-text">Medium Occupancy</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #dc143c 0%, #ff6b6b 100%);"></div>
-                <div class="legend-text">Low Occupancy</div>
+                <div class="legend-text">Occupied</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: linear-gradient(135deg, #006400 0%, #228b22 100%);"></div>
-                <div class="legend-text">Available (Recent)</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);"></div>
-                <div class="legend-text">Available (Medium)</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #3cb371 0%, #90ee90 100%);"></div>
-                <div class="legend-text">Available (Standard)</div>
+                <div class="legend-text">Available</div>
             </div>
         </div>
     </div>
@@ -353,14 +418,19 @@
 
     <script>
         const levels = ['A4', 'A3', 'A2', 'A1'];
-        const cellsPerLevel = [12, 12, 12, 6];
+        const rackingConfig = {
+            1: { slots: 18 },  // R1 has 18 slots per level
+            2: { slots: 16 }   // R2 has 16 slots per level
+        };
 
         let rackingData = {};
 
         function generateRackingData(rackNum) {
             const data = {};
-            levels.forEach((level, levelIndex) => {
-                for (let i = 1; i <= cellsPerLevel[levelIndex]; i++) {
+            const totalSlots = rackingConfig[rackNum].slots;
+
+            levels.forEach((level) => {
+                for (let i = 1; i <= totalSlots; i++) {
                     const id = `R${rackNum}_${level}_${String(i).padStart(2, '0')}`;
                     const isOccupied = Math.random() > 0.3;
                     const intensity = Math.random();
@@ -381,25 +451,23 @@
 
         function getCellClass(cell) {
             if (cell.status === 'occupied') {
-                if (cell.intensity > 0.66) return 'occupied-high';
-                if (cell.intensity > 0.33) return 'occupied-medium';
-                return 'occupied-low';
+                return 'occupied';
             } else {
-                if (cell.intensity > 0.66) return 'available-high';
-                if (cell.intensity > 0.33) return 'available-medium';
-                return 'available-low';
+                return 'available';
             }
         }
 
         function createRacking(rackNum, containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
+            const totalSlots = rackingConfig[rackNum].slots;
 
-            levels.forEach((level, levelIndex) => {
+            levels.forEach((level) => {
                 const row = document.createElement('div');
                 row.className = 'level-row';
 
-                for (let i = 1; i <= cellsPerLevel[levelIndex]; i++) {
+                // Create slots from right to left (18 to 1 or 16 to 1)
+                for (let i = totalSlots; i >= 1; i--) {
                     const id = `R${rackNum}_${level}_${String(i).padStart(2, '0')}`;
                     const cellData = rackingData[id];
 
@@ -408,10 +476,12 @@
                     cell.textContent = id;
                     cell.dataset.id = id;
 
-                    cell.addEventListener('mouseenter', (e) => showTooltip(e, cellData));
+                    cell.addEventListener('mouseenter', (e) => {
+                        showTooltip(e, cellData);
+                        updateSearchBox(cellData.id);
+                    });
                     cell.addEventListener('mousemove', (e) => moveTooltip(e));
                     cell.addEventListener('mouseleave', hideTooltip);
-                    cell.addEventListener('click', () => handleCellClick(cellData));
 
                     row.appendChild(cell);
                 }
@@ -443,8 +513,17 @@
             document.getElementById('tooltip').classList.remove('show');
         }
 
-        function handleCellClick(data) {
-            alert(`Location: ${data.id}\nStatus: ${data.status}\nOccupancy: ${data.occupancy}%\nItems: ${data.items}\n\nClick OK to continue`);
+        function updateSearchBox(locationId) {
+            const searchBox = document.getElementById('searchBox');
+            searchBox.value = locationId;
+
+            // Trigger the search highlighting
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('highlight');
+                if (cell.dataset.id === locationId) {
+                    cell.classList.add('highlight');
+                }
+            });
         }
 
         function filterStatus(status) {
