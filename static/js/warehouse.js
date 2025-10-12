@@ -1,7 +1,10 @@
 // Global variables
 let currentOperation = "in";
 let currentZoom = 1;
-let warehouseData = [];
+let rackingData = {};
+
+// Check if warehouseData exists (passed from Flask template)
+const hasRealData = typeof warehouseData !== "undefined";
 
 // Tab switching functionality
 function switchTab(tabName, e) {
@@ -80,54 +83,7 @@ function processRegistration() {
   }, 1500);
 }
 
-// Search items
-function searchItems() {
-  const searchItemId = document
-    .getElementById("searchItemId")
-    .value.toLowerCase();
-  const searchItemName = document
-    .getElementById("searchItemName")
-    .value.toLowerCase();
-  const searchCategory = document.getElementById("searchCategory").value;
-  const searchLocation = document.getElementById("searchLocation").value;
-
-  let results = sampleItems.filter((item) => {
-    return (
-      (!searchItemId || item.id.toLowerCase().includes(searchItemId)) &&
-      (!searchItemName || item.name.toLowerCase().includes(searchItemName)) &&
-      (!searchCategory || item.category === searchCategory) &&
-      (!searchLocation || item.location === searchLocation)
-    );
-  });
-
-  displaySearchResults(results);
-}
-
-// Display search results
-function displaySearchResults(results) {
-  const resultsContainer = document.getElementById("searchResults");
-
-  if (results.length === 0) {
-    resultsContainer.innerHTML =
-      '<div class="search-result-item">No items found matching your criteria.</div>';
-    return;
-  }
-
-  const resultsHTML = results
-    .map(
-      (item) => `
-        <div class="search-result-item">
-            <strong>${item.name}</strong> (${item.id})<br>
-            <small>Category: ${item.category} | Location: Rack ${item.location} | Quantity: ${item.quantity}</small>
-        </div>
-    `
-    )
-    .join("");
-
-  resultsContainer.innerHTML = resultsHTML;
-}
-
-// Update statistics
+// Update statistics based on actual data
 function updateStatistics(operation, quantity) {
   const totalItems = document.getElementById("totalItems");
   const availableSlots = document.getElementById("availableSlots");
@@ -179,44 +135,15 @@ function animateNumber(element, targetValue) {
 // Map functionality
 function zoomMap(factor) {
   currentZoom *= factor;
-  currentZoom = Math.max(0.5, Math.min(3, currentZoom)); // Limit zoom between 0.5x and 3x
+  currentZoom = Math.max(0.5, Math.min(3, currentZoom));
 
   const warehouseMap = document.getElementById("warehouseMap");
   warehouseMap.style.transform = `scale(${currentZoom})`;
   warehouseMap.style.transformOrigin = "top left";
 }
 
-// Select warehouse rack
-function selectRack(rackId) {
-  // Remove previous selections
-  document.querySelectorAll(".rack-slot").forEach((slot) => {
-    slot.style.transform = "";
-    slot.style.boxShadow = "";
-  });
-
-  // Highlight selected rack
-  const selectedRack = event.target.closest(".rack-slot");
-  selectedRack.style.transform = "translateY(-10px) scale(1.05)";
-  selectedRack.style.boxShadow = "0 15px 35px rgba(102, 126, 234, 0.4)";
-
-  // Update location dropdown in registration form
-  document.getElementById("location").value = rackId;
-
-  // Show rack info
-  const isAvailable = selectedRack.classList.contains("available");
-  const status = isAvailable ? "Available" : "Occupied";
-  const statusColor = isAvailable ? "#28a745" : "#007bff";
-
-  // Create a temporary notification
-  showNotification(
-    `Rack ${rackId} is selected - Status: ${status}`,
-    statusColor
-  );
-}
-
 // Show notification function
 function showNotification(message, color = "#667eea") {
-  // Remove existing notification
   const existing = document.querySelector(".notification");
   if (existing) existing.remove();
 
@@ -237,7 +164,6 @@ function showNotification(message, color = "#667eea") {
     `;
   notification.textContent = message;
 
-  // Add slide-in animation
   const style = document.createElement("style");
   style.textContent = `
         @keyframes slideIn {
@@ -249,24 +175,84 @@ function showNotification(message, color = "#667eea") {
 
   document.body.appendChild(notification);
 
-  // Auto remove after 3 seconds
   setTimeout(() => {
     notification.style.animation = "slideIn 0.3s ease reverse";
     setTimeout(() => notification.remove(), 300);
   }, 3000);
 }
 
-// Initialize the application
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("Warehouse Tracking System initialized");
+function handleLocationChange(selectElement) {
+  const locationInput = document.getElementById("location");
+  if (selectElement.value === "Out Storage") {
+    locationInput.disabled = true;
+    locationInput.required = false;
+  } else {
+    locationInput.disabled = false;
+    locationInput.required = true;
+  }
+}
 
-  // Add some sample search results on load
-  setTimeout(() => {
-    displaySearchResults(sampleItems);
-  }, 500);
+function findRecord() {
+  console.log("Find Record clicked");
+}
+
+function clearSearch() {
+  // Clear the search input
+  const searchInput = document.getElementById("searchItemId");
+  if (searchInput) {
+    searchInput.value = "";
+    searchInput.classList.remove("input-error");
+  }
+
+  // Clear the results table
+  const resultsTable = document.querySelector(".search-results");
+  if (resultsTable) {
+    resultsTable.innerHTML = "";
+  }
+
+  // Clear the push out button (it's a sibling of search-results)
+  const pushOutForm = document.querySelector(".btn-push-out");
+  if (pushOutForm && pushOutForm.closest("form")) {
+    pushOutForm.closest("form").remove();
+  }
+
+  // Alternative: reload the page to completely reset the search tab
+  // Uncomment this if you want a full page reload instead:
+  // window.location.href = "{{ url_for('racking_view', tab='search') }}";
+}
+
+function pushOutFromSlot() {
+  const serial = document.getElementById("searchItemId").value;
+  const serialInput = document.getElementById("serial_number_input");
+  if (serialInput) {
+    serialInput.value = serial;
+  }
+}
+
+// Flash message handling
+document.addEventListener("DOMContentLoaded", () => {
+  const flashMessages = document.querySelectorAll(".flash-message");
+  flashMessages.forEach((msg) => {
+    setTimeout(() => {
+      msg.style.animation = "fadeOut 0.8s ease forwards";
+    }, 3000);
+  });
+
+  const flashWarning = document.querySelector(".flash-message.warning");
+  const confirmedInput = document.getElementById("confirmed");
+
+  if (flashWarning && confirmedInput) {
+    const proceed = confirm(
+      flashWarning.textContent + "\n\nClick OK to confirm."
+    );
+    if (proceed) {
+      confirmedInput.value = "yes";
+      document.querySelector("form").submit();
+    }
+  }
 });
 
-// Add keyboard shortcuts
+// Keyboard shortcuts
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey) {
     switch (e.key) {
@@ -283,71 +269,433 @@ document.addEventListener("keydown", function (e) {
           document.getElementById("registration").classList.contains("active")
         ) {
           processRegistration();
-        } else {
-          searchItems();
         }
         break;
     }
   }
 });
 
-function handleLocationChange(selectElement) {
-  const locationInput = document.getElementById("location");
-  if (selectElement.value === "A2") {
-    // "A2" corresponds to "Out Storage"
-    locationInput.disabled = true; // Disable the text box
-  } else {
-    locationInput.disabled = false; // Enable the text box for other options
-  }
-}
+// ============= MAP LOGIC WITH DATABASE INTEGRATION =============
 
-function findRecord() {
-  // Logic to find the record based on the serial number
-  console.log("Find Record clicked");
-}
+const levels = ["A4", "A3", "A2", "A1"];
+const rackingConfig = {
+  1: { slots: 18 }, // R1 has 18 slots per level
+  2: { slots: 16 }, // R2 has 16 slots per level
+};
 
-function clearSearch() {
-  // Logic to clear the search input and results
-  document.getElementById("searchItemId").value = "";
-  document.getElementById("searchResults").innerHTML = "";
-}
+// Generate racking data - NOW INTEGRATED WITH DATABASE
+function generateRackingData(rackNum) {
+  const data = {};
+  const totalSlots = rackingConfig[rackNum].slots;
 
-function pushOutFromSlot() {
-  // Logic to handle pushing out the item from the slot
-  console.log("Push Out From Slot clicked");
-}
+  levels.forEach((level) => {
+    for (let i = 1; i <= totalSlots; i++) {
+      const id = `R${rackNum}_${level}_${String(i).padStart(2, "0")}`;
 
-function pushOutFromSlot() {
-  const serial = document.getElementById("searchItemId").value;
-  document.getElementById("serial_number_input").value = serial;
-}
+      // Check if this location exists in database
+      let status = "available";
+      let serialNumber = null;
+      let lastUpdate = null;
+      let items = 0;
+      let occupancy = 0;
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Find all flash messages
-  const flashMessages = document.querySelectorAll(".flash-message");
+      // Debug: Log the first few checks
+      if (i <= 2) {
+        console.log(`Checking ${id}:`, warehouseData[id]);
+      }
 
-  flashMessages.forEach((msg) => {
-    // After 3 seconds, fade out
-    setTimeout(() => {
-      msg.style.animation = "fadeOut 0.8s ease forwards";
-    }, 3000); // 3 seconds visible
-  });
-});
+      if (hasRealData && warehouseData[id]) {
+        const dbData = warehouseData[id];
+        console.log(`Found data for ${id}:`, dbData);
 
-// show a confirm() popup to set the hidden input
+        // If status is "In Storage", mark as occupied (GREEN)
+        // Otherwise, mark as available (RED)
+        status = dbData.status === "In Storage" ? "occupied" : "available";
+        serialNumber = dbData.serial;
+        lastUpdate = dbData.last_update_in || dbData.last_update_out;
+        items = status === "occupied" ? 1 : 0;
+        occupancy = status === "occupied" ? 100 : 0;
 
-document.addEventListener("DOMContentLoaded", () => {
-  const flashWarning = document.querySelector(".flash-message.warning");
-  const confirmedInput = document.getElementById("confirmed");
+        console.log(`Set ${id} to status: ${status}`);
+      }
 
-  if (flashWarning && confirmedInput) {
-    // Show popup confirmation
-    const proceed = confirm(
-      flashWarning.textContent + "\n\nClick OK to confirm."
-    );
-    if (proceed) {
-      confirmedInput.value = "yes";
-      document.querySelector("form").submit();
+      data[id] = {
+        id: id,
+        level: level,
+        status: status,
+        occupancy: occupancy,
+        items: items,
+        serialNumber: serialNumber,
+        lastUpdated: lastUpdate || "N/A",
+        intensity: status === "occupied" ? 1 : 0,
+      };
     }
+  });
+  return data;
+}
+
+// Get CSS class based on cell status
+function getCellClass(cell) {
+  // occupied = GREEN, available = RED
+  return cell.status === "occupied" ? "occupied" : "available";
+}
+
+// Create and render racking grid
+function createRacking(rackNum, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = "";
+  const totalSlots = rackingConfig[rackNum].slots;
+
+  levels.forEach((level) => {
+    const row = document.createElement("div");
+    row.className = "level-row";
+
+    // Create slots from right to left
+    for (let i = totalSlots; i >= 1; i--) {
+      const id = `R${rackNum}_${level}_${String(i).padStart(2, "0")}`;
+      const cellData = rackingData[id];
+
+      const cell = document.createElement("div");
+      cell.className = `cell ${getCellClass(cellData)}`;
+      cell.textContent = String(i).padStart(2, "0");
+      cell.dataset.id = id;
+
+      cell.addEventListener("mouseenter", (e) => {
+        showTooltip(e, cellData);
+      });
+      cell.addEventListener("mousemove", (e) => moveTooltip(e));
+      cell.addEventListener("mouseleave", hideTooltip);
+      cell.addEventListener("click", () => {
+        updateSearchBox(cellData.id);
+      });
+
+      row.appendChild(cell);
+    }
+
+    container.appendChild(row);
+  });
+
+  // Update statistics after rendering
+  updateStatsFromData();
+}
+
+// Show tooltip with cell information
+function showTooltip(e, data) {
+  const tooltip = document.getElementById("tooltip");
+  if (!tooltip) return;
+
+  let tooltipContent = `
+    <div class="tooltip-row"><span class="tooltip-label">Location:</span> ${
+      data.id
+    }</div>
+    <div class="tooltip-row"><span class="tooltip-label">Status:</span> ${data.status.toUpperCase()}</div>
+  `;
+
+  if (data.status === "occupied" && data.serialNumber) {
+    tooltipContent += `
+      <div class="tooltip-row"><span class="tooltip-label">Serial:</span> ${data.serialNumber}</div>
+      <div class="tooltip-row"><span class="tooltip-label">Last Updated:</span> ${data.lastUpdated}</div>
+    `;
+  } else {
+    tooltipContent += `
+      <div class="tooltip-row"><span class="tooltip-label">Occupancy:</span> ${data.occupancy}%</div>
+    `;
   }
+
+  tooltip.innerHTML = tooltipContent;
+  tooltip.classList.add("show");
+  moveTooltip(e);
+}
+
+// Move tooltip to follow cursor
+function moveTooltip(e) {
+  const tooltip = document.getElementById("tooltip");
+  tooltip.style.left = e.clientX + 15 + "px";
+  tooltip.style.top = e.clientY + 15 + "px";
+}
+
+// Hide tooltip
+function hideTooltip() {
+  const tooltip = document.getElementById("tooltip");
+  if (tooltip) {
+    tooltip.classList.remove("show");
+  }
+}
+
+// Update search box with location ID
+function updateSearchBox(locationId) {
+  const searchBox = document.getElementById("location");
+  if (searchBox) {
+    searchBox.value = locationId;
+
+    // Highlight the selected cell
+    document.querySelectorAll(".cell").forEach((cell) => {
+      cell.classList.remove("highlight");
+      if (cell.dataset.id === locationId) {
+        cell.classList.add("highlight");
+      }
+    });
+  }
+}
+
+// Filter cells by status
+function filterStatus(status) {
+  document.querySelectorAll(".cell").forEach((cell) => {
+    const id = cell.dataset.id;
+    const data = rackingData[id];
+
+    if (status === "all") {
+      cell.style.display = "flex";
+    } else if (status === data.status) {
+      cell.style.display = "flex";
+    } else {
+      cell.style.display = "none";
+    }
+  });
+
+  document.querySelectorAll(".control-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+  if (event && event.target) {
+    event.target.classList.add("active");
+  }
+}
+
+// Randomize data and re-render (for testing only)
+function randomizeData() {
+  if (!confirm("This will randomize the map (test mode). Continue?")) {
+    return;
+  }
+
+  // Generate random data
+  Object.keys(rackingData).forEach((key) => {
+    const isOccupied = Math.random() > 0.5;
+    rackingData[key].status = isOccupied ? "occupied" : "available";
+    rackingData[key].occupancy = isOccupied
+      ? Math.floor(60 + Math.random() * 40)
+      : 0;
+    rackingData[key].items = isOccupied ? Math.floor(1 + Math.random() * 5) : 0;
+    rackingData[key].serialNumber = isOccupied
+      ? `SN${Math.floor(Math.random() * 10000)}`
+      : null;
+    rackingData[key].lastUpdated = new Date().toLocaleDateString();
+  });
+
+  createRacking(1, "racking1");
+  createRacking(2, "racking2");
+}
+
+// Search box event listener
+const locationSearchBox = document.getElementById("location");
+if (locationSearchBox) {
+  locationSearchBox.addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toUpperCase();
+
+    document.querySelectorAll(".cell").forEach((cell) => {
+      cell.classList.remove("highlight");
+      if (searchTerm && cell.dataset.id.includes(searchTerm)) {
+        cell.classList.add("highlight");
+        cell.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+  });
+}
+
+// Update statistics from actual data
+function updateStatsFromData() {
+  const totalSlots = Object.keys(rackingData).length;
+  const occupied = Object.values(rackingData).filter(
+    (item) => item.status === "occupied"
+  ).length;
+  const available = totalSlots - occupied;
+
+  const totalEl = document.getElementById("totalItems");
+  const occupiedEl = document.getElementById("occupiedSlots");
+  const availableEl = document.getElementById("availableSlots");
+
+  if (totalEl) totalEl.textContent = totalSlots;
+  if (occupiedEl) occupiedEl.textContent = occupied;
+  if (availableEl) availableEl.textContent = available;
+}
+
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("========================================");
+  console.log("Warehouse Tracking System initialized");
+  console.log("Has real data:", hasRealData);
+  console.log("Sample warehouse data:", warehouseData);
+  console.log(
+    "Total entries in warehouseData:",
+    Object.keys(warehouseData).length
+  );
+
+  // Show first 3 entries as example
+  const sampleKeys = Object.keys(warehouseData).slice(0, 3);
+  sampleKeys.forEach((key) => {
+    console.log(`  ${key}:`, warehouseData[key]);
+  });
+  console.log("========================================");
+
+  // Generate racking data from database or default
+  rackingData = {
+    ...generateRackingData(1),
+    ...generateRackingData(2),
+  };
+
+  // Count occupied vs available
+  const occupied = Object.values(rackingData).filter(
+    (item) => item.status === "occupied"
+  ).length;
+  const available = Object.values(rackingData).filter(
+    (item) => item.status === "available"
+  ).length;
+  console.log(
+    `Map generated: ${occupied} occupied (GREEN), ${available} available (RED)`
+  );
+
+  // Render both racks
+  createRacking(1, "racking1");
+  createRacking(2, "racking2");
+
+  console.log("Map rendering complete!");
+  console.log("========================================");
 });
+
+// Function to highlight slots when search finds results
+function highlightSearchResults(serialNumber) {
+  console.log("Highlighting slots for serial:", serialNumber);
+
+  // Remove any existing highlights
+  clearSearchHighlights();
+
+  let foundCount = 0;
+
+  // Find all cells with this serial number
+  Object.keys(rackingData).forEach((locationId) => {
+    const cellData = rackingData[locationId];
+
+    if (
+      cellData.serialNumber === serialNumber &&
+      cellData.status === "occupied"
+    ) {
+      // Find the cell element
+      const cellElement = document.querySelector(
+        `.cell[data-id="${locationId}"]`
+      );
+
+      if (cellElement) {
+        // Add search highlight class
+        cellElement.classList.add("search-highlight");
+        foundCount++;
+
+        // Scroll to the first found cell
+        if (foundCount === 1) {
+          cellElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+
+        console.log(`Highlighted ${locationId} with serial ${serialNumber}`);
+      }
+    }
+  });
+
+  // Add search-active class to body to dim other cells
+  if (foundCount > 0) {
+    document.body.classList.add("search-active");
+  }
+
+  console.log(`Total highlighted cells: ${foundCount}`);
+  return foundCount;
+}
+
+// Function to clear all search highlights
+function clearSearchHighlights() {
+  console.log("Clearing search highlights");
+
+  // Remove highlight class from all cells
+  document.querySelectorAll(".cell.search-highlight").forEach((cell) => {
+    cell.classList.remove("search-highlight");
+  });
+
+  // Remove search-active class from body
+  document.body.classList.remove("search-active");
+
+  // Reset any filtered cells
+  document.querySelectorAll(".cell").forEach((cell) => {
+    cell.style.opacity = "1";
+    cell.style.filter = "none";
+  });
+}
+
+// Update the clearSearch function to include resetting slot colors
+function clearSearch() {
+  console.log("Clear button clicked");
+
+  // Clear the search input
+  const searchInput = document.getElementById("searchItemId");
+  if (searchInput) {
+    searchInput.value = "";
+    searchInput.classList.remove("input-error");
+  }
+
+  // Clear the results table
+  const resultsTable = document.querySelector(".search-results");
+  if (resultsTable) {
+    resultsTable.innerHTML = "";
+  }
+
+  // Clear the push out button form
+  const pushOutForm = document.querySelector('form[action*="push_out"]');
+  if (pushOutForm) {
+    pushOutForm.remove();
+  }
+
+  // Clear search highlights (reset to green for occupied, red for available)
+  clearSearchHighlights();
+
+  console.log("Search cleared and slots reset to original colors");
+}
+
+// Check if search results exist on page load and highlight them
+document.addEventListener("DOMContentLoaded", function () {
+  // Wait a bit for the map to render
+  setTimeout(() => {
+    // Check if we're on the search tab with results
+    const searchResultTable = document.querySelector(".search-results table");
+
+    if (searchResultTable) {
+      // Get the serial number from the table
+      const serialCell = searchResultTable.querySelector(
+        "tbody tr td:first-child"
+      );
+
+      if (serialCell) {
+        const serialNumber = serialCell.textContent.trim();
+        console.log("Search result found on page load:", serialNumber);
+
+        // Highlight the matching slots
+        const foundCount = highlightSearchResults(serialNumber);
+
+        if (foundCount > 0) {
+          console.log(
+            `Auto-highlighted ${foundCount} slot(s) for serial: ${serialNumber}`
+          );
+        }
+      }
+    }
+  }, 500);
+});
+
+// Add search form submission handler
+const searchForm = document.querySelector('form[action*="search"]');
+if (searchForm) {
+  searchForm.addEventListener("submit", function (e) {
+    console.log("Search form submitted");
+    // The form will submit normally and page will reload with results
+    // The DOMContentLoaded event will then highlight the results
+  });
+}

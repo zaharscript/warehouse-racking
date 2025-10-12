@@ -52,19 +52,33 @@
             background-color: #45a049;
         }
 
+        /* Flash Messages */
         .flash-messages {
             list-style-type: none;
-            padding: 10px;
+            padding: 0;
             margin: 15px 0;
         }
 
         .flash-messages li {
-            background-color: #28a745;
-            /* green success */
-            color: white;
-            padding: 10px;
+            padding: 12px 20px;
             border-radius: 5px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .flash-messages li.success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .flash-messages li.error {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .flash-messages li.warning {
+            background-color: #ffc107;
+            color: #333;
         }
     </style>
 </head>
@@ -73,16 +87,15 @@
     <h1>Warehouse Management System</h1>
 
     <!-- Flash Messages -->
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <ul class="flash-messages">
-        {% for message in messages %}
-        <li>{{ message }}</li>
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
         {% endfor %}
     </ul>
     {% endif %}
     {% endwith %}
-
 
     <!-- Form to add a new item -->
     <h2>Add New Item</h2>
@@ -91,7 +104,7 @@
         <input type="text" name="serial_number" required><br>
 
         <label>Kanban Location:</label>
-        <input type="text" name="kanban_location" required><br>
+        <input type="text" name="kanban_location" required placeholder="e.g., R1_A4_01"><br>
 
         <label>Status:</label>
         <select name="Status" required>
