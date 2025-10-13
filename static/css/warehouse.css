@@ -1141,4 +1141,63 @@ th {
 body.search-active .cell:not(.search-highlight) {
     opacity: 0.3;
     filter: grayscale(50%);
+
+}
+
+/*---testing responsive---*/
+/* Tablet-Specific Styles (769px - 1400px) */
+@media (min-width: 769px) and (max-width: 1400px) {
+    .cell {
+        min-width: 80px;
+        height: 55px;
+        font-size: 11px;
+    }
+
+    .search-box {
+        width: 350px;
+        /* Wider search box */
+    }
+
+    .tooltip {
+        font-size: 14px;
+        padding: 18px;
+        max-width: 350px;
+        /* Larger tooltip */
+    }
+}
+
+/* Landscape Mode Optimization (No Scrolling) */
+@media (min-width: 1024px) and (orientation: landscape) {
+    .racking-wrapper {
+        overflow-x: visible;
+        /* No horizontal scroll needed */
+    }
+
+    .cell:active {
+        transform: scale(0.95);
+        /* Touch feedback */
+    }
+}
+
+/* Portrait Mode for Tablets */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+    .cell {
+        min-width: 75px;
+        font-size: 10px;
+    }
+}
+
+/* Large Screen/Desktop (1400px+) */
+
+@media (min-width: 1400px) {
+    .cell {
+        min-width: 90px;
+        height: 60px;
+        font-size: 12px;
+    }
+
+    .racking-grid {
+        justify-content: center;
+        /* Center the entire map */
+    }
 }

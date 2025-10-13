@@ -13,7 +13,9 @@
     <div class="container">
         <!-- Header with Navigation and Statistics -->
         <div class="header">
-            <h1>Warehouse Tracking System</h1>
+            <a href="http://192.168.1.11:5000/racking" style="text-decoration: none; color: inherit;">
+                <h1>Warehouse Tracking System</h1>
+            </a>
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             <div class="flash-container">
@@ -132,7 +134,13 @@
                             <thead>
                                 <tr>
                                     <th>Serial Number</th>
-                                    <th>Location</th>
+                                    <th>
+                                        {% if search_result.Last_Update_Out %}
+                                        Last Location
+                                        {% else %}
+                                        Location
+                                        {% endif %}
+                                    </th>
                                     <th>Status</th>
                                     <th>
                                         {% if search_result.Last_Update_Out %}
