@@ -348,7 +348,7 @@ def add_item_racking():
     conn = get_conn()
     cur = conn.cursor()
 
-        # 🔍 Check if the location is already occupied
+    # 🔍 Check if the location is already occupied
     cur.execute("""
         SELECT COUNT(*) FROM Warehouse_db
         WHERE Kanban_Location = ? AND Status = 'In Storage'
@@ -359,7 +359,6 @@ def add_item_racking():
         conn.close()
         flash(f"❌ Location '{kanban_location}' is already occupied! Please choose another slot.")
         return redirect(url_for("racking_view"))
-
 
     # 🔎 Check if serial already exists
     cur.execute("""
@@ -377,8 +376,31 @@ def add_item_racking():
             if old_location != kanban_location and confirmed != "yes":
                 # Ask for confirmation instead of updating right away
                 conn.close()
-                flash(f"⚠️ Serial {serial_number} already exists at {old_location}. "
-                      f"Do you want to move it to {kanban_location}?", "warning")
+                flash(
+                    f"⚠️ Serial {serial_number} already exists at {old_location}. "
+                    f"Do you want to move it to {kanban_location}?",
+                    "warning"
+                )
+
+                # Fetch the location_data and other required data
+                conn = get_conn()
+                cur = conn.cursor()
+
+                # Get location data (adjust this query to match your racking_view route)
+                cur.execute("SELECT Kanban_Location, Serial_Number, Status, Last_Update_In FROM Warehouse_db")
+                rows = cur.fetchall()
+                location_data = {}
+                for row in rows:
+                    loc, serial, stat, last_update = row
+                    if loc not in location_data:
+                        location_data[loc] = []
+                    location_data[loc].append({
+                        'serial': serial,
+                        'status': stat,
+                        'last_update': str(last_update) if last_update else None
+                    })
+
+                conn.close()
 
                 # Render the same form but include hidden confirmation
                 return render_template(
@@ -386,7 +408,8 @@ def add_item_racking():
                     confirm_serial=serial_number,
                     confirm_location=kanban_location,
                     confirm_status=status,
-                    active_tab="registration"
+                    active_tab="registration",
+                    location_data=location_data
                 )
 
             # User already confirmed → update location
@@ -416,14 +439,6 @@ def add_item_racking():
 
     flash(f"✅ Serial {serial_number} saved successfully!", "success")
     return redirect(url_for("racking_view", tab="registration"))
-
-
-
-
-
-
-
-
 
 # ✅ Update status to "Out Storage"
 @app.route("/push_out", methods=["POST"])

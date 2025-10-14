@@ -186,7 +186,7 @@ body {
 }
 
 .btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4d7249 0%, #0756af 100%);
     color: white;
     padding: 12px 30px;
     border: none;
@@ -243,7 +243,7 @@ body {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     position: relative;
-    min-height: 400px;
+    min-height: 300px;
 }
 
 .map-header {
@@ -258,14 +258,14 @@ body {
     height: calc(100% - 60px);
     overflow: auto;
     position: relative;
-    background: #f8f9fa;
+    background: #d1dbe6;
 }
 
 .warehouse-map {
     width: 100%;
     min-height: 600px;
     position: relative;
-    background: #f8f9fa;
+    background: #d1dbe6;
     padding: 30px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -864,25 +864,26 @@ th {
 
 .control-btn {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: rgba(30, 60, 114, 0);
+    color: rgba(30, 60, 114, 0);
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    backdrop-filter: blur(10px);
+
 }
 
-.control-btn:hover {
+/* .control-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
 }
 
 .control-btn.active {
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
+} */
 
 .search-box {
     padding: 12px 20px;
