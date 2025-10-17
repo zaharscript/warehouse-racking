@@ -699,3 +699,8 @@ if (searchForm) {
     // The DOMContentLoaded event will then highlight the results
   });
 }
+
+// Barcode scanner integration
+  // function openScanner() {
+  //   window.open("https://mynilasdmfgdb01.emrsn.org:9000/qrscanner", "Scanner", "width=400,height=600");
+  // }
