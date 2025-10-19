@@ -198,6 +198,20 @@ body {
     margin-top: 20px;
 }
 
+.btn-scanner {
+    background: linear-gradient(135deg, #6743e9 0%, #f99538 100%);
+    color: rgb(255, 255, 255);
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+
+}
+
 .btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
@@ -876,14 +890,7 @@ th {
 
 }
 
-/* .control-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-}
 
-.control-btn.active {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-} */
 
 .search-box {
     padding: 12px 20px;
@@ -1043,33 +1050,35 @@ th {
 }
 
 
-/* Glowing + Marching Ants effect for search results */
+/* Glowing + Marching Ants effect for search results - BLUE VERSION */
 .cell.search-highlight {
     position: relative;
     z-index: 100;
-    animation: pulseGlow 1.5s ease-in-out infinite !important;
+    /* Override the green gradient with blue */
+    background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%) !important;
+    animation: pulseGlowBlue 1.5s ease-in-out infinite !important;
 }
 
-/* Pulsing glow animation */
-@keyframes pulseGlow {
+/* Pulsing blue glow animation */
+@keyframes pulseGlowBlue {
 
     0%,
     100% {
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8),
-            0 0 40px rgba(255, 215, 0, 0.6),
-            0 0 60px rgba(255, 215, 0, 0.4);
+        box-shadow: 0 0 20px rgba(0, 102, 255, 0.8),
+            0 0 40px rgba(0, 153, 255, 0.6),
+            0 0 60px rgba(0, 191, 255, 0.4);
         transform: scale(1.05);
     }
 
     50% {
-        box-shadow: 0 0 40px rgba(255, 215, 0, 1),
-            0 0 80px rgba(255, 215, 0, 0.8),
-            0 0 120px rgba(255, 215, 0, 0.6);
+        box-shadow: 0 0 40px rgba(0, 102, 255, 1),
+            0 0 80px rgba(0, 153, 255, 0.8),
+            0 0 120px rgba(0, 191, 255, 0.6);
         transform: scale(1.1);
     }
 }
 
-/* Marching ants border */
+/* Marching ants border - White/Cyan for better visibility on blue */
 .cell.search-highlight::before {
     content: '';
     position: absolute;
@@ -1079,7 +1088,8 @@ th {
     bottom: -4px;
     border-radius: 6px;
     background: transparent;
-    border: 3px dashed #ffffff;
+    border: 3px dashed #00ffff;
+    /* Cyan color for visibility */
     animation: marchingAnts 0.8s linear infinite;
     pointer-events: none;
 }
@@ -1088,8 +1098,8 @@ th {
     to {
         stroke-dashoffset: -20;
         border-image-source: repeating-linear-gradient(45deg,
-                #fff 0px,
-                #fff 10px,
+                #00ffff 0px,
+                #00ffff 10px,
                 transparent 10px,
                 transparent 20px);
     }
@@ -1142,9 +1152,9 @@ th {
 body.search-active .cell:not(.search-highlight) {
     opacity: 0.3;
     filter: grayscale(50%);
-
 }
 
+/* -------------------------------------------------------------------- */
 /*---testing responsive---*/
 /* Tablet-Specific Styles (769px - 1400px) */
 @media (min-width: 769px) and (max-width: 1400px) {

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warehouse Tracking System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
-    <link rel="icon" type="images/jpeg" href="/static/img/icon.jpeg">
+    <link rel="icon" type="images/jpeg" href="/static/img/forklift.png">
 
 </head>
 
@@ -72,6 +72,8 @@
                     <h2>Item Registration</h2>
                     <form method="POST" action="{{ url_for('add_item_racking') }}">
                         <input type="hidden" name="confirmed" id="confirmed" value="no">
+                        <!-- ✅ Hidden input for Status - always "In Storage" -->
+                        <input type="hidden" name="Status" value="In Storage">
 
                         <div class="form-grid">
                             <div class="form-group">
@@ -82,11 +84,11 @@
                                     oninput="this.value = this.value.toUpperCase()">
                             </div>
                             <div class="form-group">
-                                <button type="button"  class="btn" onclick="openScanner()">Scan Barcode</button>
+                                <button type="button" class="btn-scanner" onclick="openScanner()">Scan Barcode</button>
                                 <div id="reader" style="width:150px;"></div>
                                 <!-- <div id="output">Scanned: </div> -->
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="location">Storage Location</label>
                                 <input type="text" id="location" class="form-control" name="kanban_location" required
@@ -94,7 +96,7 @@
                                     value="{{ confirm_location if confirm_location else '' }}">
                             </div>
                             <div class="form-group">
-                                <label for="action">Action</label>
+                                <!-- <label for="action">Action</label>
                                 <select id="action" class="form-control" onchange="handleLocationChange(this)"
                                     name="Status" required>
                                     <option value="">Select Action</option>
@@ -102,7 +104,7 @@
                                         In Storage</option>
                                     <option value="Out Storage" {% if confirm_status=='Out Storage' %}selected{% endif
                                         %}>Out Storage</option>
-                                </select>
+                                </select> -->
                             </div>
                         </div>
 
@@ -259,7 +261,7 @@
 
 
                 </div>
-                <!-- <script>
+                <script>
                     // Pass Flask data to JavaScript
                     console.log('Raw location_data type:', typeof {{ location_data | tojson | safe }});
                     const warehouseData = {{ location_data | tojson | safe }};
@@ -270,16 +272,16 @@
                     if (Object.keys(warehouseData).length > 0 && Object.keys(warehouseData).length < 10) {
                         console.log('All location keys:', Object.keys(warehouseData));
                     }
-                </script> -->
+                </script>
 
                 <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
                 <script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
                 <script src="{{ url_for('static', filename='js/warehouse-qr.js') }}"></script>
 
                 <script src="https://unpkg.com/html5-qrcode"></script>
-<script>
+                <script>
 
-</script>
+                </script>
 </body>
 cop
 
