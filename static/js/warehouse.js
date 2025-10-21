@@ -80,6 +80,7 @@ function processRegistration() {
         currentOperation === "in" ? "registered" : "processed"
       } successfully!`
     );
+    refreshMapData();
   }, 1500);
 }
 
@@ -215,10 +216,6 @@ function clearSearch() {
   if (pushOutForm && pushOutForm.closest("form")) {
     pushOutForm.closest("form").remove();
   }
-
-  // Alternative: reload the page to completely reset the search tab
-  // Uncomment this if you want a full page reload instead:
-  // window.location.href = "{{ url_for('racking_view', tab='search') }}";
 }
 
 function pushOutFromSlot() {
@@ -284,6 +281,7 @@ const rackingConfig = {
 };
 
 // Generate racking data - NOW INTEGRATED WITH DATABASE
+// Generate racking data - NOW INTEGRATED WITH DATABASE
 function generateRackingData(rackNum) {
   const data = {};
   const totalSlots = rackingConfig[rackNum].slots;
@@ -292,31 +290,36 @@ function generateRackingData(rackNum) {
     for (let i = 1; i <= totalSlots; i++) {
       const id = `R${rackNum}_${level}_${String(i).padStart(2, "0")}`;
 
-      // Check if this location exists in database
+      // Default values
       let status = "available";
       let serialNumber = null;
       let lastUpdate = null;
       let items = 0;
       let occupancy = 0;
 
-      // Debug: Log the first few checks
-      if (i <= 2) {
-        console.log(`Checking ${id}:`, warehouseData[id]);
-      }
-
-      if (hasRealData && warehouseData[id]) {
+      // Check if this location exists in database
+      if (hasRealData && warehouseData && warehouseData[id]) {
         const dbData = warehouseData[id];
-        console.log(`Found data for ${id}:`, dbData);
 
-        // If status is "In Storage", mark as occupied (GREEN)
-        // Otherwise, mark as available (RED)
-        status = dbData.status === "In Storage" ? "occupied" : "available";
-        serialNumber = dbData.serial;
-        lastUpdate = dbData.last_update_in || dbData.last_update_out;
-        items = status === "occupied" ? 1 : 0;
-        occupancy = status === "occupied" ? 100 : 0;
+        // DEBUG: Log every match
+        console.log(`✓ Found DB data for ${id}:`, dbData);
+        console.log(`  - Status: ${dbData.status}`);
+        console.log(`  - Serial: ${dbData.serial}`);
 
-        console.log(`Set ${id} to status: ${status}`);
+        // CRITICAL: Check status carefully (case-sensitive!)
+        if (dbData.status === "In Storage") {
+          status = "occupied";
+          serialNumber = dbData.serial;
+          lastUpdate = dbData.last_update_in || dbData.last_update_out;
+          items = 1;
+          occupancy = 100;
+
+          console.log(`  ✓ Set ${id} to OCCUPIED (GREEN)`);
+        } else {
+          console.log(
+            `  ✗ Status is "${dbData.status}" - keeping as AVAILABLE (RED)`
+          );
+        }
       }
 
       data[id] = {
@@ -331,6 +334,8 @@ function generateRackingData(rackNum) {
       };
     }
   });
+
+  console.log(`Generated ${Object.keys(data).length} slots for R${rackNum}`);
   return data;
 }
 
@@ -426,66 +431,88 @@ function hideTooltip() {
 
 // Update search box with location ID
 function updateSearchBox(locationId) {
-  const searchBox = document.getElementById("location");
-  if (searchBox) {
-    searchBox.value = locationId;
+  const locationBox = document.getElementById("location");
+  const searchBox = document.getElementById("searchItemId");
 
-    // Highlight the selected cell
-    document.querySelectorAll(".cell").forEach((cell) => {
-      cell.classList.remove("highlight");
-      if (cell.dataset.id === locationId) {
-        cell.classList.add("highlight");
-      }
-    });
+  // Update location textbox (for In/Out tabs)
+  if (locationBox) {
+    locationBox.value = locationId;
   }
+
+  // Update serial number textbox (for Search tab)
+  if (searchBox) {
+    const cellData = rackingData[locationId];
+
+    if (cellData && cellData.status === "occupied" && cellData.serialNumber) {
+      // If slot is occupied and has serial number, show it
+      searchBox.value = cellData.serialNumber;
+      searchBox.classList.remove("input-error");
+
+      console.log(
+        `Filled search box with serial: ${cellData.serialNumber} from ${locationId}`
+      );
+    } else {
+      // If slot is empty, clear the search box
+      searchBox.value = "";
+      console.log(`Slot ${locationId} is empty - cleared search box`);
+    }
+  }
+
+  // Highlight the selected cell
+  document.querySelectorAll(".cell").forEach((cell) => {
+    cell.classList.remove("highlight");
+    if (cell.dataset.id === locationId) {
+      cell.classList.add("highlight");
+    }
+  });
 }
 
 // Filter cells by status
-function filterStatus(status) {
-  document.querySelectorAll(".cell").forEach((cell) => {
-    const id = cell.dataset.id;
-    const data = rackingData[id];
+// function filterStatus(status) {
+//   document.querySelectorAll(".cell").forEach((cell) => {
+//     const id = cell.dataset.id;
+//     const data = rackingData[id];
 
-    if (status === "all") {
-      cell.style.display = "flex";
-    } else if (status === data.status) {
-      cell.style.display = "flex";
-    } else {
-      cell.style.display = "none";
-    }
-  });
+//     if (status === "all") {
+//       cell.style.display = "flex";
+//     } else if (status === data.status) {
+//       cell.style.display = "flex";
+//     } else {
+//       cell.style.display = "none";
+//     }
+//   });
 
-  document.querySelectorAll(".control-btn").forEach((btn) => {
-    btn.classList.remove("active");
-  });
-  if (event && event.target) {
-    event.target.classList.add("active");
-  }
-}
+//   document.querySelectorAll(".control-btn").forEach((btn) => {
+//     btn.classList.remove("active");
+//   });
+//   if (event && event.target) {
+//     event.target.classList.add("active");
+//   }
+// }
 
 // Randomize data and re-render (for testing only)
-function randomizeData() {
-  if (!confirm("This will randomize the map (test mode). Continue?")) {
-    return;
-  }
+// function randomizeData() {
+//   if (!confirm("This will randomize the map (test mode). Continue?")) {
+//     return;
+//   }
 
-  // Generate random data
-  Object.keys(rackingData).forEach((key) => {
-    const isOccupied = Math.random() > 0.5;
-    rackingData[key].status = isOccupied ? "occupied" : "available";
-    rackingData[key].occupancy = isOccupied
-      ? Math.floor(60 + Math.random() * 40)
-      : 0;
-    rackingData[key].items = isOccupied ? Math.floor(1 + Math.random() * 5) : 0;
-    rackingData[key].serialNumber = isOccupied
-      ? `SN${Math.floor(Math.random() * 10000)}`
-      : null;
-    rackingData[key].lastUpdated = new Date().toLocaleDateString();
-  });
+//   // Generate random data
+//   Object.keys(rackingData).forEach((key) => {
+//     const isOccupied = Math.random() > 0.5;
+//     rackingData[key].status = isOccupied ? "occupied" : "available";
+//     rackingData[key].occupancy = isOccupied
+//       ? Math.floor(60 + Math.random() * 40)
+//       : 0;
+//     rackingData[key].items = isOccupied ? Math.floor(1 + Math.random() * 5) : 0;
+//     rackingData[key].serialNumber = isOccupied
+//       ? `SN${Math.floor(Math.random() * 10000)}`
+//       : null;
+//     rackingData[key].lastUpdated = new Date().toLocaleDateString();
+//   });
 
-  createRacking(1, "racking1");
-  createRacking(2, "racking2");
-}
+//   createRacking(1, "racking1");
+//   createRacking(2, "racking2");
+// }
 
 // Search box event listener
 const locationSearchBox = document.getElementById("location");
@@ -701,6 +728,42 @@ if (searchForm) {
 }
 
 // Barcode scanner integration
-  // function openScanner() {
-  //   window.open("https://mynilasdmfgdb01.emrsn.org:9000/qrscanner", "Scanner", "width=400,height=600");
-  // }
+// function openScanner() {
+//   window.open("https://mynilasdmfgdb01.emrsn.org:9000/qrscanner", "Scanner", "width=400,height=600");
+// }
+// Refresh map data from database
+function refreshMapData() {
+  console.log("🔄 Refreshing map data...");
+
+  // Reload the page to get fresh data from database
+  window.location.reload();
+}
+
+// OR, if you want to refresh without page reload (AJAX version):
+async function refreshMapDataAjax() {
+  try {
+    console.log("🔄 Fetching fresh data from server...");
+
+    const response = await fetch("/api/warehouse_data");
+    const freshData = await response.json();
+
+    // Update global warehouseData
+    warehouseData = freshData;
+
+    // Regenerate racking data
+    rackingData = {
+      ...generateRackingData(1),
+      ...generateRackingData(2),
+    };
+
+    // Re-render both racks
+    createRacking(1, "racking1");
+    createRacking(2, "racking2");
+
+    console.log("✓ Map refreshed successfully!");
+    showNotification("Map updated!", "#28a745");
+  } catch (error) {
+    console.error("Error refreshing map:", error);
+    showNotification("Failed to refresh map", "#dc3545");
+  }
+}

@@ -98,10 +98,11 @@ def get_location_data():
     return rows, location_data
 
 
-# 🏓 UPDATE your racking_view route to use the helper:
+# 🏓 UPDATE  racking_view route to use the helper:
 
 @app.route("/racking", methods=["GET"])
 def racking_view():
+
     rows, location_data = get_location_data()
     
     active_tab = request.args.get("tab", "registration")
@@ -119,33 +120,51 @@ def racking_view():
 @app.route("/search", methods=["POST"])
 def search():
     serial_number = request.form.get("serial_number")
-    
-    # Get all data for the map
+
+    if not serial_number:
+        flash("No serial number provided.")
+        return redirect(url_for("racking_view", tab="search"))
+
+    # Get all data for the map (your existing helper)
     rows, location_data = get_location_data()
-    
-    # Search for specific serial number
+
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute(
-        """
+
+    # 1️⃣ Try to find in active table first
+    cur.execute("""
         SELECT Serial_Number, Kanban_Location, Status, Last_Update_In, Last_Update_Out
         FROM Warehouse_db
         WHERE Serial_Number = ?
-        """,
-        (serial_number,)
-    )
+    """, (serial_number,))
     row = cur.fetchone()
+
+    # 2️⃣ If not found, check old table
+    if not row:
+        cur.execute("""
+            SELECT Serial_Number, Kanban_Location, Status, Last_Update_In, Last_Update_Out
+            FROM Warehouse_db_old
+            WHERE Serial_Number = ?
+        """, (serial_number,))
+        row = cur.fetchone()
+
     conn.close()
 
+    # 3️⃣ Show result if found (from either table)
     if row:
-        return render_template("warehouse-racking.html", 
-                               search_result=row, 
-                               location_data=location_data,
-                               items=rows,
-                               active_tab="search")
+        # You can also tag results as “archived” if they come from the old table
+        flash(f"Serial number {serial_number} found in {'Warehouse_db' if row else 'Warehouse_db_old'}.")
+        return render_template(
+            "warehouse-racking.html",
+            search_result=row,
+            location_data=location_data,
+            items=rows,
+            active_tab="search"
+        )
     else:
-        flash(f"Serial number {serial_number} not found!")
+        flash(f"Serial number {serial_number} not found in active or old records!")
         return redirect(url_for("racking_view", tab="search", error_serial=serial_number))
+
 
 
 
@@ -439,20 +458,45 @@ def push_out():
 
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        UPDATE Warehouse_db
-        SET Status = ?, Last_Update_Out = ?
-        WHERE Serial_Number = ?
-    """, ("Out Storage", datetime.now(), serial_number))
-    rows_updated = cur.rowcount
-    conn.commit()
-    conn.close()
 
-    if rows_updated > 0:
-        flash(f"Serial number {serial_number} marked as 'Out Storage'.")
-    else:
-        flash(f"Serial number {serial_number} not found.")
-    return redirect(url_for("racking_view"))
+    try:
+        # 1️⃣ Fetch the record from Warehouse_db
+        cur.execute("SELECT * FROM Warehouse_db WHERE Serial_Number = ?", (serial_number,))
+        record = cur.fetchone()
+
+        if not record:
+            flash(f"Serial number {serial_number} not found.")
+            conn.close()
+            return redirect(url_for("racking_view", tab="search"))
+
+        # 2️⃣ Insert that record into Warehouse_db_old
+        #    (assuming both tables have identical structure)
+        cur.execute("""
+            INSERT INTO Warehouse_db_old
+            SELECT * FROM Warehouse_db WHERE Serial_Number = ?
+        """, (serial_number,))
+
+        # 3️⃣ Optionally update the status and timestamp before inserting (if needed)
+        #    For example, you might want to mark it as 'Out Storage' in the old table:
+        cur.execute("""
+            UPDATE Warehouse_db_old
+            SET Status = ?, Last_Update_Out = ?
+            WHERE Serial_Number = ?
+        """, ("Out Storage", datetime.now(), serial_number))
+
+        # 4️⃣ Delete the record from Warehouse_db
+        cur.execute("DELETE FROM Warehouse_db WHERE Serial_Number = ?", (serial_number,))
+
+        conn.commit()
+        flash(f"Serial number {serial_number} moved to Warehouse_db_old (Out Storage).")
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error pushing out serial number {serial_number}: {e}")
+    finally:
+        conn.close()
+
+    return redirect(url_for("racking_view", tab="search"))
 
 
 # Alternate route for debugging
@@ -485,7 +529,20 @@ def debug_locations():
     
     return result
 
-
+@app.route('/api/warehouse_data')
+def get_warehouse_data():
+    items = YourModel.query.all()
+    
+    warehouse_data = {}
+    for item in items:
+        warehouse_data[item.location] = {
+            'serial': item.serial_number,
+            'status': item.status,
+            'last_update_in': str(item.timestamp_in) if item.timestamp_in else None,
+            'last_update_out': str(item.timestamp_out) if item.timestamp_out else None
+        }
+    
+    return jsonify(warehouse_data)
 
 
 if __name__ == "__main__":
