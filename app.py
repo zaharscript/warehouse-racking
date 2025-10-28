@@ -448,6 +448,67 @@ def add_item_racking():
 
     return redirect(url_for("racking_view", tab="registration"))
 
+
+# Add this new route in app.py after the add_item_racking route
+
+@app.route("/register_dummy", methods=["POST"])
+def register_dummy():
+    kanban_location = request.form.get("kanban_location", "").strip()
+    
+    if not kanban_location:
+        flash("❌ Please select a location!", "error")
+        return redirect(url_for("racking_view", tab="registration"))
+    
+    now = datetime.now()
+    serial_number = f"Dummy_{kanban_location}"
+    status = "Reserved"  # New status for dummy slots
+    
+    conn = get_conn()
+    cur = conn.cursor()
+    
+    try:
+        # Check if location already has something
+        cur.execute("""
+            SELECT Serial_Number, Status FROM Warehouse_db
+            WHERE Kanban_Location = ?
+        """, (kanban_location,))
+        existing = cur.fetchone()
+        
+        if existing:
+            existing_serial = existing[0]
+            existing_status = existing[1]
+            
+            # If it's already a dummy, remove it (toggle off)
+            if existing_serial.startswith("Dummy_"):
+                cur.execute("""
+                    DELETE FROM Warehouse_db
+                    WHERE Kanban_Location = ?
+                """, (kanban_location,))
+                flash(f"✅ Dummy removed from {kanban_location}!", "success")
+            else:
+                # Location occupied by real item
+                flash(f"❌ Location {kanban_location} is occupied by {existing_serial}!", "error")
+                conn.close()
+                return redirect(url_for("racking_view", tab="registration"))
+        else:
+            # Insert dummy record
+            cur.execute("""
+                INSERT INTO Warehouse_db 
+                ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+                VALUES (?, ?, ?, ?, ?)
+            """, (serial_number, kanban_location, status, now, None))
+            flash(f"✅ Dummy pallet reserved at {kanban_location}!", "success")
+        
+        conn.commit()
+        conn.close()
+        return redirect(url_for("racking_view", tab="registration"))
+        
+    except Exception as e:
+        conn.close()
+        flash(f"❌ Error: {str(e)}", "error")
+        return redirect(url_for("racking_view", tab="registration"))
+
+
 # ✅ Update status to "Out Storage"
 @app.route("/push_out", methods=["POST"])
 def push_out():
@@ -496,7 +557,7 @@ def push_out():
     finally:
         conn.close()
 
-    return redirect(url_for("racking_view", tab="search"))
+    return redirect(url_for("racking_view", tab="registration"))
 
 
 # Alternate route for debugging

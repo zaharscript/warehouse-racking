@@ -281,7 +281,6 @@ const rackingConfig = {
 };
 
 // Generate racking data - NOW INTEGRATED WITH DATABASE
-// Generate racking data - NOW INTEGRATED WITH DATABASE
 function generateRackingData(rackNum) {
   const data = {};
   const totalSlots = rackingConfig[rackNum].slots;
@@ -766,4 +765,190 @@ async function refreshMapDataAjax() {
     console.error("Error refreshing map:", error);
     showNotification("Failed to refresh map", "#dc3545");
   }
+}
+
+// Add these functions to warehouse.js
+
+// Register dummy pallet function
+function registerDummy() {
+  const locationInput = document.getElementById("location");
+  const kanban_location = locationInput.value.trim();
+
+  if (!kanban_location) {
+    alert("⚠️ Please select a location from the map first!");
+    return;
+  }
+
+  // Check if location exists in rackingData
+  const cellData = rackingData[kanban_location];
+
+  if (!cellData) {
+    alert("❌ Invalid location! Please select a valid slot from the map.");
+    return;
+  }
+
+  // Check if already occupied by real item
+  if (
+    cellData.status === "occupied" &&
+    !cellData.serialNumber?.startsWith("Dummy_")
+  ) {
+    const confirm_remove = confirm(
+      `⚠️ Location ${kanban_location} is occupied by ${cellData.serialNumber}.\n\n` +
+        `This action cannot mark it as dummy.\n\nPlease remove the item first.`
+    );
+    return;
+  }
+
+  // Toggle confirmation for dummy
+  const isDummy = cellData.serialNumber?.startsWith("Dummy_");
+  const action = isDummy ? "remove dummy from" : "mark as dummy";
+  const confirmMsg = `Are you sure you want to ${action} location ${kanban_location}?`;
+
+  if (confirm(confirmMsg)) {
+    // Create a form and submit
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/register_dummy";
+
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "kanban_location";
+    input.value = kanban_location;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+// Update the generateRackingData function to handle "Reserved" status
+// Modify the existing function to include this check:
+function generateRackingData(rackNum) {
+  const data = {};
+  const totalSlots = rackingConfig[rackNum].slots;
+
+  levels.forEach((level) => {
+    for (let i = 1; i <= totalSlots; i++) {
+      const id = `R${rackNum}_${level}_${String(i).padStart(2, "0")}`;
+
+      // Default values
+      let status = "available";
+      let serialNumber = null;
+      let lastUpdate = null;
+      let items = 0;
+      let occupancy = 0;
+
+      // Check if this location exists in database
+      if (hasRealData && warehouseData && warehouseData[id]) {
+        const dbData = warehouseData[id];
+
+        console.log(`✓ Found DB data for ${id}:`, dbData);
+
+        // Check for Reserved/Dummy status
+        if (
+          dbData.status === "Reserved" ||
+          dbData.serial?.startsWith("Dummy_")
+        ) {
+          status = "reserved";
+          serialNumber = dbData.serial;
+          lastUpdate = dbData.last_update_in;
+          items = 0;
+          occupancy = 100;
+          console.log(`  🎯 Set ${id} to RESERVED (ORANGE)`);
+        }
+        // Check for In Storage status
+        else if (dbData.status === "In Storage") {
+          status = "occupied";
+          serialNumber = dbData.serial;
+          lastUpdate = dbData.last_update_in || dbData.last_update_out;
+          items = 1;
+          occupancy = 100;
+          console.log(`  ✓ Set ${id} to OCCUPIED (GREEN)`);
+        } else {
+          console.log(
+            `  ✗ Status is "${dbData.status}" - keeping as AVAILABLE (RED)`
+          );
+        }
+      }
+
+      data[id] = {
+        id: id,
+        level: level,
+        status: status,
+        occupancy: occupancy,
+        items: items,
+        serialNumber: serialNumber,
+        lastUpdated: lastUpdate || "N/A",
+        intensity: status === "occupied" || status === "reserved" ? 1 : 0,
+      };
+    }
+  });
+
+  console.log(`Generated ${Object.keys(data).length} slots for R${rackNum}`);
+  return data;
+}
+
+// Update getCellClass to include reserved
+function getCellClass(cell) {
+  if (cell.status === "reserved") return "reserved";
+  if (cell.status === "occupied") return "occupied";
+  return "available";
+}
+
+// Update showTooltip to display dummy info
+function showTooltip(e, data) {
+  const tooltip = document.getElementById("tooltip");
+  if (!tooltip) return;
+
+  let tooltipContent = `
+  <div class="tooltip-row"><span class="tooltip-label">Location:</span> ${
+    data.id
+  }</div>
+  <div class="tooltip-row"><span class="tooltip-label">Status:</span> ${data.status.toUpperCase()}</div>
+`;
+
+  if (data.status === "reserved") {
+    tooltipContent += `
+    <div class="tooltip-row"><span class="tooltip-label">Type:</span> Dummy Pallet (Reserved)</div>
+    <div class="tooltip-row"><span class="tooltip-label">Serial:</span> ${data.serialNumber}</div>
+    <div class="tooltip-row"><span class="tooltip-label">Reserved On:</span> ${data.lastUpdated}</div>
+  `;
+  } else if (data.status === "occupied" && data.serialNumber) {
+    tooltipContent += `
+    <div class="tooltip-row"><span class="tooltip-label">Serial:</span> ${data.serialNumber}</div>
+    <div class="tooltip-row"><span class="tooltip-label">Last Updated:</span> ${data.lastUpdated}</div>
+  `;
+  } else {
+    tooltipContent += `
+    <div class="tooltip-row"><span class="tooltip-label">Occupancy:</span> ${data.occupancy}%</div>
+  `;
+  }
+
+  tooltip.innerHTML = tooltipContent;
+  tooltip.classList.add("show");
+  moveTooltip(e);
+}
+
+// Update statistics to include reserved count
+function updateStatsFromData() {
+  const totalSlots = Object.keys(rackingData).length;
+  const occupied = Object.values(rackingData).filter(
+    (item) => item.status === "occupied"
+  ).length;
+  const reserved = Object.values(rackingData).filter(
+    (item) => item.status === "reserved"
+  ).length;
+  const available = totalSlots - occupied - reserved;
+
+  const totalEl = document.getElementById("totalItems");
+  const occupiedEl = document.getElementById("occupiedSlots");
+  const availableEl = document.getElementById("availableSlots");
+
+  if (totalEl) totalEl.textContent = totalSlots;
+  if (occupiedEl) occupiedEl.textContent = occupied;
+  if (availableEl) availableEl.textContent = available;
+
+  console.log(
+    `Stats: ${occupied} occupied, ${reserved} reserved, ${available} available`
+  );
 }

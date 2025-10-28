@@ -200,8 +200,8 @@ body {
 
 .btn-scanner {
     background: linear-gradient(135deg, #6743e9 0%, #f99538 100%);
-    color: rgb(255, 255, 255);
-    padding: 12px 30px;
+    color: #fff;
+    padding: 12px 24px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -209,8 +209,19 @@ body {
     font-weight: 600;
     transition: all 0.3s ease;
     margin-top: 20px;
-
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    /* spacing between icon and text */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
+.btn-scanner img {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+}
+
 
 .btn:hover {
     transform: translateY(-2px);
@@ -681,14 +692,19 @@ th {
 }
 
 .icon {
-    width: 50px;
-    height: 50px;
+    width: 1px;
+    height: 1px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
+}
+
+.racking-icon {
+    width: 5%;
+    height: 5%;
 }
 
 .racking-grid {
@@ -1211,4 +1227,58 @@ body.search-active .cell:not(.search-highlight) {
         justify-content: center;
         /* Center the entire map */
     }
+}
+
+
+/* Dummy button styling */
+.btn-dummy {
+    background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-dummy:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
+    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+}
+
+/* Reserved/Dummy cell styling - ORANGE gradient */
+.cell.reserved {
+    background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+    color: white;
+}
+
+.cell.reserved:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(255, 140, 0, 0.5);
+}
+
+/* Update legend to include reserved */
+.legend-item.reserved::before {
+    content: '';
+    width: 40px;
+    height: 25px;
+    background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+    border-radius: 5px;
+    display: inline-block;
+    margin-right: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Dummy highlight effect */
+.cell.reserved::after {
+    content: '🎯';
+    position: absolute;
+    font-size: 20px;
+    opacity: 0.7;
 }
