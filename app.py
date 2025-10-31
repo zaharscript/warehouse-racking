@@ -522,7 +522,11 @@ def push_out():
 
     try:
         # 1️⃣ Fetch the record from Warehouse_db
-        cur.execute("SELECT * FROM Warehouse_db WHERE Serial_Number = ?", (serial_number,))
+        cur.execute("""
+            SELECT [Serial_Number], [Kanban_Location], [Status], [Last_Update_In] 
+            FROM Warehouse_db 
+            WHERE Serial_Number = ?
+        """, (serial_number,))
         record = cur.fetchone()
 
         if not record:
@@ -530,30 +534,43 @@ def push_out():
             conn.close()
             return redirect(url_for("racking_view", tab="search"))
 
-        # 2️⃣ Insert that record into Warehouse_db_old
-        #    (assuming both tables have identical structure)
+        new_update_out = datetime.now()
+        
+        # 2️⃣ Check if it exists in Warehouse_db_old
         cur.execute("""
-            INSERT INTO Warehouse_db_old
-            SELECT * FROM Warehouse_db WHERE Serial_Number = ?
-        """, (serial_number,))
-
-        # 3️⃣ Optionally update the status and timestamp before inserting (if needed)
-        #    For example, you might want to mark it as 'Out Storage' in the old table:
-        cur.execute("""
-            UPDATE Warehouse_db_old
-            SET Status = ?, Last_Update_Out = ?
+            SELECT Serial_Number FROM Warehouse_db_old 
             WHERE Serial_Number = ?
-        """, ("Out Storage", datetime.now(), serial_number))
+        """, (serial_number,))
+        exists = cur.fetchone()
 
-        # 4️⃣ Delete the record from Warehouse_db
+        if exists:
+            # Update existing record
+            cur.execute("""
+                UPDATE Warehouse_db_old
+                SET [Kanban_Location] = ?, 
+                    [Status] = 'Out Storage', 
+                    [Last_Update_In] = ?,
+                    [Last_Update_Out] = ?
+                WHERE Serial_Number = ?
+            """, (record[1], record[3], new_update_out, serial_number))
+            flash(f"ℹ️ Updated existing archive record for Serial {serial_number}.")
+        else:
+            # Insert new record
+            cur.execute("""
+                INSERT INTO Warehouse_db_old 
+                ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+                VALUES (?, ?, 'Out Storage', ?, ?)
+            """, (record[0], record[1], record[3], new_update_out))
+            flash(f"✅ Serial {serial_number} archived.")
+
+        # 3️⃣ Delete from active table
         cur.execute("DELETE FROM Warehouse_db WHERE Serial_Number = ?", (serial_number,))
 
         conn.commit()
-        flash(f"Serial number {serial_number} moved to Warehouse_db_old (Out Storage).")
 
     except Exception as e:
         conn.rollback()
-        flash(f"Error pushing out serial number {serial_number}: {e}")
+        flash(f"❌ Error: {e}")
     finally:
         conn.close()
 
