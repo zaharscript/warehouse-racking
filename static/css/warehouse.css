@@ -789,7 +789,7 @@ th {
 .level-label {
     height: 60px;
     min-width: 100px;
-    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+    background: linear-gradient(180deg, #013009 0%, #6d5d02 100%);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -1268,7 +1268,7 @@ body.search-active .cell:not(.search-highlight) {
     content: '';
     width: 40px;
     height: 25px;
-    background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+    background: linear-gradient(135deg, #ff8c00 0%, #803a02 100%);
     border-radius: 5px;
     display: inline-block;
     margin-right: 10px;
@@ -1277,7 +1277,7 @@ body.search-active .cell:not(.search-highlight) {
 
 /* Dummy highlight effect */
 .cell.reserved::after {
-    content: '🎯';
+    content: '';
     position: absolute;
     font-size: 20px;
     opacity: 0.7;

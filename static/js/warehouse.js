@@ -442,7 +442,7 @@ function updateSearchBox(locationId) {
   if (searchBox) {
     const cellData = rackingData[locationId];
 
-    if (cellData && cellData.status === "occupied" && cellData.serialNumber) {
+    if (cellData && (cellData.status === "occupied" || cellData.status === "reserved") && cellData.serialNumber) {
       // If slot is occupied and has serial number, show it
       searchBox.value = cellData.serialNumber;
       searchBox.classList.remove("input-error");
