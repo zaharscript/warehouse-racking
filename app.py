@@ -20,7 +20,7 @@ def get_conn():
 
 
 
-# ✅ ADD THIS HELPER FUNCTION after get_conn() function in app.py:
+# ✅ HELPER FUNCTION
 
 def get_location_data():
     """Helper function to get all warehouse data for the map"""
@@ -59,7 +59,7 @@ def get_location_data():
     return rows, location_data
 
 # New route for warehouse-racking.html
-# 🎶HELPER FUNCTION after get_conn() function in app.py:
+
 
 def get_location_data():
     """Helper function to get all warehouse data for the map"""
@@ -152,7 +152,7 @@ def search():
 
     # 3️⃣ Show result if found (from either table)
     if row:
-        # You can also tag results as “archived” if they come from the old table
+       
         flash(f"Serial number {serial_number} found in {'Warehouse_db' if row else 'Warehouse_db_old'}.")
         return render_template(
             "warehouse-racking.html",
@@ -205,7 +205,7 @@ def debug_db():
         return f"Debug error: {str(e)}"
 
 
-# ✅ this line Keep my index route as is
+# ✅ Keep index route as is
 @app.route("/")
 def index():
     conn = get_conn()
@@ -314,7 +314,7 @@ def add_item():
         return redirect(url_for("index"))
 
 
-# 🏓UPDATE your update_status route:
+# 🏓Update the update_status route:
 @app.route("/update_status/<serial>", methods=["POST"])
 def update_status(serial):
     new_status = request.form.get("status")
@@ -449,7 +449,7 @@ def add_item_racking():
     return redirect(url_for("racking_view", tab="registration"))
 
 
-# Add this new route in app.py after the add_item_racking route
+# route for registering dummy pallet slots
 
 @app.route("/register_dummy", methods=["POST"])
 def register_dummy():
