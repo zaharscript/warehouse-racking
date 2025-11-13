@@ -1015,6 +1015,8 @@ th {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+
+
 .results-table thead {
 
     background: linear-gradient(135deg, #2543c9 0%, #811ae7 100%);
@@ -1035,6 +1037,14 @@ th {
     padding: 12px 15px;
     border-bottom: 1px solid #e1e5e9;
     color: #333;
+}
+
+.status-out {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e1e5e9;
+    font-weight: bold;
+    color: #f50a21;
+    background-color: rgb(243, 72, 10);
 }
 
 .results-table tbody tr {

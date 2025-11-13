@@ -163,7 +163,8 @@
                                 <tr>
                                     <td>{{ search_result.Serial_Number }}</td>
                                     <td>{{ search_result.Kanban_Location }}</td>
-                                    <td>{{ search_result.Status }}</td>
+                                    <td class="{% if search_result.Status == 'Out Storage' %}status-out{% endif %}">
+                                        {{ search_result.Status }}</td>
                                     <td>
                                         {% if search_result.Last_Update_Out %}
                                         {{ search_result.Last_Update_Out }}
