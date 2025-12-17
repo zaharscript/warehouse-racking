@@ -1,0 +1,67 @@
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:8753
+Press CTRL+C to quit
+127.0.0.1 - - [24/Nov/2025 13:38:21] "GET /racking HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:21] "GET /static/js/warehouse-qr.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:21] "GET /static/img/delivery-box.png HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:21] "GET /static/img/scan.png HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:21] "GET /static/css/warehouse.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:21] "GET /static/js/warehouse.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:21] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:21] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:22] "GET /static/img/forklift.png HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "POST /search HTTP/1.1" 302 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "GET /racking?tab=search&error_serial=F004867994 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:38:41] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "POST /search HTTP/1.1" 302 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "GET /racking?tab=search&error_serial=F004867987 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:40:02] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:01] "GET /racking HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:01] "GET /static/img/scan.png HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:01] "GET /static/js/warehouse.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:01] "GET /static/css/warehouse.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:01] "GET /static/img/delivery-box.png HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:01] "GET /static/js/warehouse-qr.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:01] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:01] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:02] "GET /static/img/forklift.png HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "POST /search HTTP/1.1" 302 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "GET /racking?tab=search&error_serial=f004867994 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:11] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "POST /search HTTP/1.1" 302 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "GET /racking?tab=search&error_serial=f004867987 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:20] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:25] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [24/Nov/2025 13:41:26] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:26] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:26] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:26] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:26] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:26] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [24/Nov/2025 13:41:26] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 304 -

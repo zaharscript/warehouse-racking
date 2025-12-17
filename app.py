@@ -6,7 +6,8 @@ app = Flask(__name__)
 app.secret_key = "supersecret"  # needed for flash messages
 
 # === CONFIG ===
-DB_PATH = r"C:\Users\Admin\OneDrive\Pictures\agv\static\Warehouse-tracking.accdb"
+# DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
+DB_PATH = r"static\Warehouse-tracking.accdb"
 CONN_STR = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
     f"DBQ={DB_PATH};"
@@ -19,7 +20,7 @@ def get_conn():
 
 
 
-# ✅ ADD THIS HELPER FUNCTION after get_conn() function in app.py:
+# ✅ HELPER FUNCTION
 
 def get_location_data():
     """Helper function to get all warehouse data for the map"""
@@ -58,7 +59,7 @@ def get_location_data():
     return rows, location_data
 
 # New route for warehouse-racking.html
-# ✅ ADD THIS HELPER FUNCTION after get_conn() function in app.py:
+
 
 def get_location_data():
     """Helper function to get all warehouse data for the map"""
@@ -97,10 +98,11 @@ def get_location_data():
     return rows, location_data
 
 
-# ✅ UPDATE your racking_view route to use the helper:
+# 🏓 UPDATE  racking_view route to use the helper:
 
 @app.route("/racking", methods=["GET"])
 def racking_view():
+
     rows, location_data = get_location_data()
     
     active_tab = request.args.get("tab", "registration")
@@ -113,38 +115,56 @@ def racking_view():
                            error_serial=error_serial)
 
 
-# ✅ UPDATE your search route to use the helper:
+# 🏓 UPDATE your search route to use the helper:
 
 @app.route("/search", methods=["POST"])
 def search():
     serial_number = request.form.get("serial_number")
-    
-    # Get all data for the map
+
+    if not serial_number:
+        flash("No serial number provided.")
+        return redirect(url_for("racking_view", tab="search"))
+
+    # Get all data for the map (your existing helper)
     rows, location_data = get_location_data()
-    
-    # Search for specific serial number
+
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute(
-        """
+
+    # 1️⃣ Try to find in active table first
+    cur.execute("""
         SELECT Serial_Number, Kanban_Location, Status, Last_Update_In, Last_Update_Out
         FROM Warehouse_db
         WHERE Serial_Number = ?
-        """,
-        (serial_number,)
-    )
+    """, (serial_number,))
     row = cur.fetchone()
+
+    # 2️⃣ If not found, check old table
+    if not row:
+        cur.execute("""
+            SELECT Serial_Number, Kanban_Location, Status, Last_Update_In, Last_Update_Out
+            FROM Warehouse_db_old
+            WHERE Serial_Number = ?
+        """, (serial_number,))
+        row = cur.fetchone()
+
     conn.close()
 
+    # 3️⃣ Show result if found (from either table)
     if row:
-        return render_template("warehouse-racking.html", 
-                               search_result=row, 
-                               location_data=location_data,
-                               items=rows,
-                               active_tab="search")
+       
+        flash(f"Serial number {serial_number} found in {'Warehouse_db' if row else 'Warehouse_db_old'}.")
+        return render_template(
+            "warehouse-racking.html",
+            search_result=row,
+            location_data=location_data,
+            items=rows,
+            active_tab="search"
+        )
     else:
-        flash(f"Serial number {serial_number} not found!")
+        flash(f"Serial number {serial_number} not found in active or old records!")
         return redirect(url_for("racking_view", tab="search", error_serial=serial_number))
+
 
 
 
@@ -185,7 +205,7 @@ def debug_db():
         return f"Debug error: {str(e)}"
 
 
-# ✅ Keep your index route as is (it's fine):
+# ✅ Keep index route as is
 @app.route("/")
 def index():
     conn = get_conn()
@@ -200,7 +220,7 @@ def index():
     return render_template("index.html", items=rows)
 
 
-# ✅ UPDATE your add_item route:
+# 🏓 UPDATE  add_item route:
 @app.route("/add_item", methods=["POST"])
 def add_item():
     serial_number = request.form.get("serial_number")
@@ -294,7 +314,7 @@ def add_item():
         return redirect(url_for("index"))
 
 
-# ✅ UPDATE your update_status route:
+# 🏓Update the update_status route:
 @app.route("/update_status/<serial>", methods=["POST"])
 def update_status(serial):
     new_status = request.form.get("status")
@@ -334,13 +354,18 @@ def update_status(serial):
         return redirect(url_for("index"))
 
 
-# Add item route for warehouse-racking.html
+# ➕Add item route for warehouse-racking.html
 @app.route("/add_item_racking", methods=["POST"])
 def add_item_racking():
-    serial_number = request.form["serial_number"]
-    kanban_location = request.form["kanban_location"]
-    status = request.form["Status"]
+    serial_number = request.form.get("serial_number", "").strip()
+    kanban_location = request.form.get("kanban_location", "").strip()
+    status = "In Storage"  # ✅ Always "In Storage" for registration
     now = datetime.now()
+
+    # Validation
+    if not serial_number or not kanban_location:
+        flash("❌ Please fill in all fields!", "error")
+        return redirect(url_for("racking_view", tab="registration"))
 
     # Confirmation flag (hidden input in form if user already confirmed)
     confirmed = request.form.get("confirmed", "no")
@@ -350,15 +375,18 @@ def add_item_racking():
 
     # 🔍 Check if the location is already occupied
     cur.execute("""
-        SELECT COUNT(*) FROM Warehouse_db
+        SELECT Serial_Number FROM Warehouse_db
         WHERE Kanban_Location = ? AND Status = 'In Storage'
     """, (kanban_location,))
-    location_exists = cur.fetchone()[0]
+    existing_at_location = cur.fetchone()
 
-    if location_exists > 0:
-        conn.close()
-        flash(f"❌ Location '{kanban_location}' is already occupied! Please choose another slot.")
-        return redirect(url_for("racking_view"))
+    if existing_at_location:
+        existing_serial = existing_at_location[0]
+        # Don't block if it's the same serial being moved to the same location
+        if existing_serial != serial_number:
+            conn.close()
+            flash(f"❌ Location '{kanban_location}' is already occupied by Serial {existing_serial}! Please choose another slot.", "error")
+            return redirect(url_for("racking_view", tab="registration"))
 
     # 🔎 Check if serial already exists
     cur.execute("""
@@ -369,76 +397,117 @@ def add_item_racking():
     existing = cur.fetchone()
 
     if existing:
-        # Case 1: already in DB, and status is In Storage
-        if status == "In Storage":
-            old_location = existing.Kanban_Location
+        old_location = existing[1]
+        old_status = existing[2]
 
-            if old_location != kanban_location and confirmed != "yes":
-                # Ask for confirmation instead of updating right away
-                conn.close()
-                flash(
-                    f"⚠️ Serial {serial_number} already exists at {old_location}. "
-                    f"Do you want to move it to {kanban_location}?",
-                    "warning"
-                )
+        # If serial exists at a different location, ask for confirmation
+        if old_location != kanban_location and confirmed != "yes":
+            conn.close()
+            
+            status_msg = f"currently at {old_location}" if old_status == "In Storage" else "currently marked as Out Storage"
+            flash(
+                f"⚠️ Serial {serial_number} already exists ({status_msg}). "
+                f"Do you want to move it to {kanban_location}?",
+                "warning"
+            )
 
-                # Fetch the location_data and other required data
-                conn = get_conn()
-                cur = conn.cursor()
+            # ✅ Use the get_location_data() helper function
+            rows, location_data = get_location_data()
 
-                # Get location data (adjust this query to match your racking_view route)
-                cur.execute("SELECT Kanban_Location, Serial_Number, Status, Last_Update_In FROM Warehouse_db")
-                rows = cur.fetchall()
-                location_data = {}
-                for row in rows:
-                    loc, serial, stat, last_update = row
-                    if loc not in location_data:
-                        location_data[loc] = []
-                    location_data[loc].append({
-                        'serial': serial,
-                        'status': stat,
-                        'last_update': str(last_update) if last_update else None
-                    })
+            # Render the same form but include hidden confirmation
+            return render_template(
+                "warehouse-racking.html",
+                confirm_serial=serial_number,
+                confirm_location=kanban_location,
+                confirm_status=status,
+                active_tab="registration",
+                location_data=location_data,
+                items=rows
+            )
 
-                conn.close()
-
-                # Render the same form but include hidden confirmation
-                return render_template(
-                    "warehouse-racking.html",
-                    confirm_serial=serial_number,
-                    confirm_location=kanban_location,
-                    confirm_status=status,
-                    active_tab="registration",
-                    location_data=location_data
-                )
-
-            # User already confirmed → update location
-            cur.execute("""
-                UPDATE Warehouse_db
-                SET Kanban_Location = ?, Status = ?, Last_Update_In = ?, Last_Update_Out = NULL
-                WHERE Serial_Number = ?
-            """, (kanban_location, status, now, serial_number))
-
-        else:
-            # Case 2: status "Out Storage" → mark as out
-            cur.execute("""
-                UPDATE Warehouse_db
-                SET Status = ?, Last_Update_Out = ?
-                WHERE Serial_Number = ?
-            """, (status, now, serial_number))
+        # User confirmed or same location → update location
+        cur.execute("""
+            UPDATE Warehouse_db
+            SET Kanban_Location = ?, Status = ?, Last_Update_In = ?, Last_Update_Out = NULL
+            WHERE Serial_Number = ?
+        """, (kanban_location, status, now, serial_number))
+        
+        flash(f"✅ Serial {serial_number} moved to {kanban_location}!", "success")
     else:
-        # Case 3: new serial → insert
+        # Case: new serial → insert
         cur.execute("""
             INSERT INTO [Warehouse_db] 
             ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
             VALUES (?, ?, ?, ?, ?)
         """, (serial_number, kanban_location, status, now, None))
+        
+        flash(f"✅ Serial {serial_number} registered at {kanban_location}!", "success")
 
     conn.commit()
     conn.close()
 
-    flash(f"✅ Serial {serial_number} saved successfully!", "success")
     return redirect(url_for("racking_view", tab="registration"))
+
+
+# route for registering dummy pallet slots
+
+@app.route("/register_dummy", methods=["POST"])
+def register_dummy():
+    kanban_location = request.form.get("kanban_location", "").strip()
+    
+    if not kanban_location:
+        flash("❌ Please select a location!", "error")
+        return redirect(url_for("racking_view", tab="registration"))
+    
+    now = datetime.now()
+    serial_number = f"Dummy_{kanban_location}"
+    status = "Reserved"  # New status for dummy slots
+    
+    conn = get_conn()
+    cur = conn.cursor()
+    
+    try:
+        # Check if location already has something
+        cur.execute("""
+            SELECT Serial_Number, Status FROM Warehouse_db
+            WHERE Kanban_Location = ?
+        """, (kanban_location,))
+        existing = cur.fetchone()
+        
+        if existing:
+            existing_serial = existing[0]
+            existing_status = existing[1]
+            
+            # If it's already a dummy, remove it (toggle off)
+            if existing_serial.startswith("Dummy_"):
+                cur.execute("""
+                    DELETE FROM Warehouse_db
+                    WHERE Kanban_Location = ?
+                """, (kanban_location,))
+                flash(f"✅ Dummy removed from {kanban_location}!", "success")
+            else:
+                # Location occupied by real item
+                flash(f"❌ Location {kanban_location} is occupied by {existing_serial}!", "error")
+                conn.close()
+                return redirect(url_for("racking_view", tab="registration"))
+        else:
+            # Insert dummy record
+            cur.execute("""
+                INSERT INTO Warehouse_db 
+                ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+                VALUES (?, ?, ?, ?, ?)
+            """, (serial_number, kanban_location, status, now, None))
+            flash(f"✅ Dummy pallet reserved at {kanban_location}!", "success")
+        
+        conn.commit()
+        conn.close()
+        return redirect(url_for("racking_view", tab="registration"))
+        
+    except Exception as e:
+        conn.close()
+        flash(f"❌ Error: {str(e)}", "error")
+        return redirect(url_for("racking_view", tab="registration"))
+
 
 # ✅ Update status to "Out Storage"
 @app.route("/push_out", methods=["POST"])
@@ -450,20 +519,62 @@ def push_out():
 
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        UPDATE Warehouse_db
-        SET Status = ?, Last_Update_Out = ?
-        WHERE Serial_Number = ?
-    """, ("Out Storage", datetime.now(), serial_number))
-    rows_updated = cur.rowcount
-    conn.commit()
-    conn.close()
 
-    if rows_updated > 0:
-        flash(f"Serial number {serial_number} marked as 'Out Storage'.")
-    else:
-        flash(f"Serial number {serial_number} not found.")
-    return redirect(url_for("racking_view"))
+    try:
+        # 1️⃣ Fetch the record from Warehouse_db
+        cur.execute("""
+            SELECT [Serial_Number], [Kanban_Location], [Status], [Last_Update_In] 
+            FROM Warehouse_db 
+            WHERE Serial_Number = ?
+        """, (serial_number,))
+        record = cur.fetchone()
+
+        if not record:
+            flash(f"Serial number {serial_number} not found.")
+            conn.close()
+            return redirect(url_for("racking_view", tab="search"))
+
+        new_update_out = datetime.now()
+        
+        # 2️⃣ Check if it exists in Warehouse_db_old
+        cur.execute("""
+            SELECT Serial_Number FROM Warehouse_db_old 
+            WHERE Serial_Number = ?
+        """, (serial_number,))
+        exists = cur.fetchone()
+
+        if exists:
+            # Update existing record
+            cur.execute("""
+                UPDATE Warehouse_db_old
+                SET [Kanban_Location] = ?, 
+                    [Status] = 'Out Storage', 
+                    [Last_Update_In] = ?,
+                    [Last_Update_Out] = ?
+                WHERE Serial_Number = ?
+            """, (record[1], record[3], new_update_out, serial_number))
+            flash(f"ℹ️ Updated existing archive record for Serial {serial_number}.")
+        else:
+            # Insert new record
+            cur.execute("""
+                INSERT INTO Warehouse_db_old 
+                ([Serial_Number], [Kanban_Location], [Status], [Last_Update_In], [Last_Update_Out])
+                VALUES (?, ?, 'Out Storage', ?, ?)
+            """, (record[0], record[1], record[3], new_update_out))
+            flash(f"✅ Serial {serial_number} archived.")
+
+        # 3️⃣ Delete from active table
+        cur.execute("DELETE FROM Warehouse_db WHERE Serial_Number = ?", (serial_number,))
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"❌ Error: {e}")
+    finally:
+        conn.close()
+
+    return redirect(url_for("racking_view", tab="registration"))
 
 
 # Alternate route for debugging
@@ -496,7 +607,20 @@ def debug_locations():
     
     return result
 
-
+@app.route('/api/warehouse_data')
+def get_warehouse_data():
+    items = YourModel.query.all()
+    
+    warehouse_data = {}
+    for item in items:
+        warehouse_data[item.location] = {
+            'serial': item.serial_number,
+            'status': item.status,
+            'last_update_in': str(item.timestamp_in) if item.timestamp_in else None,
+            'last_update_out': str(item.timestamp_out) if item.timestamp_out else None
+        }
+    
+    return jsonify(warehouse_data)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,26 @@
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:17216
+Press CTRL+C to quit
+127.0.0.1 - - [14/Nov/2025 09:04:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [14/Nov/2025 09:04:41] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:08:54] "GET /static/img/forklift.png HTTP/1.1" 200 -
+127.0.0.1 - - [14/Nov/2025 09:10:31] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 304 -
+127.0.0.1 - - [14/Nov/2025 09:16:35] "GET /static/img/forklift.png HTTP/1.1" 304 -

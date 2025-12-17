@@ -1,0 +1,7 @@
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:20479
+Press CTRL+C to quit
+127.0.0.1 - - [29/Nov/2025 11:42:16] "GET /racking?tab=registration HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:42:19] "GET /static/img/forklift.png HTTP/1.1" 304 -

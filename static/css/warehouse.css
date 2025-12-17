@@ -186,7 +186,7 @@ body {
 }
 
 .btn {
-    background: linear-gradient(135deg, #4d7249 0%, #0756af 100%);
+    background: linear-gradient(135deg, #0340e6 0%, #02573d 100%);
     color: white;
     padding: 12px 30px;
     border: none;
@@ -197,6 +197,31 @@ body {
     transition: all 0.3s ease;
     margin-top: 20px;
 }
+
+.btn-scanner {
+    background: linear-gradient(135deg, #6743e9 0%, #f99538 100%);
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    /* spacing between icon and text */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-scanner img {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+}
+
 
 .btn:hover {
     transform: translateY(-2px);
@@ -667,14 +692,19 @@ th {
 }
 
 .icon {
-    width: 50px;
-    height: 50px;
+    width: 1px;
+    height: 1px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
+}
+
+.racking-icon {
+    width: 5%;
+    height: 5%;
 }
 
 .racking-grid {
@@ -759,7 +789,7 @@ th {
 .level-label {
     height: 60px;
     min-width: 100px;
-    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+    background: linear-gradient(180deg, #013009 0%, #6d5d02 100%);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -876,14 +906,7 @@ th {
 
 }
 
-/* .control-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-}
 
-.control-btn.active {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-} */
 
 .search-box {
     padding: 12px 20px;
@@ -1014,6 +1037,16 @@ th {
     color: #333;
 }
 
+.status-out {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e1e5e9;
+    font-weight: bold;
+    color: #f50a21;
+    background-color: rgb(243, 72, 10);
+}
+
+
+
 .results-table tbody tr {
     background: white;
     transition: all 0.3s ease;
@@ -1043,33 +1076,35 @@ th {
 }
 
 
-/* Glowing + Marching Ants effect for search results */
+/* Glowing + Marching Ants effect for search results - BLUE VERSION */
 .cell.search-highlight {
     position: relative;
     z-index: 100;
-    animation: pulseGlow 1.5s ease-in-out infinite !important;
+    /* Override the green gradient with blue */
+    background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%) !important;
+    animation: pulseGlowBlue 1.5s ease-in-out infinite !important;
 }
 
-/* Pulsing glow animation */
-@keyframes pulseGlow {
+/* Pulsing blue glow animation */
+@keyframes pulseGlowBlue {
 
     0%,
     100% {
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8),
-            0 0 40px rgba(255, 215, 0, 0.6),
-            0 0 60px rgba(255, 215, 0, 0.4);
+        box-shadow: 0 0 20px rgba(0, 102, 255, 0.8),
+            0 0 40px rgba(0, 153, 255, 0.6),
+            0 0 60px rgba(0, 191, 255, 0.4);
         transform: scale(1.05);
     }
 
     50% {
-        box-shadow: 0 0 40px rgba(255, 215, 0, 1),
-            0 0 80px rgba(255, 215, 0, 0.8),
-            0 0 120px rgba(255, 215, 0, 0.6);
+        box-shadow: 0 0 40px rgba(0, 102, 255, 1),
+            0 0 80px rgba(0, 153, 255, 0.8),
+            0 0 120px rgba(0, 191, 255, 0.6);
         transform: scale(1.1);
     }
 }
 
-/* Marching ants border */
+/* Marching ants border - White/Cyan for better visibility on blue */
 .cell.search-highlight::before {
     content: '';
     position: absolute;
@@ -1079,7 +1114,8 @@ th {
     bottom: -4px;
     border-radius: 6px;
     background: transparent;
-    border: 3px dashed #ffffff;
+    border: 3px dashed #00ffff;
+    /* Cyan color for visibility */
     animation: marchingAnts 0.8s linear infinite;
     pointer-events: none;
 }
@@ -1088,8 +1124,8 @@ th {
     to {
         stroke-dashoffset: -20;
         border-image-source: repeating-linear-gradient(45deg,
-                #fff 0px,
-                #fff 10px,
+                #00ffff 0px,
+                #00ffff 10px,
                 transparent 10px,
                 transparent 20px);
     }
@@ -1142,9 +1178,9 @@ th {
 body.search-active .cell:not(.search-highlight) {
     opacity: 0.3;
     filter: grayscale(50%);
-
 }
 
+/* -------------------------------------------------------------------- */
 /*---testing responsive---*/
 /* Tablet-Specific Styles (769px - 1400px) */
 @media (min-width: 769px) and (max-width: 1400px) {
@@ -1201,4 +1237,58 @@ body.search-active .cell:not(.search-highlight) {
         justify-content: center;
         /* Center the entire map */
     }
+}
+
+
+/* Dummy button styling */
+.btn-dummy {
+    background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-dummy:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
+    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+}
+
+/* Reserved/Dummy cell styling - ORANGE gradient */
+.cell.reserved {
+    background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+    color: white;
+}
+
+.cell.reserved:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(255, 140, 0, 0.5);
+}
+
+/* Update legend to include reserved */
+.legend-item.reserved::before {
+    content: '';
+    width: 40px;
+    height: 25px;
+    background: linear-gradient(135deg, #ff8c00 0%, #803a02 100%);
+    border-radius: 5px;
+    display: inline-block;
+    margin-right: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Dummy highlight effect */
+.cell.reserved::after {
+    content: '';
+    position: absolute;
+    font-size: 20px;
+    opacity: 0.7;
 }

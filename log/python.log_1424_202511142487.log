@@ -1,0 +1,6 @@
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:4757
+Press CTRL+C to quit
+127.0.0.1 - - [14/Nov/2025 10:48:08] "GET /favicon.ico HTTP/1.1" 404 -

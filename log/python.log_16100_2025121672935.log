@@ -1,0 +1,59 @@
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:11843
+Press CTRL+C to quit
+127.0.0.1 - - [16/Dec/2025 15:29:37] "GET /racking HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:29:37] "GET /static/img/delivery-box.png HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:29:37] "GET /static/css/warehouse.css HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:29:37] "GET /static/img/scan.png HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:29:37] "GET /static/js/warehouse-qr.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:29:37] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:29:37] "GET /static/js/warehouse.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:29:37] "GET /static/img/ruchindra-gunasekara-GK8x_XCcDZg-unsplash.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:29:39] "GET /static/img/forklift.png HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:30:20] "POST /search HTTP/1.1" 302 -
+127.0.0.1 - - [16/Dec/2025 15:30:20] "GET /racking?tab=search&error_serial=f\\f005043162 HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:30:20] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:20] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:20] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:20] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:20] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:20] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:21] "GET /static/img/forklift.png HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:30:28] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:30:28] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:30:28] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:28] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:28] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:28] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:28] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:28] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:30:29] "GET /static/img/forklift.png HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:32:25] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [16/Dec/2025 15:32:25] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:32:25] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:32:25] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:32:25] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:32:25] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:32:25] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Dec/2025 15:32:26] "GET /static/img/forklift.png HTTP/1.1" 200 -
+[2025-12-16 15:33:18,169] ERROR in app: Exception on /search [POST]
+Traceback (most recent call last):
+  File "C:\Users\E1539336\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\E1539336\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\E1539336\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\E1539336\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Afwan\apppystaging\wr\app.py", line 131, in search
+    conn = get_conn()
+  File "D:\Afwan\apppystaging\wr\app.py", line 17, in get_conn
+    return pyodbc.connect(CONN_STR)
+           ~~~~~~~~~~~~~~^^^^^^^^^^
+pyodbc.Error: ('HY000', 'The driver did not supply an error!')
+127.0.0.1 - - [16/Dec/2025 15:33:18] "POST /search HTTP/1.1" 500 -
+127.0.0.1 - - [16/Dec/2025 15:40:45] "GET /favicon.ico HTTP/1.1" 404 -

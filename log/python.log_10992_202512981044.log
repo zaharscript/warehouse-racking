@@ -1,0 +1,52 @@
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:10964
+Press CTRL+C to quit
+127.0.0.1 - - [09/Dec/2025 16:10:45] "GET /racking?tab=registration HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 16:10:47] "GET /static/img/forklift.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:11:50] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 16:11:50] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:11:50] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:11:50] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:11:50] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:11:50] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:11:50] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:31] "POST /search HTTP/1.1" 302 -
+127.0.0.1 - - [09/Dec/2025 16:12:31] "GET /racking?tab=search&error_serial=F005123943 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 16:12:31] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:31] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:31] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:31] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:31] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:31] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:50] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 16:12:50] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:50] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:50] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:50] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:50] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:12:50] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:12] "POST /search HTTP/1.1" 302 -
+127.0.0.1 - - [09/Dec/2025 16:13:12] "GET /racking?tab=search&error_serial=F005123945 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 16:13:12] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:12] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:12] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:12] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:12] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:12] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:17] "POST /search HTTP/1.1" 302 -
+127.0.0.1 - - [09/Dec/2025 16:13:17] "GET /racking?tab=search&error_serial=F005123946 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 16:13:17] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:17] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:17] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:17] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:17] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:17] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:22] "POST /search HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 16:13:22] "GET /static/css/warehouse.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:22] "GET /static/img/scan.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:22] "GET /static/img/delivery-box.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:22] "GET /static/js/warehouse.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:22] "GET /static/js/html5-qrcode.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Dec/2025 16:13:22] "GET /static/js/warehouse-qr.js HTTP/1.1" 304 -
