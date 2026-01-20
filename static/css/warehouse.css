@@ -260,6 +260,69 @@ body {
     color: white;
 }
 
+/* Style for the item type dropdown */
+.item-type-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.radio {
+    margin: 0.5rem;
+    display: inline-block;
+}
+
+.radio input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.radio input[type="radio"]+.radio-label:before {
+    content: '';
+    background: #f4f4f4;
+    border-radius: 100%;
+    border: 1px solid #b9b9b9;
+    display: inline-block;
+    width: 1.4em;
+    height: 1.4em;
+    position: relative;
+    top: 0.2em;
+    /* Your change */
+    margin-right: 1em;
+    vertical-align: baseline;
+    /* Change from 'top' to 'middle' or 'baseline' */
+    cursor: pointer;
+    text-align: center;
+    transition: all 250ms ease;
+}
+
+.radio input[type="radio"]:checked+.radio-label:before {
+    background-color: #3197EE;
+    box-shadow: inset 0 0 0 4px #f4f4f4;
+    top: 0.2em;
+}
+
+.radio input[type="radio"]:focus+.radio-label:before {
+    outline: none;
+    border-color: #3197EE;
+    top: 0.2em;
+}
+
+.radio input[type="radio"]:disabled+.radio-label:before {
+    box-shadow: inset 0 0 0 4px #f4f4f4;
+    border-color: #b9b9b9;
+    background: #b9b9b9;
+    top: 0.2em;
+}
+
+.radio input[type="radio"]+.radio-label:empty:before {
+    margin-right: 0;
+    top: 0.2em;
+}
+
+
+
 /* Map Section */
 .map-section {
     flex: 1;
@@ -1295,21 +1358,32 @@ body.search-active .cell:not(.search-highlight) {
 
 /* validation modal */
 .modal {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  z-index: 9999; /* ensures it's on top */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    /* ensures it's on top */
 }
 
 .modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  z-index: 10000; /* optional, ensures content is above overlay */
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 10000;
+    /* optional, ensures content is above overlay */
 }
+
+footer {
+    text-align: center;
+    padding: 15px 0;
+    background-color: #f9f9f9;
+    font-size: 14px;
+    color: #555;
 }

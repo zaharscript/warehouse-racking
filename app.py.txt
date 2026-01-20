@@ -70,8 +70,8 @@ def get_location_data():
             kanban_location = row[1] if row[1] else ""
             status = row[2] if row[2] else "Out Storage"
             item_type = row[3] if row[3] else ""
-            last_update_in = row[4]
-            last_update_out = row[5]
+            last_update_in = row[3]
+            last_update_out = row[4]
             
             if not kanban_location:
                 continue
@@ -257,11 +257,10 @@ def add_item():
     serial_number = request.form.get("serial_number")
     kanban_location = request.form.get("kanban_location")
     status = request.form.get("Status")
-    item_type = request.form.get("item_type")   # ✅ capture from dropdown
+    item_type = request.form.get("item_type")
     now = datetime.now()
 
-    # Validation: make sure item_type is also required
-    if not serial_number or not kanban_location or not status or not item_type:
+    if not serial_number or not kanban_location or not status:
         flash("❌ Please fill in all fields!", "error")
         return redirect(url_for("index"))
 
@@ -292,21 +291,21 @@ def add_item():
                     conn.close()
                     return redirect(url_for("index"))
 
-                # Update to new location and refresh Item_Type
+                # Update to new location
                 cur.execute("""
                     UPDATE Warehouse_db
                     SET Kanban_Location = ?, Status = ?, Item_Type = ?, Last_Update_In = ?, Last_Update_Out = NULL
                     WHERE Serial_Number = ?
                 """, (kanban_location, status, item_type, now, serial_number))
-                flash(f"✅ Serial {serial_number} moved to {kanban_location} as {item_type}!", "success")
+                flash(f"✅ Serial {serial_number} moved to {kanban_location}!", "success")
             else:
-                # Mark as Out Storage and refresh Item_Type
+                # Mark as Out Storage
                 cur.execute("""
                     UPDATE Warehouse_db
-                    SET Status = ?, Item_Type = ?, Last_Update_Out = ?
+                    SET Status = ?, Last_Update_Out = ?
                     WHERE Serial_Number = ?
-                """, (status, item_type, now, serial_number))
-                flash(f"✅ Serial {serial_number} marked as Out Storage ({item_type})!", "success")
+                """, (status, now, serial_number))
+                flash(f"✅ Serial {serial_number} marked as Out Storage!", "success")
         else:
             # New serial - insert it
             if status == "In Storage":
@@ -327,7 +326,7 @@ def add_item():
                     ([Serial_Number], [Kanban_Location], [Status], [Item_Type], [Last_Update_In], [Last_Update_Out])
                     VALUES (?, ?, ?, ?, ?, ?)
                 """, (serial_number, kanban_location, status, item_type, now, None))
-                flash(f"✅ Serial {serial_number} added to {kanban_location} as {item_type}!", "success")
+                flash(f"✅ Serial {serial_number} added to {kanban_location}!", "success")
             else:
                 # Adding new item as Out Storage
                 cur.execute("""
@@ -335,7 +334,7 @@ def add_item():
                     ([Serial_Number], [Kanban_Location], [Status], [Item_Type], [Last_Update_In], [Last_Update_Out])
                     VALUES (?, ?, ?, ?, ?, ?)
                 """, (serial_number, kanban_location, status, item_type, None, now))
-                flash(f"✅ Serial {serial_number} added as Out Storage ({item_type})!", "success")
+                flash(f"✅ Serial {serial_number} added as Out Storage!", "success")
 
         conn.commit()
         conn.close()
@@ -347,20 +346,61 @@ def add_item():
         return redirect(url_for("index"))
 
 
+# 🏓Update the update_status route:
+@app.route("/update_status/<serial>", methods=["POST"])
+def update_status(serial):
+    new_status = request.form.get("status")
+    
+    if not new_status:
+        flash("❌ Please select a status!", "error")
+        return redirect(url_for("index"))
+    
+    now = datetime.now()
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    try:
+        if new_status == "In Storage":
+            cur.execute("""
+                UPDATE Warehouse_db
+                SET Status = ?, Last_Update_In = ?
+                WHERE Serial_Number = ?
+            """, (new_status, now, serial))
+            flash(f"✅ Serial {serial} marked as In Storage!", "success")
+        else:  # Out Storage
+            cur.execute("""
+                UPDATE Warehouse_db
+                SET Status = ?, Last_Update_Out = ?
+                WHERE Serial_Number = ?
+            """, (new_status, now, serial))
+            flash(f"✅ Serial {serial} marked as Out Storage!", "success")
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("index"))
+        
+    except Exception as e:
+        conn.close()
+        flash(f"❌ Error: {str(e)}", "error")
+        return redirect(url_for("index"))
+
+
 # ➕Add item route for warehouse-racking.html
 @app.route("/add_item_racking", methods=["POST"])
 def add_item_racking():
     serial_number = request.form.get("serial_number", "").strip()
     kanban_location = request.form.get("kanban_location", "").strip()
-    item_type = request.form.get("item_type", "").strip()   # ✅ capture dropdown
-    status = "In Storage"  # Always "In Storage" for registration
+    item_type = request.form.get("item_type", "").strip()
+    status = "In Storage"  # ✅ Always "In Storage" for registration
     now = datetime.now()
 
-    # Validation: require item_type as well
-    if not serial_number or not kanban_location or not item_type:
+    # Validation
+    if not serial_number or not kanban_location:
         flash("❌ Please fill in all fields!", "error")
         return redirect(url_for("racking_view", tab="registration"))
 
+    # Confirmation flag (hidden input in form if user already confirmed)
     confirmed = request.form.get("confirmed", "no")
 
     conn = get_conn()
@@ -375,9 +415,10 @@ def add_item_racking():
 
     if existing_at_location:
         existing_serial = existing_at_location[0]
+        # Don't block if it's the same serial being moved to the same location
         if existing_serial != serial_number:
             conn.close()
-            flash(f"❌ Location '{kanban_location}' is already occupied by Serial {existing_serial}!", "error")
+            flash(f"❌ Location '{kanban_location}' is already occupied by Serial {existing_serial}! Please choose another slot.", "error")
             return redirect(url_for("racking_view", tab="registration"))
 
     # 🔎 Check if serial already exists
@@ -395,13 +436,18 @@ def add_item_racking():
         # If serial exists at a different location, ask for confirmation
         if old_location != kanban_location and confirmed != "yes":
             conn.close()
+            
             status_msg = f"currently at {old_location}" if old_status == "In Storage" else "currently marked as Out Storage"
             flash(
                 f"⚠️ Serial {serial_number} already exists ({status_msg}). "
                 f"Do you want to move it to {kanban_location}?",
                 "warning"
             )
+
+            # ✅ Use the get_location_data() helper function
             rows, location_data = get_location_data()
+
+            # Render the same form but include hidden confirmation
             return render_template(
                 "warehouse-racking.html",
                 confirm_serial=serial_number,
@@ -412,24 +458,27 @@ def add_item_racking():
                 items=rows
             )
 
-        # User confirmed or same location → update location and refresh Item_Type
+        # User confirmed or same location → update location
         cur.execute("""
             UPDATE Warehouse_db
             SET Kanban_Location = ?, Status = ?, Item_Type = ?, Last_Update_In = ?, Last_Update_Out = NULL
             WHERE Serial_Number = ?
         """, (kanban_location, status, item_type, now, serial_number))
-        flash(f"✅ Serial {serial_number} moved to {kanban_location} as {item_type}!", "success")
+        
+        flash(f"✅ Serial {serial_number} moved to {kanban_location}!", "success")
     else:
-        # Case: new serial → insert with Item_Type
+        # Case: new serial → insert
         cur.execute("""
-            INSERT INTO Warehouse_db 
+            INSERT INTO [Warehouse_db] 
             ([Serial_Number], [Kanban_Location], [Status], [Item_Type], [Last_Update_In], [Last_Update_Out])
             VALUES (?, ?, ?, ?, ?, ?)
         """, (serial_number, kanban_location, status, item_type, now, None))
-        flash(f"✅ Serial {serial_number} registered at {kanban_location} as {item_type}!", "success")
+        
+        flash(f"✅ Serial {serial_number} registered at {kanban_location}!", "success")
 
     conn.commit()
     conn.close()
+
     return redirect(url_for("racking_view", tab="registration"))
 
 
@@ -480,7 +529,7 @@ def register_dummy():
                 INSERT INTO Warehouse_db 
                 ([Serial_Number], [Kanban_Location], [Status], [Item_Type], [Last_Update_In], [Last_Update_Out])
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (serial_number, kanban_location, status, "Dummy", now, None))
+            """, (serial_number, kanban_location, status, item_type, now, None))
             flash(f"✅ Dummy pallet reserved at {kanban_location}!", "success")
         
         conn.commit()

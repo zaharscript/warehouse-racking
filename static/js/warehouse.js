@@ -442,7 +442,11 @@ function updateSearchBox(locationId) {
   if (searchBox) {
     const cellData = rackingData[locationId];
 
-    if (cellData && (cellData.status === "occupied" || cellData.status === "reserved") && cellData.serialNumber) {
+    if (
+      cellData &&
+      (cellData.status === "occupied" || cellData.status === "reserved") &&
+      cellData.serialNumber
+    ) {
       // If slot is occupied and has serial number, show it
       searchBox.value = cellData.serialNumber;
       searchBox.classList.remove("input-error");
@@ -954,18 +958,18 @@ function updateStatsFromData() {
 }
 
 /*form format s/n validation*/
-                function validateSerialNumber() {
-    const serial = document.getElementById("itemId").value.trim();
-    const regex = /^F\d{9}$/;  // F + 9 digits
+function validateSerialNumber() {
+  const serial = document.getElementById("itemId").value.trim();
+  const regex = /^F\d{9}$/; // F + 9 digits
 
-    if (!regex.test(serial)) {
-        // Show modal if invalid
-        document.getElementById("serialModal").style.display = "flex";
-        return false; // prevent form submission
-    }
-    return true; // allow form submission
+  if (!regex.test(serial)) {
+    // Show modal if invalid
+    document.getElementById("serialModal").style.display = "flex";
+    return false; // prevent form submission
+  }
+  return true; // allow form submission
 }
 
 function closeModal() {
-    document.getElementById("serialModal").style.display = "none";
+  document.getElementById("serialModal").style.display = "none";
 }
