@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Tracking System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
+    <link rel="icon" type="images/jpeg" href="/static/img/forklift.png">
+	<style>
+
+</style>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header with Navigation and Statistics -->
+        <div class="header-display">
+            <a href="http://192.168.1.11:5000/racking" style="text-decoration: none; color: inherit;">
+                <h1>3rd Party Racking Management</h1>
+            </a>
+			
+            <div class="stats-bar-display">
+				<div class="stat-item-display">
+					<span class="stat-number-display">{{ stats.total_slots }}</span>
+					<span class="stat-label-display">Total Slots</span>
+				</div>
+				<div class="stat-item-display">
+					<span class="stat-number-display">{{ stats.slot_occupied }}</span>
+					<span class="stat-label-display">Slot Occupied</span>
+				</div>
+				<div class="stat-item-display">
+					<span class="stat-number-display">{{ stats.finish_good }}</span>
+					<span class="stat-label-display">Finish Good</span>
+				</div>
+				<div class="stat-item-display">
+					<span class="stat-number-display">{{136- stats.finish_good }}</span>
+					<span class="stat-label-display">Slots Left</span>
+				</div>
+			</div>
+        </div>
+     
+
+        <!-- Warehouse Map Section -->
+        <div class="map-section">
+            <div class="map-header">
+                <span>Warehouse Layout</span>
+                <span style="float: right;">Zoom: <button onclick="zoomMap(1.2)">+</button> <button
+                        onclick="zoomMap(0.8)">-</button></span>
+            </div>
+            <div class="map-container" id="mapContainer">
+                <div class="warehouse-map" id="warehouseMap">
+                    <div class="container">
+                        <div class="controls-display">
+                            <button class="control-btn-display" onclick="refreshMapData()">🔄 Refresh Map</button>
+                        </div>
+
+                        <div class="racking-section">
+                            <div class="racking-header">
+                                <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
+                                        style="height:30px; width:30px;" /></div>
+                                <div class="racking-title">RACKING 1</div>
+                            </div>
+                            <div class="racking-wrapper">
+                                <div class="racking-grid">
+                                    <div id="racking1" class="level-column"></div>
+                                    <div class="level-labels">
+                                        <div class="level-label">4th Level</div>
+                                        <div class="level-label">3rd Level</div>
+                                        <div class="level-label">2nd Level</div>
+                                        <div class="level-label">Floor Level</div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="racking-header">
+                                <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
+                                        style="height:30px; width:30px;" /></div>
+                                <div class="racking-title">RACKING 2</div>
+                            </div>
+                            <div class="racking-wrapper">
+                                <div class="racking-grid">
+                                    <div id="racking2" class="level-column"></div>
+                                    <div class="level-labels">
+                                        <div class="level-label">4th Level</div>
+                                        <div class="level-label">3rd Level</div>
+                                        <div class="level-label">2nd Level</div>
+                                        <div class="level-label">Floor Level</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="legend">
+                            <div class="legend-item cell occupied">Occupied</div>
+                            <div class="legend-item cell available">Available</div>
+                            <div class="legend-item cell reserved">Reserved (Dummy Pallet) 🎯</div>
+                        </div>
+                    </div>
+
+                    <div id="tooltip" class="tooltip"></div>
+
+
+                </div>
+                <script>
+                    // Pass Flask data to JavaScript
+                    console.log('Raw location_data type:', typeof {{ location_data | tojson | safe }});
+                    const warehouseData = {{ location_data | tojson | safe }};
+                    console.log('Warehouse data loaded:', warehouseData);
+                    console.log('Total locations in database:', Object.keys(warehouseData).length);
+
+                    // Show all keys if less than 10
+                    if (Object.keys(warehouseData).length > 0 && Object.keys(warehouseData).length < 10) {
+                        console.log('All location keys:', Object.keys(warehouseData));
+                    }
+                </script>
+
+                <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
+                <script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
+                <script src="{{ url_for('static', filename='js/warehouse-qr.js') }}"></script>
+
+                <script src="https://unpkg.com/html5-qrcode"></script>
+				<script> </script>
+</body>
+cop
+
+</html>

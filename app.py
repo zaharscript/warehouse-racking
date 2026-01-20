@@ -22,6 +22,35 @@ def get_conn():
 
 # ✅ HELPER FUNCTION
 
+
+def get_statistics():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    # SLOT OCCUPIED → all items in Warehouse_db
+    cur.execute("SELECT COUNT(*) FROM Warehouse_db")
+    slot_occupied = cur.fetchone()[0]
+
+    # FINISH GOOD → items starting with 'F' and not dummy
+    cur.execute("""
+        SELECT COUNT(*) 
+        FROM Warehouse_db
+        WHERE Serial_Number LIKE 'F%' 
+        AND Serial_Number NOT LIKE 'Dummy_%'
+    """)
+    finish_good = cur.fetchone()[0]
+
+    conn.close()
+
+    # TOTAL SLOTS is fixed (136)
+    total_slots = 136
+
+    return {
+        "total_slots": total_slots,
+        "slot_occupied": slot_occupied,
+        "finish_good": finish_good
+    }
+
 def get_location_data():
     """Helper function to get all warehouse data for the map"""
     conn = get_conn()
@@ -107,12 +136,15 @@ def racking_view():
     
     active_tab = request.args.get("tab", "registration")
     error_serial = request.args.get("error_serial")
+    
+    stats = get_statistics()
 
     return render_template("warehouse-racking.html", 
                            items=rows,
                            location_data=location_data,
                            active_tab=active_tab, 
-                           error_serial=error_serial)
+                           error_serial=error_serial,
+                           stats=stats)
 
 
 # 🏓 UPDATE your search route to use the helper:
@@ -149,7 +181,7 @@ def search():
         row = cur.fetchone()
 
     conn.close()
-
+    stats = get_statistics()
     # 3️⃣ Show result if found (from either table)
     if row:
        
@@ -159,7 +191,8 @@ def search():
             search_result=row,
             location_data=location_data,
             items=rows,
-            active_tab="search"
+            active_tab="search",
+            stats=stats
         )
     else:
         flash(f"Serial number {serial_number} not found in active or old records!")
@@ -574,7 +607,7 @@ def push_out():
     finally:
         conn.close()
 
-    return redirect(url_for("racking_view", tab="registration"))
+    return redirect(url_for("racking_view", tab="search"))
 
 
 # Alternate route for debugging

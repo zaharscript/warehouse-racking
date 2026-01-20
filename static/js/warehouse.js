@@ -62,7 +62,7 @@ function processRegistration() {
 
   setTimeout(() => {
     // Update statistics
-    updateStatistics(currentOperation, parseInt(quantity));
+    //updateStatistics(currentOperation, parseInt(quantity));
 
     // Reset form
     document.getElementById("itemId").value = "";
@@ -951,4 +951,21 @@ function updateStatsFromData() {
   console.log(
     `Stats: ${occupied} occupied, ${reserved} reserved, ${available} available`
   );
+}
+
+/*form format s/n validation*/
+                function validateSerialNumber() {
+    const serial = document.getElementById("itemId").value.trim();
+    const regex = /^F\d{9}$/;  // F + 9 digits
+
+    if (!regex.test(serial)) {
+        // Show modal if invalid
+        document.getElementById("serialModal").style.display = "flex";
+        return false; // prevent form submission
+    }
+    return true; // allow form submission
+}
+
+function closeModal() {
+    document.getElementById("serialModal").style.display = "none";
 }

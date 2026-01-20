@@ -7,6 +7,10 @@
     <title>Warehouse Tracking System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
     <link rel="icon" type="images/jpeg" href="/static/img/forklift.png">
+	<style>
+
+</style>
+
 
 </head>
 
@@ -28,6 +32,16 @@
             </div>
             {% endif %}
             {% endwith %}
+			
+			<!-- Confirmation Modal -->
+<div id="serialModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Invalid Serial Number</h3>
+    <p>Serial number must be exactly 10 characters (F + 9 digits).</p>
+    <button onclick="closeModal()">OK</button>
+  </div>
+</div>
+
 
 
             <div class="nav-tabs">
@@ -38,19 +52,23 @@
             </div>
 
             <div class="stats-bar">
-                <div class="stat-item">
-                    <span class="stat-number" id="totalItems">108</span>
-                    <span class="stat-label">Total Items</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="availableSlots">206</span>
-                    <span class="stat-label">Available Slots</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="occupiedSlots">98</span>
-                    <span class="stat-label">Occupied Slots</span>
-                </div>
-            </div>
+				<div class="stat-item">
+					<span class="stat-number">{{ stats.total_slots }}</span>
+					<span class="stat-label">Total Slots</span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-number">{{ stats.slot_occupied }}</span>
+					<span class="stat-label">Slot Occupied</span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-number">{{ stats.finish_good }}</span>
+					<span class="stat-label">Finish Good</span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-number">{{136- stats.finish_good }}</span>
+					<span class="stat-label">Slots Left</span>
+				</div>
+			</div>
         </div>
 
         <div class="main-content">
@@ -70,7 +88,7 @@
                 <div id="registration"
                     class="tab-content {% if active_tab == 'registration' or not active_tab %}active{% endif %}">
                     <h2>Item Registration</h2>
-                    <form method="POST" action="{{ url_for('add_item_racking') }}">
+                    <form method="POST" action="{{ url_for('add_item_racking') }}" onsubmit="return validateSerialNumber()">
                         <input type="hidden" name="confirmed" id="confirmed" value="no">
                         <!-- ✅ Hidden input for Status - always "In Storage" -->
                         <input type="hidden" name="Status" value="In Storage">
@@ -282,9 +300,7 @@
                 <script src="{{ url_for('static', filename='js/warehouse-qr.js') }}"></script>
 
                 <script src="https://unpkg.com/html5-qrcode"></script>
-                <script>
-
-                </script>
+				<script> </script>
 </body>
 cop
 
