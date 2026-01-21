@@ -930,6 +930,7 @@ th {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+
 .legend-item.available::before {
     content: '';
     width: 40px;
@@ -1386,4 +1387,25 @@ footer {
     background-color: #f9f9f9;
     font-size: 14px;
     color: #555;
+}
+
+
+.cell.occupied.item-control-valve {
+  background: linear-gradient(135deg, #0047ab 0%, #1e90ff 100%);
+}
+
+.cell.occupied.item-unpainted-body {
+  background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+}
+
+.cell.occupied.item-level-troll {
+  background: linear-gradient(135deg, #3c3d03 0%, #e0e40d 100%);
+}
+
+.cell.occupied.item-whisper-disk {
+  background: linear-gradient(135deg, #6a0dad 0%, #9370db 100%);
+}
+
+.cell.occupied.item-diffuser {
+  background: linear-gradient(135deg, #ff00ea 0%, #e979df 100%);
 }

@@ -141,7 +141,7 @@
                 <td>{{ item[4] if item[4] else 'N/A' }}</td> <!-- Last_Update_Out -->
                 <td>
                     <!-- Form to update status -->
-                    <form method="POST" action="{{ url_for('update_status', serial=item[0]) }}"
+                    <!-- <form method="POST" action="{{ url_for('update_status', serial=item[0]) }}"
                         style="display: inline;">
                         <select name="status" onchange="this.form.submit()">
                             <option value="">Change Status</option>
@@ -150,7 +150,7 @@
                             <option value="Out Storage" {% if item[2]=='Out Storage' %}selected{% endif %}>Out Storage
                             </option>
                         </select>
-                    </form>
+                    </form> -->
                 </td>
             </tr>
             {% else %}

@@ -7,7 +7,7 @@ app.secret_key = "supersecret"  # needed for flash messages
 
 # === CONFIG ===
 # DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
-DB_PATH = r"D:\warehouse-racking\static\Warehouse-tracking.accdb"
+DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
 CONN_STR = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
     f"DBQ={DB_PATH};"
@@ -16,12 +16,7 @@ CONN_STR = (
 def get_conn():
     return pyodbc.connect(CONN_STR)
 
-
-
-
-
 # ✅ HELPER FUNCTION
-
 
 def get_statistics():
     conn = get_conn()
@@ -89,47 +84,45 @@ def get_location_data():
     
     return rows, location_data
 
-# New route for warehouse-racking.html
-
-
-# def get_location_data():
-#     """Helper function to get all warehouse data for the map"""
-#     conn = get_conn()
-#     cur = conn.cursor()
-#     cur.execute("""
-#         SELECT [Serial_Number], [Kanban_Location], [Status],
-#                [Last_Update_In], [Last_Update_Out]
-#         FROM [Warehouse_db]
-#     """)
-#     rows = cur.fetchall()
-#     conn.close()
+# 🏓Update the update_status route:
+@app.route("/update_status/<serial>", methods=["POST"])
+def update_status(serial):
+    new_status = request.form.get("status")
     
-#     location_data = {}
-#     for row in rows:
-#         try:
-#             serial_number = row[0] if row[0] else "N/A"
-#             kanban_location = row[1] if row[1] else ""
-#             status = row[2] if row[2] else "Out Storage"
-#             last_update_in = row[3]
-#             last_update_out = row[4]
-            
-#             if not kanban_location:
-#                 continue
-            
-#             location_data[kanban_location] = {
-#                 'serial': serial_number,
-#                 'status': status,
-#                 'last_update_in': str(last_update_in) if last_update_in else None,
-#                 'last_update_out': str(last_update_out) if last_update_out else None
-#             }
-#         except Exception as e:
-#             print(f"ERROR processing row: {e}")
-#             continue
+    if not new_status:
+        flash("❌ Please select a status!", "error")
+        return redirect(url_for("index"))
     
-#     return rows, location_data
+    now = datetime.now()
 
+    conn = get_conn()
+    cur = conn.cursor()
 
-# 🏓 UPDATE  racking_view route to use the helper:
+    try:
+        if new_status == "In Storage":
+            cur.execute("""
+                UPDATE Warehouse_db
+                SET Status = ?, Last_Update_In = ?
+                WHERE Serial_Number = ?
+            """, (new_status, now, serial))
+            flash(f"✅ Serial {serial} marked as In Storage!", "success")
+        else:  # Out Storage
+            cur.execute("""
+                UPDATE Warehouse_db
+                SET Status = ?, Last_Update_Out = ?
+                WHERE Serial_Number = ?
+            """, (new_status, now, serial))
+            flash(f"✅ Serial {serial} marked as Out Storage!", "success")
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("index"))
+        
+    except Exception as e:
+        conn.close()
+        flash(f"❌ Error: {str(e)}", "error")
+        return redirect(url_for("index"))
+
 
 @app.route("/racking", methods=["GET"])
 def racking_view():
@@ -146,7 +139,7 @@ def racking_view():
                            stats=stats)
 
 
-# 🏓 UPDATE your search route to use the helper:
+# 🏓 UPDATE SEARCH ROUTE TO USE THE HELPER:
 
 @app.route("/search", methods=["POST"])
 def search():
@@ -195,45 +188,6 @@ def search():
     else:
         flash(f"Serial number {serial_number} not found in active or old records!")
         return redirect(url_for("racking_view", tab="search", error_serial=serial_number))
-
-
-
-
-
-# @app.route("/debug_db")
-# def debug_db():
-#     try:
-#         conn = get_conn()
-#         cur = conn.cursor()
-        
-#         # Get all table names
-#         tables = []
-#         for table_info in cur.tables(tableType='TABLE'):
-#             tables.append(table_info.table_name)
-        
-#         # Get column names for each table
-#         table_columns = {}
-#         for table in tables:
-#             try:
-#                 columns = []
-#                 for column in cur.columns(table=table):
-#                     columns.append(column.column_name)
-#                 table_columns[table] = columns
-#             except:
-#                 table_columns[table] = ["Error getting columns"]
-        
-#         conn.close()
-        
-#         result = "<h2>Database Debug Info:</h2>"
-#         result += f"<h3>Tables found: {tables}</h3>"
-#         for table, columns in table_columns.items():
-#             result += f"<h4>Table: {table}</h4>"
-#             result += f"<p>Columns: {', '.join(columns)}</p>"
-        
-#         return result
-        
-#     except Exception as e:
-#         return f"Debug error: {str(e)}"
 
 
 # ✅ Keep index route as is
@@ -445,7 +399,8 @@ def register_dummy():
     
     now = datetime.now()
     serial_number = f"Dummy_{kanban_location}"
-    status = "Reserved"  # New status for dummy slots
+    status = "Reserved"   # New status for dummy slots
+    item_type = "Dummy"   # ✅ Define item_type for dummy pallets
     
     conn = get_conn()
     cur = conn.cursor()
@@ -480,7 +435,7 @@ def register_dummy():
                 INSERT INTO Warehouse_db 
                 ([Serial_Number], [Kanban_Location], [Status], [Item_Type], [Last_Update_In], [Last_Update_Out])
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (serial_number, kanban_location, status, "Dummy", now, None))
+            """, (serial_number, kanban_location, status, item_type, now, None))
             flash(f"✅ Dummy pallet reserved at {kanban_location}!", "success")
         
         conn.commit()

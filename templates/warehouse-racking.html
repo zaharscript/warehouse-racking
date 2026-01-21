@@ -251,12 +251,6 @@
                 <div class="warehouse-map" id="warehouseMap">
                     <div class="container">
                         <div class="controls">
-                            <!-- <input type="text" class="search-box" id="location"
-                                placeholder="Search location ID (e.g., R1_A4_12)"> -->
-                            <!-- <button class="control-btn" onclick="filterStatus('all')">Show All</button>
-                            <button class="control-btn" onclick="filterStatus('occupied')">Occupied Only</button>
-                            <button class="control-btn" onclick="filterStatus('available')">Available Only</button>
-                            <button class="control-btn" onclick="randomizeData()">Randomize Data</button> -->
                             <button class="control-btn" onclick="refreshMapData()">🔄 Refresh Map</button>
                         </div>
 
@@ -303,10 +297,10 @@
 
                         <div class="legend">
                             <div class="legend-item cell occupied">Occupied (Control Valve)</div>
-                            <div class="legend-item cell occupied">Occupied (Unpainted Body)</div>
-                            <div class="legend-item cell occupied">Occupied (Level Troll)</div>
-                            <div class="legend-item cell occupied">Occupied (Whisper Disk)</div>
-                            <div class="legend-item cell occupied">Occupied (Diffuser)</div>
+                            <div class="legend-item cell occupied item-unpainted-body">Occupied (Unpainted Body)</div>
+                            <div class="legend-item cell occupied item-level-troll">Occupied (Level Troll)</div>
+                            <div class="legend-item cell occupied item-whisper-disk">Occupied (Whisper Disk)</div>
+                            <div class="legend-item cell occupied item-diffuser">Occupied (Diffuser)</div>
                             <div class="legend-item cell available">Available</div>
                             <div class="legend-item cell reserved">Reserved (Dummy Pallet) 🎯</div>
                         </div>
@@ -334,7 +328,8 @@
                     // Show all keys if less than 10
                     if (Object.keys(warehouseData).length > 0 && Object.keys(warehouseData).length < 10) {
                         console.log('All location keys:', Object.keys(warehouseData));
-                    }
+                        
+                    }    
                 </script>
 
                 <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
