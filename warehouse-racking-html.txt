@@ -97,7 +97,7 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="itemId">Serial Number</label>
-                                <input type="text" id="itemId" class="form-control" name="serial_number"  maxlength="10"  oninput="this.value = this.value.toUpperCase().replace(/[^F0-9]/g, '')" required
+                                <input type="text" id="itemId" class="form-control" name="serial_number" required
                                     placeholder="Enter Serial Number"
                                     value="{{ confirm_serial if confirm_serial else '' }}"
                                     oninput="this.value = this.value.toUpperCase()">

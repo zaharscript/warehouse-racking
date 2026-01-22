@@ -302,4 +302,59 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+/*************************************************
+ * MESSAGE FLASH FADE OUT
+ *************************************************/
 
+
+document.addEventListener("DOMContentLoaded", () => {
+  const flashes = document.querySelectorAll(".flash-message");
+
+  flashes.forEach(msg => {
+    setTimeout(() => {
+      msg.style.transition = "opacity 0.3s ease";
+      msg.style.opacity = "0";
+
+      // remove from DOM after fade
+      setTimeout(() => msg.remove(), 300);
+    }, 500); // ⏱ 0.5 second
+  });
+});
+
+
+/*************************************************
+ * VALIDATE SEARCH INPUT
+ *************************************************/
+
+function validateSerialNumber() {
+  const input = document.getElementById("itemId");
+  if (!input) return true;
+
+  const serial = input.value.trim().toUpperCase();
+  input.value = serial;
+
+  // Regex: F + exactly 9 digits
+  const serialRegex = /^F\d{9}$/;
+
+  if (!serialRegex.test(serial)) {
+    showSerialModal();
+    input.classList.add("input-error");
+    return false; // ❌ block form submit
+  }
+
+  input.classList.remove("input-error");
+  return true; // ✅ allow submit
+}
+
+/*************************************************
+ * SERIAL MODAL HELPERS
+ *************************************************/
+function showSerialModal() {
+  const modal = document.getElementById("serialModal");
+  if (modal) modal.style.display = "block";
+}
+
+function closeModal() {
+  const modal = document.getElementById("serialModal");
+  if (modal) modal.style.display = "none";
+}

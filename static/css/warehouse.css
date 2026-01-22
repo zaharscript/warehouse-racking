@@ -1389,9 +1389,9 @@ footer {
     color: #555;
 }
 
-
+/* Item type specific styling */
 .cell.occupied.item-control-valve {
-  background: linear-gradient(135deg, #0047ab 0%, #1e90ff 100%);
+  background: linear-gradient(135deg, #006400 0%, #228b22 100%);
 }
 
 .cell.occupied.item-unpainted-body {
@@ -1408,4 +1408,11 @@ footer {
 
 .cell.occupied.item-diffuser {
   background: linear-gradient(135deg, #ff00ea 0%, #e979df 100%);
+}
+
+
+/* Input error styling */
+.input-error {
+  border: 2px solid #dc3545;
+  background-color: #fff5f5;
 }

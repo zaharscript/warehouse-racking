@@ -1,13 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import pyodbc
+import re
 from datetime import datetime
+
 
 app = Flask(__name__)
 app.secret_key = "supersecret"  # needed for flash messages
 
 # === CONFIG ===
 # DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
-DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
+DB_PATH = r"static\Warehouse-tracking.accdb"
 CONN_STR = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
     f"DBQ={DB_PATH};"
@@ -305,6 +307,10 @@ def add_item():
 @app.route("/add_item_racking", methods=["POST"])
 def add_item_racking():
     serial_number = request.form.get("serial_number", "").strip()
+    # Regex: F + 9 digits
+    if not re.fullmatch(r"F\d{9}", serial_number):
+        flash("❌ Invalid Serial Number format! Use F followed by 9 digits (e.g. F002344321)", "error")
+        return redirect(url_for("racking_view", tab="registration"))
     kanban_location = request.form.get("kanban_location", "").strip()
     item_type = request.form.get("item_type", "").strip()   # ✅ capture dropdown
     status = "In Storage"  # Always "In Storage" for registration
@@ -363,7 +369,8 @@ def add_item_racking():
                 confirm_status=status,
                 active_tab="registration",
                 location_data=location_data,
-                items=rows
+                items=rows,
+                stats=get_statistics()
             )
 
         # User confirmed or same location → update location and refresh Item_Type
