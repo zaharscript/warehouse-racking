@@ -16,9 +16,9 @@ body {
   max-width: 1600px;
   margin: 0 auto;
   padding: 20px;
-  height: 100vh;
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
 /* Header */
@@ -146,7 +146,6 @@ body {
 
 /* Main Content Area */
 .main-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -159,7 +158,6 @@ body {
   padding: 30px;
   border-radius: 15px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  min-height: 300px;
 }
 
 .tab-content {

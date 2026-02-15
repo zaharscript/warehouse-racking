@@ -235,10 +235,32 @@ function highlightSearchResults(serial) {
  * CLEAR SEARCH
  *************************************************/
 function clearSearch() {
-  document.getElementById("searchItemId").value = "";
+  // 1. Clear input
+  const searchBox = document.getElementById("searchItemId");
+  if (searchBox) {
+    searchBox.value = "";
+    searchBox.classList.remove("input-error");
+  }
+
+  // 2. Remove search results table
+  const searchResults = document.querySelector(".search-results");
+  if (searchResults) {
+    searchResults.innerHTML = "";
+  }
+
+  // 3. Remove Push Out button form
+  const pushOutBtn = document.querySelector(".btn-push-out");
+  if (pushOutBtn) {
+    const parentForm = pushOutBtn.closest("form");
+    if (parentForm) parentForm.remove();
+  }
+
+  // 4. Clear map highlights
   document.querySelectorAll(".cell").forEach(c => {
     c.classList.remove("search-highlight", "selected");
   });
+
+  console.log("🔍 Search reset complete");
 }
 
 /*************************************************
