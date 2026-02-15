@@ -9,7 +9,7 @@ app.secret_key = "supersecret"  # needed for flash messages
 
 # === CONFIG ===
 # DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
-DB_PATH = r"static\Warehouse-tracking.accdb"
+DB_PATH = r"D:\warehouse-racking\static\Warehouse-tracking.accdb"
 CONN_STR = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
     f"DBQ={DB_PATH};"
@@ -233,6 +233,9 @@ def add_item():
     existing = cur.fetchone()
 
     try:
+        # First, remove any dummy records for this location (if any)
+        cur.execute("DELETE FROM Warehouse_db WHERE Kanban_Location = ? AND Serial_Number LIKE 'Dummy_%'", (kanban_location,))
+        
         if existing:
             # Serial exists - update it
             if status == "In Storage":
@@ -325,6 +328,9 @@ def add_item_racking():
 
     conn = get_conn()
     cur = conn.cursor()
+
+    # First, remove any dummy records for this location (if any)
+    cur.execute("DELETE FROM Warehouse_db WHERE Kanban_Location = ? AND Serial_Number LIKE 'Dummy_%'", (kanban_location,))
 
     # 🔍 Check if the location is already occupied
     cur.execute("""

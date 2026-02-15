@@ -100,7 +100,8 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="itemId">Serial Number</label>
-                                <input type="text" id="itemId" class="form-control" name="serial_number"  maxlength="10"  oninput="this.value = this.value.toUpperCase().replace(/[^F0-9]/g, '')" required
+                                <input type="text" id="itemId" class="form-control" name="serial_number" maxlength="10"
+                                    oninput="this.value = this.value.toUpperCase().replace(/[^F0-9]/g, '')" required
                                     placeholder="Enter Serial Number"
                                     value="{{ confirm_serial if confirm_serial else '' }}"
                                     oninput="this.value = this.value.toUpperCase()">
@@ -130,29 +131,29 @@
                         <div class=".item-type-group" required>
 
                             <div class="radio">
-                                <input id="radio-1" name="item_type" type="radio" value="Control Valve" 
-                                {% if confirm_item_type == 'Control Valve' or not confirm_item_type %}checked{% endif %}>
+                                <input id="radio-1" name="item_type" type="radio" value="Control Valve" {% if
+                                    confirm_item_type=='Control Valve' or not confirm_item_type %}checked{% endif %}>
                                 <label for="radio-1" class="radio-label">Control Valve</label>
                             </div>
 
                             <div class="radio">
-                                <input id="radio-2" name="item_type" type="radio" value="Unpainted Body"
-                                {% if confirm_item_type == 'Unpainted Body' %}checked{% endif %}>
+                                <input id="radio-2" name="item_type" type="radio" value="Unpainted Body" {% if
+                                    confirm_item_type=='Unpainted Body' %}checked{% endif %}>
                                 <label for="radio-2" class="radio-label">Unpainted Body</label>
                             </div>
                             <div class="radio">
-                                <input id="radio-3" name="item_type" type="radio" value="Level Troll"
-                                {% if confirm_item_type == 'Level Troll' %}checked{% endif %}>
+                                <input id="radio-3" name="item_type" type="radio" value="Level Troll" {% if
+                                    confirm_item_type=='Level Troll' %}checked{% endif %}>
                                 <label for="radio-3" class="radio-label">Level Troll</label>
                             </div>
                             <div class="radio">
-                                <input id="radio-4" name="item_type" type="radio" value="Whisper Disk"
-                                {% if confirm_item_type == 'Whisper Disk' %}checked{% endif %}>
+                                <input id="radio-4" name="item_type" type="radio" value="Whisper Disk" {% if
+                                    confirm_item_type=='Whisper Disk' %}checked{% endif %}>
                                 <label for="radio-4" class="radio-label">Whisper Disk</label>
                             </div>
                             <div class="radio">
-                                <input id="radio-5" name="item_type" type="radio" value="Diffuser"
-                                {% if confirm_item_type == 'Diffuser' %}checked{% endif %}>
+                                <input id="radio-5" name="item_type" type="radio" value="Diffuser" {% if
+                                    confirm_item_type=='Diffuser' %}checked{% endif %}>
                                 <label for="radio-5" class="radio-label">Diffuser</label>
                             </div>
 
@@ -174,7 +175,8 @@
                             <h3>Confirm Move</h3>
                             <p>
                                 Serial <strong>{{ confirm_serial }}</strong> already exists
-                                ({% if confirm_status == 'In Storage' %}at another location{% else %}marked as Out Storage{% endif %}).<br>
+                                ({% if confirm_status == 'In Storage' %}at another location{% else %}marked as Out
+                                Storage{% endif %}).<br>
                                 Do you want to move it to <strong>{{ confirm_location }}</strong>?
                             </p>
                             <div class="modal-actions">
