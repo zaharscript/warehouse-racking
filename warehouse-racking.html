@@ -18,6 +18,10 @@
     <div class="container">
         <!-- Header with Navigation and Statistics -->
         <div class="header">
+            <video autoplay muted loop playsinline class="header-video">
+                <!-- Using correct relative path: static/... -->
+                <source src="static/img/warehouse.mp4" type="video/mp4">
+            </video>
             <a href="http://192.168.1.11:5000/racking" style="text-decoration: none; color: inherit;">
                 <h1>3rd Party Racking Management</h1>
             </a>
@@ -82,6 +86,7 @@
             </ul>
             {% endif %}
             {% endwith %}
+            
             <!-- Form Section -->
             <div class="form-section">
                 <!-- Registration Tab -->
@@ -276,11 +281,21 @@
 
                     <div id="tooltip" class="tooltip"></div>
 
-
                 </div>
-                <script>
-
-                </script>
+                <!-- Confirmation Modal -->
+<div id="confirmationModal" class="modal">
+  <div class="modal-content confirmation-modal">
+    <h3>Confirm Move</h3>
+    <p>
+      This serial number already exists.  
+      Do you want to move it from the old location to the new one?
+    </p>
+    <div class="modal-actions">
+      <button class="btn-confirm-yes">✅ Yes</button>
+      <button class="btn-confirm-no">❌ No</button>
+    </div>
+  </div>
+</div>
 
                 <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
                 <script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>

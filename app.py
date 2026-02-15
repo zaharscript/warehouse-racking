@@ -351,6 +351,7 @@ def add_item_racking():
     if existing:
         old_location = existing[1]
         old_status = existing[2]
+        old_item_type = existing[3]  # ✅ Get existing Item Type
 
         # If serial exists at a different location, ask for confirmation
         if old_location != kanban_location and confirmed != "yes":
@@ -367,6 +368,7 @@ def add_item_racking():
                 confirm_serial=serial_number,
                 confirm_location=kanban_location,
                 confirm_status=status,
+                confirm_item_type=old_item_type,  # ✅ Pass it to template
                 active_tab="registration",
                 location_data=location_data,
                 items=rows,

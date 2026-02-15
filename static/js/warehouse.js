@@ -358,3 +358,19 @@ function closeModal() {
   const modal = document.getElementById("serialModal");
   if (modal) modal.style.display = "none";
 }
+
+function showConfirmationModal() {
+  const modal = document.getElementById("confirmationModal");
+  modal.style.display = "flex";
+
+  // Yes button → proceed with move
+  document.querySelector(".btn-confirm-yes").onclick = () => {
+    modal.style.display = "none";
+    proceedWithMove(); // <-- your function to handle relocation
+  };
+
+  // No button → cancel move
+  document.querySelector(".btn-confirm-no").onclick = () => {
+    modal.style.display = "none";
+  };
+}

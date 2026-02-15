@@ -7,9 +7,9 @@
     <title>Warehouse Tracking System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
     <link rel="icon" type="images/jpeg" href="/static/img/forklift.png">
-	<style>
+    <style>
 
-</style>
+    </style>
 
 
 </head>
@@ -21,27 +21,27 @@
             <a href="http://192.168.1.11:5000/racking" style="text-decoration: none; color: inherit;">
                 <h1>3rd Party Racking Management</h1>
             </a>
-			
+
             <div class="stats-bar-display">
-				<div class="stat-item-display">
-					<span class="stat-number-display">{{ stats.total_slots }}</span>
-					<span class="stat-label-display">Total Slots</span>
-				</div>
-				<div class="stat-item-display">
-					<span class="stat-number-display">{{ stats.slot_occupied }}</span>
-					<span class="stat-label-display">Slot Occupied</span>
-				</div>
-				<div class="stat-item-display">
-					<span class="stat-number-display">{{ stats.finish_good }}</span>
-					<span class="stat-label-display">Finish Good</span>
-				</div>
-				<div class="stat-item-display">
-					<span class="stat-number-display">{{136- stats.finish_good }}</span>
-					<span class="stat-label-display">Slots Left</span>
-				</div>
-			</div>
+                <div class="stat-item-display">
+                    <span class="stat-number-display">{{ stats.total_slots }}</span>
+                    <span class="stat-label-display">Total Slots</span>
+                </div>
+                <div class="stat-item-display">
+                    <span class="stat-number-display">{{ stats.slot_occupied }}</span>
+                    <span class="stat-label-display">Slot Occupied</span>
+                </div>
+                <div class="stat-item-display">
+                    <span class="stat-number-display">{{ stats.finish_good }}</span>
+                    <span class="stat-label-display">Finish Good</span>
+                </div>
+                <div class="stat-item-display">
+                    <span class="stat-number-display">{{136- stats.finish_good }}</span>
+                    <span class="stat-label-display">Slots Left</span>
+                </div>
+            </div>
         </div>
-     
+
 
         <!-- Warehouse Map Section -->
         <div class="map-section">
@@ -106,6 +106,38 @@
 
 
                 </div>
+                {% if confirm_serial %}
+                <div id="confirmModal" class="modal-overlay">
+                    <div class="modal-box">
+                        <h2>⚠️ Confirmation Required</h2>
+                        <p>
+                            Serial <strong>{{ confirm_serial }}</strong> already exists ({{ confirm_status }}).<br>
+                            Do you want to move it to <strong>{{ confirm_location }}</strong>?
+                        </p>
+                        <div class="modal-actions">
+                            <form method="POST" action="{{ url_for('add_item_racking') }}">
+                                <input type="hidden" name="serial_number" value="{{ confirm_serial }}">
+                                <input type="hidden" name="kanban_location" value="{{ confirm_location }}">
+                                <input type="hidden" name="item_type" value="{{ confirm_status }}">
+                                <input type="hidden" name="confirmed" value="yes">
+                                <button type="submit" class="btn-confirm">✅ Yes, Move</button>
+                            </form>
+                            <button class="btn-cancel" onclick="closeModal()">❌ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    // Show modal on page load
+                    window.onload = function () {
+                        document.getElementById("confirmModal").style.display = "flex";
+                    };
+
+                    function closeModal() {
+                        document.getElementById("confirmModal").style.display = "none";
+                    }
+                </script>
+                {% endif %}
                 <script>
                     // Pass Flask data to JavaScript
                     console.log('Raw location_data type:', typeof {{ location_data | tojson | safe }});
@@ -124,7 +156,7 @@
                 <script src="{{ url_for('static', filename='js/warehouse-qr.js') }}"></script>
 
                 <script src="https://unpkg.com/html5-qrcode"></script>
-				<script> </script>
+                <script> </script>
 </body>
 cop
 

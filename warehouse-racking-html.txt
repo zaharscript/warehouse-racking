@@ -7,9 +7,9 @@
     <title>Warehouse Tracking System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
     <link rel="icon" type="images/jpeg" href="/static/img/forklift.png">
-    <style>
+	<style>
 
-    </style>
+</style>
 
 
 </head>
@@ -17,228 +17,31 @@
 <body>
     <div class="container">
         <!-- Header with Navigation and Statistics -->
-        <div class="header">
+        <div class="header-display">
             <a href="http://192.168.1.11:5000/racking" style="text-decoration: none; color: inherit;">
                 <h1>3rd Party Racking Management</h1>
             </a>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            <div class="flash-container">
-                {% for category, message in messages %}
-                <div class="flash-message {{ category }}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            {% endwith %}
-
-            <!-- Confirmation Modal -->
-            <div id="serialModal" class="modal" style="display:none;">
-                <div class="modal-content">
-                    <h3>Invalid Serial Number</h3>
-                    <p>Serial number must be exactly 10 characters (F + 9 digits).</p>
-                    <button onclick="closeModal()">OK</button>
-                </div>
-            </div>
-
-
-
-            <div class="nav-tabs">
-                <button class="nav-tab {% if active_tab == 'registration' or not active_tab %}active{% endif %}"
-                    onclick="switchTab('registration', event)">Item Registration</button>
-                <button class="nav-tab {% if active_tab == 'search' %}active{% endif %}"
-                    onclick="switchTab('search', event)">Search & Remove</button>
-            </div>
-
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <span class="stat-number">{{ stats.total_slots }}</span>
-                    <span class="stat-label">Total Slots</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">{{ stats.slot_occupied }}</span>
-                    <span class="stat-label">Slot Occupied</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">{{ stats.finish_good }}</span>
-                    <span class="stat-label">Finish Good</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">{{136- stats.finish_good }}</span>
-                    <span class="stat-label">Slots Left</span>
-                </div>
-            </div>
+			
+            <div class="stats-bar-display">
+				<div class="stat-item-display">
+					<span class="stat-number-display">{{ stats.total_slots }}</span>
+					<span class="stat-label-display">Total Slots</span>
+				</div>
+				<div class="stat-item-display">
+					<span class="stat-number-display">{{ stats.slot_occupied }}</span>
+					<span class="stat-label-display">Slot Occupied</span>
+				</div>
+				<div class="stat-item-display">
+					<span class="stat-number-display">{{ stats.finish_good }}</span>
+					<span class="stat-label-display">Finish Good</span>
+				</div>
+				<div class="stat-item-display">
+					<span class="stat-number-display">{{136- stats.finish_good }}</span>
+					<span class="stat-label-display">Slots Left</span>
+				</div>
+			</div>
         </div>
-
-        <div class="main-content">
-            <!-- Flash Messages -->
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-            <ul class="flash-messages">
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endwith %}
-            <!-- Form Section -->
-            <div class="form-section">
-                <!-- Registration Tab -->
-                <div id="registration"
-                    class="tab-content {% if active_tab == 'registration' or not active_tab %}active{% endif %}">
-                    <h2>Item Registration</h2>
-                    <form method="POST" action="{{ url_for('add_item_racking') }}"
-                        onsubmit="return validateSerialNumber()">
-                        <input type="hidden" name="confirmed" id="confirmed" value="no">
-                        <!-- ✅ Hidden input for Status - always "In Storage" -->
-                        <input type="hidden" name="Status" value="In Storage">
-
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="itemId">Serial Number</label>
-                                <input type="text" id="itemId" class="form-control" name="serial_number" required
-                                    placeholder="Enter Serial Number"
-                                    value="{{ confirm_serial if confirm_serial else '' }}"
-                                    oninput="this.value = this.value.toUpperCase()">
-                            </div>
-                            <div class="form-group">
-                                <button type="button" class="btn-scanner" onclick="openScanner()">
-                                    <img src="../static/img/scan.png" alt="Scan Icon" />
-                                    Scan Barcode
-                                </button>
-                                <div id="reader" style="width:150px;"></div>
-                            </div>
-
-
-                            <div class="form-group">
-                                <label for="location">Storage Location</label>
-                                <input type="text" id="location" class="form-control" name="kanban_location" required
-                                    placeholder="Select from map or type location"
-                                    value="{{ confirm_location if confirm_location else '' }}">
-                            </div>
-                            <div class="form-group">
-                                <!-- Empty space for alignment -->
-                            </div>
-
-                        </div>
-                        <!-- option button -->
-                        <label for="item">Item Type</label>
-                        <div class=".item-type-group" required>
-
-                            <div class="radio">
-                                <input id="radio-1" name="item_type" type="radio" value="Control Valve" checked>
-                                <label for="radio-1" class="radio-label">Control Valve</label>
-                            </div>
-
-                            <div class="radio">
-                                <input id="radio-2" name="item_type" type="radio" value="Unpainted Body">
-                                <label for="radio-2" class="radio-label">Unpainted Body</label>
-                            </div>
-                            <div class="radio">
-                                <input id="radio-3" name="item_type" type="radio" value="Level Troll">
-                                <label for="radio-3" class="radio-label">Level Troll</label>
-                            </div>
-                            <div class="radio">
-                                <input id="radio-4" name="item_type" type="radio" value="Whisper Disk">
-                                <label for="radio-4" class="radio-label">Whisper Disk</label>
-                            </div>
-                            <div class="radio">
-                                <input id="radio-5" name="item_type" type="radio" value="Diffuser">
-                                <label for="radio-5" class="radio-label">Diffuser</label>
-                            </div>
-
-                        </div>
-
-                        <!-- Submit Buttons -->
-                        <button type="submit" class="btn" onclick="processRegistration()">
-                            <span id="btnText">Register Item</span>
-                        </button>
-                        <button type="button" class="btn btn-dummy" onclick="registerDummy()">
-                            📦 Dummy Slot
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Search Tab -->
-                <div id="search" class="tab-content {% if active_tab == 'search' %}active{% endif %}">
-                    <h2>Search And Remove Items</h2>
-                    <form method="POST" action="{{ url_for('search') }}">
-                        <div class="form-grid">
-                            <div class="form-group" style="flex: 2;">
-                                <label for="searchItemId">Find the Serial Number</label>
-                                <input type="text" id="searchItemId"
-                                    class="form-control {% if error_serial %}input-error{% endif %}"
-                                    name="serial_number" value="{% if error_serial %}{{ error_serial }}{% endif %}"
-                                    required placeholder="Enter Serial Number">
-                            </div>
-
-                            <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
-                                <button type="submit" class="btn btn-search" onclick="findRecord()">Find Record
-                                    🔍</button>
-                            </div>
-                            <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
-                                <button type="reset" class="btn btn-clear" onclick="clearSearch()">Clear</button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <!-- Search Results Table -->
-                    <div class="search-results">
-                        {% if search_result %}
-                        <table class="results-table">
-                            <thead>
-                                <tr>
-                                    <th>Serial Number</th>
-                                    <th>
-                                        {% if search_result.Last_Update_Out %}
-                                        Last Location
-                                        {% else %}
-                                        Location
-                                        {% endif %}
-                                    </th>
-                                    <th>Status</th>
-                                    <th>
-                                        {% if search_result.Last_Update_Out %}
-                                        Date Out
-                                        {% else %}
-                                        Date In
-                                        {% endif %}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{{ search_result.Serial_Number }}</td>
-                                    <td>{{ search_result.Kanban_Location }}</td>
-                                    <td class="{% if search_result.Status == 'Out Storage' %}status-out{% endif %}">
-                                        {{ search_result.Status }}</td>
-                                    <td>
-                                        {% if search_result.Last_Update_Out %}
-                                        {{ search_result.Last_Update_Out }}
-                                        {% else %}
-                                        {{ search_result.Last_Update_In }}
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Push Out Button -->
-                    {% if search_result and not search_result.Last_Update_Out %}
-                    <form method="POST" action="{{ url_for('push_out') }}">
-                        <input type="hidden" name="serial_number" id="serial_number_input"
-                            value="{{ search_result.Serial_Number }}">
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
-                        </div>
-                    </form>
-                    {% endif %}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+     
 
         <!-- Warehouse Map Section -->
         <div class="map-section">
@@ -250,8 +53,8 @@
             <div class="map-container" id="mapContainer">
                 <div class="warehouse-map" id="warehouseMap">
                     <div class="container">
-                        <div class="controls">
-                            <button class="control-btn" onclick="refreshMapData()">🔄 Refresh Map</button>
+                        <div class="controls-display">
+                            <button class="control-btn-display" onclick="refreshMapData()">🔄 Refresh Map</button>
                         </div>
 
                         <div class="racking-section">
@@ -273,7 +76,6 @@
                             </div>
 
 
-
                             <div class="racking-header">
                                 <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
                                         style="height:30px; width:30px;" /></div>
@@ -293,14 +95,8 @@
 
                         </div>
 
-
-
                         <div class="legend">
-                            <div class="legend-item cell occupied">Occupied (Control Valve)</div>
-                            <div class="legend-item cell occupied item-unpainted-body">Occupied (Unpainted Body)</div>
-                            <div class="legend-item cell occupied item-level-troll">Occupied (Level Troll)</div>
-                            <div class="legend-item cell occupied item-whisper-disk">Occupied (Whisper Disk)</div>
-                            <div class="legend-item cell occupied item-diffuser">Occupied (Diffuser)</div>
+                            <div class="legend-item cell occupied">Occupied</div>
                             <div class="legend-item cell available">Available</div>
                             <div class="legend-item cell reserved">Reserved (Dummy Pallet) 🎯</div>
                         </div>
@@ -310,14 +106,6 @@
 
 
                 </div>
-
-
-                <footer>
-                    <small>
-                        &copy; 2026 Zaharscript 📎. All rights reserved.
-                    </small>
-                </footer>
-
                 <script>
                     // Pass Flask data to JavaScript
                     console.log('Raw location_data type:', typeof {{ location_data | tojson | safe }});
@@ -328,22 +116,16 @@
                     // Show all keys if less than 10
                     if (Object.keys(warehouseData).length > 0 && Object.keys(warehouseData).length < 10) {
                         console.log('All location keys:', Object.keys(warehouseData));
-
-                    }    
+                    }
                 </script>
-                <script>
-
-                </script>
-
 
                 <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
                 <script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
                 <script src="{{ url_for('static', filename='js/warehouse-qr.js') }}"></script>
 
                 <script src="https://unpkg.com/html5-qrcode"></script>
-
-                <script> </script>
+				<script> </script>
 </body>
-
+cop
 
 </html>
