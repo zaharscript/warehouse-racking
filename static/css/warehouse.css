@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   display: flex;
@@ -757,7 +757,7 @@ th {
   align-items: center;
   gap: 15px;
   margin-bottom: 20px;
-  /* background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); */
+  margin-top: 50px; /* Added margin for separation */
   background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../img/pexels-tiger-lily-4487365.jpg');
   background-size: cover;
   background-position: center;
@@ -766,9 +766,11 @@ th {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
   justify-content: center;
-  /* Center content horizontally */
   overflow: hidden;
-  /* Ensure image respects border radius */
+}
+
+.racking-header:first-child {
+  margin-top: 0; /* No top margin for the first header */
 }
 
 .racking-title {
@@ -825,7 +827,7 @@ th {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 18px;
   /* Slightly larger for readability */
   font-weight: 700;
   /* Extra bold for letterpress effect */
@@ -908,7 +910,7 @@ th {
   justify-content: center;
   color: white;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 16px;
   box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
 }
 
@@ -1263,7 +1265,7 @@ body.search-active .cell:not(.search-highlight) {
   .cell {
     min-width: 80px;
     height: 55px;
-    font-size: 11px;
+    font-size: 14px;
   }
 
   .search-box {
@@ -1304,9 +1306,9 @@ body.search-active .cell:not(.search-highlight) {
 
 @media (min-width: 1400px) {
   .cell {
-    min-width: 90px;
-    height: 60px;
-    font-size: 12px;
+    min-width: 95px;
+    height: 65px;
+    font-size: 18px;
   }
 
   .racking-grid {
