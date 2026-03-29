@@ -68,7 +68,7 @@
                     <span class="stat-label">Finish Good</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">{{136- stats.finish_good }}</span>
+                    <span class="stat-number">{{ stats.total_slots - stats.finish_good }}</span>
                     <span class="stat-label">Slots Left</span>
                 </div>
             </div>
@@ -292,14 +292,15 @@
                         </div>
 
                         <div class="racking-section">
+                            {% for rack in racking_config %}
                             <div class="racking-header">
-                                <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
+                                <div class="icon"><img src="{{ url_for('static', filename='img/delivery-box.png') }}" alt="Racking"
                                         style="height:30px; width:30px;" /></div>
-                                <div class="racking-title">RACKING 1</div>
+                                <div class="racking-title">{{ rack.name }}</div>
                             </div>
                             <div class="racking-wrapper">
                                 <div class="racking-grid">
-                                    <div id="racking1" class="level-column"></div>
+                                    <div id="racking{{ rack.id }}" class="level-column"></div>
                                     <div class="level-labels">
                                         <div class="level-label">4th Level</div>
                                         <div class="level-label">3rd Level</div>
@@ -308,26 +309,7 @@
                                     </div>
                                 </div>
                             </div>
-
-
-
-                            <div class="racking-header">
-                                <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
-                                        style="height:30px; width:30px;" /></div>
-                                <div class="racking-title">RACKING 2</div>
-                            </div>
-                            <div class="racking-wrapper">
-                                <div class="racking-grid">
-                                    <div id="racking2" class="level-column"></div>
-                                    <div class="level-labels">
-                                        <div class="level-label">4th Level</div>
-                                        <div class="level-label">3rd Level</div>
-                                        <div class="level-label">2nd Level</div>
-                                        <div class="level-label">Floor Level</div>
-                                    </div>
-                                </div>
-                            </div>
-
+                            {% endfor %}
                         </div>
 
 
@@ -359,14 +341,9 @@
                     // Pass Flask data to JavaScript
                     console.log('Raw location_data type:', typeof {{ location_data | tojson | safe }});
                     const warehouseData = {{ location_data | tojson | safe }};
+                    const rackingConfig = {{ racking_config | tojson | safe }};
                     console.log('Warehouse data loaded:', warehouseData);
-                    console.log('Total locations in database:', Object.keys(warehouseData).length);
-
-                    // Show all keys if less than 10
-                    if (Object.keys(warehouseData).length > 0 && Object.keys(warehouseData).length < 10) {
-                        console.log('All location keys:', Object.keys(warehouseData));
-
-                    }    
+                    console.log('Racking config loaded:', rackingConfig);
                 </script>
                 <script>
 

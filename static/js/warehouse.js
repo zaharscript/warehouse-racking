@@ -56,21 +56,23 @@ function zoomMap(factor) {
  * RACK CONFIG
  *************************************************/
 const levels = ["A4", "A3", "A2", "A1"];
-const rackingConfig = {
-  1: { slots: 18 },
-  2: { slots: 16 }
-};
+// rackingConfig is now provided by the template (flask data)
+// const rackingConfig = {
+//   1: { slots: 18 },
+//   2: { slots: 16 }
+// };
 
 /*************************************************
  * GENERATE RACKING DATA (SINGLE SOURCE OF TRUTH)
  *************************************************/
-function generateRackingData(rackNum) {
+function generateRackingData(rackId) {
   const data = {};
-  const totalSlots = rackingConfig[rackNum].slots;
+  const rack = rackingConfig.find(r => r.id == rackId);
+  const totalSlots = rack ? rack.slots : 0;
 
   levels.forEach(level => {
     for (let i = 1; i <= totalSlots; i++) {
-      const id = `R${rackNum}_${level}_${String(i).padStart(2, "0")}`;
+      const id = `R${rackId}_${level}_${String(i).padStart(2, "0")}`;
 
       let status = "available";
       let serialNumber = null;
@@ -127,7 +129,8 @@ function createRacking(rackNum, containerId) {
   if (!container) return;
 
   container.innerHTML = "";
-  const totalSlots = rackingConfig[rackNum].slots;
+  const rack = rackingConfig.find(r => r.id == rackNum);
+  const totalSlots = rack ? rack.slots : 0;
 
   levels.forEach(level => {
     const row = document.createElement("div");
@@ -306,13 +309,16 @@ document.addEventListener("keydown", e => {
  * INIT
  *************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-  rackingData = {
-    ...generateRackingData(1),
-    ...generateRackingData(2)
-  };
-
-  createRacking(1, "racking1");
-  createRacking(2, "racking2");
+  // Check if rackingConfig is available from template
+  if (typeof rackingConfig !== "undefined") {
+    rackingData = {};
+    rackingConfig.forEach(rack => {
+      Object.assign(rackingData, generateRackingData(rack.id));
+      createRacking(rack.id, `racking${rack.id}`);
+    });
+  } else {
+    console.error("rackingConfig not found!");
+  }
 
   // Auto-highlight search result after reload
   setTimeout(() => {
