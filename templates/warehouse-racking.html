@@ -93,284 +93,312 @@
                     <h3 id="panelTitle">Management Tools</h3>
                     <button class="close-panel" onclick="closeSecondaryPanel()">×</button>
                 </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.slot_occupied }}</span>
+                    <span class="stat-label">Slot Occupied</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.finish_good }}</span>
+                    <span class="stat-label">Finish Good</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{136- stats.finish_good }}</span>
+                    <span class="stat-label">Slots Left</span>
+                </div>
+        </div>
+    </div>
 
-                <div class="panel-tabs">
-                    <button class="p-tab active" data-target="registration"
-                        onclick="switchPanelTab('registration')">Register</button>
-                    <button class="p-tab" data-target="search" onclick="switchPanelTab('search')">Search</button>
+    <div class="panel-content-scroll">
+        <!-- Registration Content -->
+        <div id="p-registration" class="panel-tab-content active">
+            <form id="registrationForm" method="POST" action="{{ url_for('add_item_racking') }}"
+                onsubmit="return validateSerialNumber()">
+                <input type="hidden" name="view_type" value="tablet">
+                <input type="hidden" name="confirmed" id="confirmed" value="no">
+                <input type="hidden" name="Status" value="In Storage">
+
+                <div class="form-group">
+                    <label>Serial Number</label>
+                    <div class="input-with-action">
+                        <input type="text" id="itemId" name="serial_number" maxlength="10" required
+                            placeholder="F123456789" class="form-input"
+                            value="{{ confirm_serial if confirm_serial else '' }}">
+                        <button type="button" class="btn-scan-mini" onclick="openScanner()">📸</button>
+                    </div>
+                    <div id="reader" style="width:100%; margin-top: 10px;"></div>
                 </div>
 
-                <div class="panel-content-scroll">
-                    <!-- Registration Content -->
-                    <div id="p-registration" class="panel-tab-content active">
-                        <form id="registrationForm" method="POST" action="{{ url_for('add_item_racking') }}"
-                            onsubmit="return validateSerialNumber()">
-                            <input type="hidden" name="view_type" value="tablet">
-                            <input type="hidden" name="confirmed" id="confirmed" value="no">
-                            <input type="hidden" name="Status" value="In Storage">
-
-                            <div class="form-group">
-                                <label>Serial Number</label>
-                                <div class="input-with-action">
-                                    <input type="text" id="itemId" name="serial_number" maxlength="10" required
-                                        placeholder="F123456789" class="form-input"
-                                        value="{{ confirm_serial if confirm_serial else '' }}">
-                                    <button type="button" class="btn-scan-mini" onclick="openScanner()">📸</button>
-                                </div>
-                                <div id="reader" style="width:100%; margin-top: 10px;"></div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Location</label>
-                                <input type="text" id="location" name="kanban_location" required
-                                    placeholder="e.g. R1_A1_01" class="form-input"
-                                    value="{{ confirm_location if confirm_location else '' }}">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Item Category</label>
-                                <div class="custom-radio-group">
-                                    <label class="radio-chip"><input type="radio" name="item_type" value="Control Valve"
-                                            {{ 'checked' if not confirm_item_type or confirm_item_type=='Control Valve'
-                                            }}> <span>Control Valve</span></label>
-                                    <label class="radio-chip"><input type="radio" name="item_type"
-                                            value="Unpainted Body" {{ 'checked' if confirm_item_type=='Unpainted Body'
-                                            }}> <span>Unpainted Body</span></label>
-                                    <label class="radio-chip"><input type="radio" name="item_type" value="Level Troll"
-                                            {{ 'checked' if confirm_item_type=='Level Troll' }}>
-                                        <span>Level Troll</span></label>
-                                    <label class="radio-chip"><input type="radio" name="item_type" value="Whisper Disk"
-                                            {{ 'checked' if confirm_item_type=='Whisper Disk' }}>
-                                        <span>Whisper Disk</span></label>
-                                    <label class="radio-chip"><input type="radio" name="item_type" value="Diffuser"
-                                            {{ 'checked' if confirm_item_type=='Diffuser' }}>
-                                        <span>Diffuser</span></label>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn-primary">Register Pallet</button>
-                                <button type="button" class="btn-secondary" onclick="registerDummy()">📦 Mark as
-                                    Dummy</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Search Content -->
-                    <div id="p-search" class="panel-tab-content">
-                        <form method="POST" action="{{ url_for('search') }}" id="searchForm">
-                            <input type="hidden" name="view_type" value="tablet">
-                            <div class="form-group">
-                                <label>Find Serial or Location</label>
-                                <input type="text" id="searchItemId" name="serial_number"
-                                    placeholder="Enter search term..." class="form-input">
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn-primary btn-xl">Search System</button>
-                                <button type="button" class="btn-link btn-xl" onclick="clearSearch()">Clear
-                                    Filters</button>
-                            </div>
-                        </form>
-
-                        <div id="sideSearchResults" class="search-results-mini">
-                            {% if search_result %}
-                            <div class="result-card">
-                                <div class="res-head">
-                                    <span class="res-sn">{{ search_result.Serial_Number }}</span>
-                                    <span
-                                        class="res-stat {{ 'status-out' if search_result.Status == 'Out Storage' }}">{{
-                                        search_result.Status }}</span>
-                                </div>
-                                <div class="res-body">
-                                    <p>📍 <strong>{{ search_result.Kanban_Location }}</strong></p>
-                                    <p>🏷️ {{ search_result.Item_Type or 'No Type' }}</p>
-                                    <p>📅 {{ search_result.Last_Update_In or search_result.Last_Update_Out }}</p>
-                                </div>
-                                {% if search_result and not search_result.Last_Update_Out %}
-                                <form method="POST" action="{{ url_for('push_out') }}">
-                                    <input type="hidden" name="view_type" value="tablet">
-                                    <input type="hidden" name="serial_number" value="{{ search_result.Serial_Number }}">
-                                    <button type="submit" class="btn-push-out">
-                                        <i data-lucide="log-out"></i> Push Out Pallet
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="location" name="kanban_location" required placeholder="e.g. R1_A1_01"
+                        class="form-input" value="{{ confirm_location if confirm_location else '' }}">
                 </div>
-            </aside>
 
-            <!-- Main Content Area (Map & Dashboard) -->
-            <main class="main-viewport">
-                <!-- Map View Tab -->
-                <div id="map-view" class="tab-content active">
-                    <div class="viewport-header">
-                        <h2>Warehouse Layout</h2>
-                        <div class="map-controls">
-                            <button class="ctrl-btn" onclick="zoomMap(1.1)">Zoom In</button>
-                            <button class="ctrl-btn" onclick="zoomMap(0.9)">Zoom Out</button>
-                            <button class="ctrl-btn" onclick="currentZoom=1; zoomMap(1)">Reset</button>
-                            <button class="ctrl-btn refresh" onclick="refreshMapData()">🔄 Refresh</button>
-                        </div>
-                    </div>
-
-                    <div class="map-scroll-container">
-                        <div class="warehouse-map" id="warehouseMap">
-                            <!-- Racking units dynamically rendered here -->
-                            <div class="racking-container">
-                                <div class="racking-unit" id="unit1">
-                                    <div class="unit-header">
-                                        <div class="unit-img"
-                                            style="background-image: url('../static/img/pexels-tiger-lily-4487365.jpg')">
-                                        </div>
-                                        <h3>RACKING 1</h3>
-                                    </div>
-                                    <div class="racking-layout-wrapper">
-                                        <div id="racking1" class="level-column"></div>
-                                        <div class="level-labels">
-                                            <div class="level-label">Level 4</div>
-                                            <div class="level-label">Level 3</div>
-                                            <div class="level-label">Level 2</div>
-                                            <div class="level-label">Level 1</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="racking-unit" id="unit2">
-                                    <div class="unit-header">
-                                        <div class="unit-img"
-                                            style="background-image: url('../static/img/pexels-tiger-lily-4487365.jpg')">
-                                        </div>
-                                        <h3>RACKING 2</h3>
-                                    </div>
-                                    <div class="racking-layout-wrapper">
-                                        <div id="racking2" class="level-column"></div>
-                                        <div class="level-labels">
-                                            <div class="level-label">Level 4</div>
-                                            <div class="level-label">Level 3</div>
-                                            <div class="level-label">Level 2</div>
-                                            <div class="level-label">Level 1</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="map-legend">
-                                <div class="legend-row">
-                                    <div class="legend-item cell item-control-valve">Occupied (Control Valve) </div>
-                                    <div class="legend-item cell item-unpainted-body">Occupied (Unpainted Body) </div>
-                                    <div class="legend-item cell item-level-troll">Occupied (Level Troll) </div>
-                                    <div class="legend-item cell item-whisper-disk">Occupied (Whisper Disk) </div>
-                                    <div class="legend-item cell item-diffuser">Occupied (Diffuser) </div>
-                                    <div class="legend-item cell available">Available </div>
-                                    <div class="legend-item cell reserved">Reserved (Dummy Pallet)</div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="form-group">
+                    <label>Item Category</label>
+                    <div class="custom-radio-group">
+                        <label class="radio-chip"><input type="radio" name="item_type" value="Control Valve"
+                                {{ 'checked' if not confirm_item_type or confirm_item_type=='Control Valve' }}>
+                            <span>Control Valve</span></label>
+                        <label class="radio-chip"><input type="radio" name="item_type" value="Unpainted Body"
+                                {{ 'checked' if confirm_item_type=='Unpainted Body' }}> <span>Unpainted
+                                Body</span></label>
+                        <label class="radio-chip"><input type="radio" name="item_type" value="Level Troll" {{ 'checked'
+                                if confirm_item_type=='Level Troll' }}>
+                            <span>Level Troll</span></label>
+                        <label class="radio-chip"><input type="radio" name="item_type" value="Whisper Disk" {{ 'checked'
+                                if confirm_item_type=='Whisper Disk' }}>
+                            <span>Whisper Disk</span></label>
+                        <label class="radio-chip"><input type="radio" name="item_type" value="Diffuser" {{ 'checked' if
+                                confirm_item_type=='Diffuser' }}>
+                            <span>Diffuser</span></label>
                     </div>
                 </div>
 
-                <!-- Industrial Dashboard Tab -->
-                <div id="dashboard" class="tab-content">
-                    <div class="viewport-header">
-                        <h2>Industrial Dashboard</h2>
-                        <div class="dashboard-controls">
-                            <span class="last-sync">Last sync: <span id="syncTime">--:--</span></span>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-grid">
-                        <!-- Metric Cards -->
-                        <div class="card metric-card">
-                            <div class="card-title">Storage Utilization</div>
-                            <div class="card-value"><span id="utilPercent">0</span>%</div>
-                            <div class="card-trend up">↑ 2% vs last week</div>
-                        </div>
-                        <div class="card metric-card">
-                            <div class="card-title">Turnover Rate</div>
-                            <div class="card-value">12.4</div>
-                            <div class="card-trend text">Pallets/day</div>
-                        </div>
-
-                        <!-- Charts Section -->
-                        <div class="dashboard-row">
-                            <div class="card chart-card flex-2">
-                                <div class="card-header">Capacity by Rack</div>
-                                <div class="chart-container">
-                                    <canvas id="capacityChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="card chart-card flex-1">
-                                <div class="card-header">Item Distribution</div>
-                                <div class="chart-container">
-                                    <canvas id="distributionChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="dashboard-row">
-                            <div class="card list-card flex-full">
-                                <div class="card-header">Recent Activity Log</div>
-                                <div class="activity-timeline" id="recentActivity">
-                                    <!-- Activity items injected here -->
-                                    <div class="activity-item">
-                                        <span class="time">10:45 AM</span>
-                                        <span class="event">Item R1_A2_05 pushed out</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Register Pallet</button>
+                    <button type="button" class="btn-secondary" onclick="registerDummy()">📦 Mark as
+                        Dummy</button>
                 </div>
-            </main>
+            </form>
         </div>
 
-        <!-- Global UI Components -->
-        <div id="tooltip" class="map-tooltip"></div>
+        <!-- Search Content -->
+        <div id="p-search" class="panel-tab-content">
+            <form method="POST" action="{{ url_for('search') }}" id="searchForm">
+                <input type="hidden" name="view_type" value="tablet">
+                <div class="form-group">
+                    <label>Find Serial or Location</label>
+                    <input type="text" id="searchItemId" name="serial_number" placeholder="Enter search term..."
+                        class="form-input">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary btn-xl">Search System</button>
+                    <button type="button" class="btn-link btn-xl" onclick="clearSearch()">Clear
+                        Filters</button>
+                </div>
+            </form>
 
-        <div id="serialModal" class="modal-overlay" style="display:none;">
-            <div class="modal-core">
-                <h3>Invalid Serial</h3>
-                <p>Formatting required: F + 9 digits.</p>
-                <button class="btn-primary" onclick="closeModal()">Got it</button>
+            <div id="sideSearchResults" class="search-results-mini">
+                {% if search_result %}
+                <div class="result-card">
+                    <div class="res-head">
+                        <span class="res-sn">{{ search_result.Serial_Number }}</span>
+                        <span class="res-stat {{ 'status-out' if search_result.Status == 'Out Storage' }}">{{
+                            search_result.Status }}</span>
+                    </div>
+                    <div class="res-body">
+                        <p>📍 <strong>{{ search_result.Kanban_Location }}</strong></p>
+                        <p>🏷️ {{ search_result.Item_Type or 'No Type' }}</p>
+                        <p>📅 {{ search_result.Last_Update_In or search_result.Last_Update_Out }}</p>
+                    </div>
+                    {% if search_result and not search_result.Last_Update_Out %}
+                    <form method="POST" action="{{ url_for('push_out') }}">
+                        <input type="hidden" name="view_type" value="tablet">
+                        <input type="hidden" name="serial_number" value="{{ search_result.Serial_Number }}">
+                        <button type="submit" class="btn-push-out">
+                            <i data-lucide="log-out"></i> Push Out Pallet
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    </aside>
+
+    <!-- Main Content Area (Map & Dashboard) -->
+    <main class="main-viewport">
+        <!-- Map View Tab -->
+        <div id="map-view" class="tab-content active">
+            <div class="viewport-header">
+                <h2>Warehouse Layout</h2>
+                <div class="map-controls">
+                    <button class="ctrl-btn" onclick="zoomMap(1.1)">Zoom In</button>
+                    <button class="ctrl-btn" onclick="zoomMap(0.9)">Zoom Out</button>
+                    <button class="ctrl-btn" onclick="currentZoom=1; zoomMap(1)">Reset</button>
+                    <button class="ctrl-btn refresh" onclick="refreshMapData()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="map-scroll-container">
+                <div class="warehouse-map" id="warehouseMap">
+                    <!-- Racking units dynamically rendered here -->
+                    <div class="racking-container">
+                        <div class="racking-unit" id="unit1">
+                            <div class="unit-header">
+                                <div class="unit-img"
+                                    style="background-image: url('../static/img/pexels-tiger-lily-4487365.jpg')">
+                                </div>
+                                <h3>RACKING 1</h3>
+                            </div>
+                            <div class="racking-layout-wrapper">
+                                <div id="racking1" class="level-column"></div>
+                                <div class="level-labels">
+                                    <div class="level-label">Level 4</div>
+                                    <div class="level-label">Level 3</div>
+                                    <div class="level-label">Level 2</div>
+                                    <div class="level-label">Level 1</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="racking-unit" id="unit2">
+                            <div class="unit-header">
+                                <div class="unit-img"
+                                    style="background-image: url('../static/img/pexels-tiger-lily-4487365.jpg')">
+                                </div>
+                                <h3>RACKING 2</h3>
+                            </div>
+                            <div class="racking-layout-wrapper">
+                                <div id="racking2" class="level-column"></div>
+                                <div class="level-labels">
+                                    <div class="level-label">Level 4</div>
+                                    <div class="level-label">Level 3</div>
+                                    <div class="level-label">Level 2</div>
+                                    <div class="level-label">Level 1</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="map-legend">
+                        <div class="legend-row">
+                            <div class="legend-item cell item-control-valve">Occupied (Control Valve) </div>
+                            <div class="legend-item cell item-unpainted-body">Occupied (Unpainted Body) </div>
+                            <div class="legend-item cell item-level-troll">Occupied (Level Troll) </div>
+                            <div class="legend-item cell item-whisper-disk">Occupied (Whisper Disk) </div>
+                            <div class="legend-item cell item-diffuser">Occupied (Diffuser) </div>
+                            <div class="legend-item cell available">Available </div>
+                            <div class="legend-item cell reserved">Reserved (Dummy Pallet)</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        {% if confirm_serial %}
-        <div id="moveConfirmModal" class="modal-overlay" style="display:flex;">
-            <div class="modal-core alert">
-                <h3>Pallet Relocation</h3>
-                <p>Serial <strong>{{ confirm_serial }}</strong> is {% if confirm_status == 'In Storage'
-                    %}currently at another location{% else %}marked as Out Storage{% endif %}.</p>
-                <p>Confirm move to <strong>{{ confirm_location }}</strong>?</p>
-                <div class="modal-btns">
-                    <button class="btn-primary" onclick="confirmMove()">Confirm Move</button>
-                    <button class="btn-secondary" onclick="cancelMove()">Cancel</button>
+        <!-- Industrial Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <div class="viewport-header">
+                <h2>Industrial Dashboard</h2>
+                <div class="dashboard-controls">
+                    <span class="last-sync">Last sync: <span id="syncTime">--:--</span></span>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Metric Cards -->
+                <div class="card metric-card">
+                    <div class="card-title">Storage Utilization</div>
+                    <div class="card-value"><span id="utilPercent">0</span>%</div>
+                    <div class="card-trend up">↑ 2% vs last week</div>
+                </div>
+                <div class="card metric-card">
+                    <div class="card-title">Turnover Rate</div>
+                    <div class="card-value">12.4</div>
+                    <div class="card-trend text">Pallets/day</div>
+                </div>
+
+                <div class="racking-section">
+                    <div class="racking-header">
+                        <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
+                                style="height:30px; width:30px;" /></div>
+                        <div class="racking-title">RACKING 1</div>
+                    </div>
+                    <div class="racking-wrapper">
+                        <div class="racking-grid">
+                            <div id="racking1" class="level-column"></div>
+                            <div class="level-labels">
+                                <div class="level-label">4th Level</div>
+                                <div class="level-label">3rd Level</div>
+                                <div class="level-label">2nd Level</div>
+                                <div class="level-label">Floor Level</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="racking-header">
+                        <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
+                                style="height:30px; width:30px;" /></div>
+                        <div class="racking-title">RACKING 2</div>
+                    </div>
+                    <div class="racking-wrapper">
+                        <div class="racking-grid">
+                            <div id="racking2" class="level-column"></div>
+                            <div class="level-labels">
+                                <div class="level-label">4th Level</div>
+                                <div class="level-label">3rd Level</div>
+                                <div class="level-label">2nd Level</div>
+                                <div class="level-label">Floor Level</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+                <div class="legend">
+                    <div class="legend-item cell occupied">Occupied (Control Valve)</div>
+                    <div class="legend-item cell occupied item-unpainted-body">Occupied (Unpainted Body)</div>
+                    <div class="legend-item cell occupied item-level-troll">Occupied (Level Troll)</div>
+                    <div class="legend-item cell occupied item-whisper-disk">Occupied (Whisper Disk)</div>
+                    <div class="legend-item cell occupied item-diffuser">Occupied (Diffuser)</div>
+                    <div class="legend-item cell available">Available</div>
+                    <div class="legend-item cell reserved">Reserved (Dummy Pallet) 🎯</div>
                 </div>
             </div>
         </div>
-        <script>
-            function confirmMove() { document.getElementById('confirmed').value = 'yes'; document.getElementById('registrationForm').submit(); }
-            function cancelMove() { window.location.href = "{{ url_for('racking_view') }}"; }
-        </script>
-        {% endif %}
+    </main>
+    </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="flash-toast-container">
-            {% for category, message in messages %}
-            <div class="flash-toast {{ category }}">{{ message }}</div>
-            {% endfor %}
+    <!-- Global UI Components -->
+    <div id="tooltip" class="map-tooltip"></div>
+
+    <div id="serialModal" class="modal-overlay" style="display:none;">
+        <div class="modal-core">
+            <h3>Invalid Serial</h3>
+            <p>Formatting required: F + 9 digits.</p>
+            <button class="btn-primary" onclick="closeModal()">Got it</button>
         </div>
-        {% endif %}
-        {% endwith %}
+    </div>
 
-        <footer class="app-footer">
-            <span>&copy; 2026 Zaharscript Management System</span>
-            <span class="conn-status">● System Online</span>
-        </footer>
+    {% if confirm_serial %}
+    <div id="moveConfirmModal" class="modal-overlay" style="display:flex;">
+        <div class="modal-core alert">
+            <h3>Pallet Relocation</h3>
+            <p>Serial <strong>{{ confirm_serial }}</strong> is {% if confirm_status == 'In Storage'
+                %}currently at another location{% else %}marked as Out Storage{% endif %}.</p>
+            <p>Confirm move to <strong>{{ confirm_location }}</strong>?</p>
+            <div class="modal-btns">
+                <button class="btn-primary" onclick="confirmMove()">Confirm Move</button>
+                <button class="btn-secondary" onclick="cancelMove()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function confirmMove() { document.getElementById('confirmed').value = 'yes'; document.getElementById('registrationForm').submit(); }
+        function cancelMove() { window.location.href = "{{ url_for('racking_view') }}"; }
+    </script>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-toast-container">
+        {% for category, message in messages %}
+        <div class="flash-toast {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <footer class="app-footer">
+        <span>&copy; 2026 Zaharscript Management System</span>
+        <span class="conn-status">● System Online</span>
+    </footer>
     </div>
 
     <script>

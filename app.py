@@ -8,12 +8,19 @@ app = Flask(__name__)
 app.secret_key = "supersecret"  # needed for flash messages
 
 # === CONFIG ===
-# DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
-DB_PATH = r"D:\warehouse-racking\static\Warehouse-tracking.accdb"
+DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
+#DB_PATH = r"D:\warehouse-racking\static\Warehouse-tracking.accdb"
 CONN_STR = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
     f"DBQ={DB_PATH};"
 )
+
+RACKING_CONFIG = [
+    {"id": 1, "slots": 18, "name": "RACKING 1"},
+    {"id": 2, "slots": 16, "name": "RACKING 2"},
+    {"id": 3, "slots": 16, "name": "RACKING 3"},
+    {"id": 4, "slots": 18, "name": "RACKING 4"},
+]
 
 def get_conn():
     return pyodbc.connect(CONN_STR)
@@ -39,8 +46,8 @@ def get_statistics():
 
     conn.close()
 
-    # TOTAL SLOTS is fixed (136)
-    total_slots = 136
+    # TOTAL SLOTS calculated dynamically from RACKING_CONFIG
+    total_slots = sum(rack["slots"] * 4 for rack in RACKING_CONFIG)
 
     return {
         "total_slots": total_slots,
@@ -136,6 +143,7 @@ def racking_view():
     return render_template("warehouse-racking.html", 
                            items=rows,
                            location_data=location_data,
+                           racking_config=RACKING_CONFIG,
                            active_tab=active_tab, 
                            error_serial=error_serial,
                            stats=stats)
@@ -200,6 +208,7 @@ def search():
             search_result=row,
             location_data=location_data,
             items=rows,
+            racking_config=RACKING_CONFIG,
             active_tab="search",
             stats=stats,
             view_type=view_type
@@ -398,6 +407,7 @@ def add_item_racking():
                 confirm_item_type=item_type,      # Preserve user's selected type
                 active_tab="registration",
                 location_data=location_data,
+                racking_config=RACKING_CONFIG,
                 items=rows,
                 stats=get_statistics(),
                 view_type=view_type

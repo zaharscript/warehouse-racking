@@ -55,8 +55,10 @@ body {
   line-height: 1.5;
 }
 
-/* App Shell Structure */
-.app-shell {
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -503,26 +505,24 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0 24px;
-}
-
-.unit-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  gap: 15px;
+  margin-bottom: 20px;
+  /* background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); */
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../img/pexels-tiger-lily-4487365.jpg');
   background-size: cover;
   background-position: center;
-  filter: brightness(0.4);
-  z-index: 1;
+  padding: 15px 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  justify-content: center;
+  /* Center content horizontally */
+  overflow: hidden;
+  /* Ensure image respects border radius */
 }
 
-.unit-header h3 {
-  position: relative;
-  z-index: 2;
-  color: white;
-  font-family: var(--font-mono);
+.racking-title {
+  color: #ffffff;
   font-size: 24px;
   letter-spacing: 2px;
 }
@@ -554,9 +554,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
-  /* Inherits Orbitron */
-  font-size: 30px;
+  font-size: 13px;
+  /* Slightly larger for readability */
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -608,11 +607,18 @@ body {
     url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
 }
 
-.cell.occupied {
-  background-color: var(--status-occupied);
-  background-image:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+.level-label {
+  height: 60px;
+  min-width: 100px;
+  background: linear-gradient(180deg, #013009 0%, #6d5d02 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 13px;
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
 }
 
 .cell.partial {
@@ -924,83 +930,79 @@ body {
   text-transform: uppercase;
 }
 
-/* Dashboard Styles */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
+/* -------------------------------------------------------------------- */
+/*---testing responsive---*/
+/* Tablet-Specific Styles (769px - 1400px) */
+@media (min-width: 769px) and (max-width: 1400px) {
+  .cell {
+    min-width: 80px;
+    height: 55px;
+    font-size: 11px;
+  }
+
+  .search-box {
+    width: 350px;
+    /* Wider search box */
+  }
+
+  .tooltip {
+    font-size: 14px;
+    padding: 18px;
+    max-width: 350px;
+    /* Larger tooltip */
+  }
 }
 
-.card {
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: var(--shadow-sm);
+/* Landscape Mode Optimization (No Scrolling) */
+@media (min-width: 1024px) and (orientation: landscape) {
+  .racking-wrapper {
+    overflow-x: visible;
+    /* No horizontal scroll needed */
+  }
+
+  .cell:active {
+    transform: scale(0.95);
+    /* Touch feedback */
+  }
 }
 
-.metric-card {
-  display: flex;
-  flex-direction: column;
+/* Portrait Mode for Tablets */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+  .cell {
+    min-width: 75px;
+    font-size: 10px;
+  }
 }
 
-.card-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
+/* Large Screen/Desktop (1400px+) */
+
+@media (min-width: 1400px) {
+  .cell {
+    min-width: 90px;
+    height: 60px;
+    font-size: 12px;
+  }
+
+  .racking-grid {
+    justify-content: center;
+    /* Center the entire map */
+  }
 }
 
-.card-value {
-  font-size: 32px;
-  font-weight: 800;
-  margin: 12px 0;
-}
-
-.card-trend {
-  font-size: 13px;
+/* Dummy button styling */
+.btn-dummy {
+  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
   font-weight: 600;
-}
-
-.card-trend.up {
-  color: #10b981;
-}
-
-.dashboard-row {
-  grid-column: span 2;
-  display: flex;
-  gap: 24px;
-}
-
-.chart-card {
-  min-height: 400px;
-  display: flex;
-  flex-direction: column;
-}
-
-.flex-1 {
-  flex: 1;
-}
-
-.flex-2 {
-  flex: 2;
-}
-
-.flex-full {
-  flex: 100%;
-}
-
-.chart-container {
-  flex: 1;
-  position: relative;
-  min-height: 300px;
-}
-
-.activity-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .activity-item {
