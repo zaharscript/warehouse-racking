@@ -140,16 +140,33 @@ def racking_view():
                            error_serial=error_serial,
                            stats=stats)
 
+@app.route("/racking-desktop", methods=["GET"])
+def racking_desktop_view():
+    rows, location_data = get_location_data()   
+    active_tab = request.args.get("tab", "registration")
+    error_serial = request.args.get("error_serial")
+    stats = get_statistics()
+
+    return render_template("warehouse-racking-desktop.html", 
+                           items=rows,
+                           location_data=location_data,
+                           active_tab=active_tab, 
+                           error_serial=error_serial,
+                           stats=stats)
+
 
 # 🏓 UPDATE SEARCH ROUTE TO USE THE HELPER:
 
 @app.route("/search", methods=["POST"])
 def search():
     serial_number = request.form.get("serial_number")
+    view_type = request.form.get("view_type", "tablet") # 'tablet' or 'desktop'
+    template_name = "warehouse-racking-desktop.html" if view_type == "desktop" else "warehouse-racking.html"
+    redirect_endpoint = "racking_desktop_view" if view_type == "desktop" else "racking_view"
 
     if not serial_number:
         flash("No serial number provided.")
-        return redirect(url_for("racking_view", tab="search"))
+        return redirect(url_for(redirect_endpoint, tab="search"))
 
     # Get all data for the map (your existing helper)
     rows, location_data = get_location_data()
@@ -177,19 +194,19 @@ def search():
     stats = get_statistics()
     # 3️⃣ Show result if found (from either table)
     if row:
-       
         flash(f"Serial number {serial_number} found in {'Warehouse_db' if row else 'Warehouse_db_old'}.")
         return render_template(
-            "warehouse-racking.html",
+            template_name,
             search_result=row,
             location_data=location_data,
             items=rows,
             active_tab="search",
-            stats=stats
+            stats=stats,
+            view_type=view_type
         )
     else:
         flash(f"Serial number {serial_number} not found in active or old records!")
-        return redirect(url_for("racking_view", tab="search", error_serial=serial_number))
+        return redirect(url_for(redirect_endpoint, tab="search", error_serial=serial_number))
 
 
 # ✅ Keep index route as is
@@ -310,10 +327,14 @@ def add_item():
 @app.route("/add_item_racking", methods=["POST"])
 def add_item_racking():
     serial_number = request.form.get("serial_number", "").strip()
+    view_type = request.form.get("view_type", "tablet")
+    redirect_endpoint = "racking_desktop_view" if view_type == "desktop" else "racking_view"
+    template_name = "warehouse-racking-desktop.html" if view_type == "desktop" else "warehouse-racking.html"
+
     # Regex: F + 9 digits
     if not re.fullmatch(r"F\d{9}", serial_number):
         flash("❌ Invalid Serial Number format! Use F followed by 9 digits (e.g. F002344321)", "error")
-        return redirect(url_for("racking_view", tab="registration"))
+        return redirect(url_for(redirect_endpoint, tab="registration"))
     kanban_location = request.form.get("kanban_location", "").strip()
     item_type = request.form.get("item_type", "").strip()   # ✅ capture dropdown
     status = "In Storage"  # Always "In Storage" for registration
@@ -322,7 +343,7 @@ def add_item_racking():
     # Validation: require item_type as well
     if not serial_number or not kanban_location or not item_type:
         flash("❌ Please fill in all fields!", "error")
-        return redirect(url_for("racking_view", tab="registration"))
+        return redirect(url_for(redirect_endpoint, tab="registration"))
 
     confirmed = request.form.get("confirmed", "no")
 
@@ -344,7 +365,7 @@ def add_item_racking():
         if existing_serial != serial_number:
             conn.close()
             flash(f"❌ Location '{kanban_location}' is already occupied by Serial {existing_serial}!", "error")
-            return redirect(url_for("racking_view", tab="registration"))
+            return redirect(url_for(redirect_endpoint, tab="registration"))
 
     # 🔎 Check if serial already exists
     cur.execute("""
@@ -370,15 +391,16 @@ def add_item_racking():
             )
             rows, location_data = get_location_data()
             return render_template(
-                "warehouse-racking.html",
+                template_name,
                 confirm_serial=serial_number,
                 confirm_location=kanban_location,
-                confirm_status=status,
-                confirm_item_type=old_item_type,  # ✅ Pass it to template
+                confirm_status=old_status,        # Use actual old status
+                confirm_item_type=item_type,      # Preserve user's selected type
                 active_tab="registration",
                 location_data=location_data,
                 items=rows,
-                stats=get_statistics()
+                stats=get_statistics(),
+                view_type=view_type
             )
 
         # User confirmed or same location → update location and refresh Item_Type
@@ -399,7 +421,7 @@ def add_item_racking():
 
     conn.commit()
     conn.close()
-    return redirect(url_for("racking_view", tab="registration"))
+    return redirect(url_for(redirect_endpoint, tab="registration"))
 
 
 # route for registering dummy pallet slots
@@ -407,10 +429,12 @@ def add_item_racking():
 @app.route("/register_dummy", methods=["POST"])
 def register_dummy():
     kanban_location = request.form.get("kanban_location", "").strip()
+    view_type = request.form.get("view_type", "tablet")
+    redirect_endpoint = "racking_desktop_view" if view_type == "desktop" else "racking_view"
     
     if not kanban_location:
         flash("❌ Please select a location!", "error")
-        return redirect(url_for("racking_view", tab="registration"))
+        return redirect(url_for(redirect_endpoint, tab="registration"))
     
     now = datetime.now()
     serial_number = f"Dummy_{kanban_location}"
@@ -443,7 +467,7 @@ def register_dummy():
                 # Location occupied by real item
                 flash(f"❌ Location {kanban_location} is occupied by {existing_serial}!", "error")
                 conn.close()
-                return redirect(url_for("racking_view", tab="registration"))
+                return redirect(url_for(redirect_endpoint, tab="registration"))
         else:
             # Insert dummy record
             cur.execute("""
@@ -455,21 +479,24 @@ def register_dummy():
         
         conn.commit()
         conn.close()
-        return redirect(url_for("racking_view", tab="registration"))
+        return redirect(url_for(redirect_endpoint, tab="registration"))
         
     except Exception as e:
         conn.close()
         flash(f"❌ Error: {str(e)}", "error")
-        return redirect(url_for("racking_view", tab="registration"))
+        return redirect(url_for(redirect_endpoint, tab="registration"))
 
 
 # ✅ Update status to "Out Storage"
 @app.route("/push_out", methods=["POST"])
 def push_out():
     serial_number = request.form.get("serial_number")
+    view_type = request.form.get("view_type", "tablet")
+    redirect_endpoint = "racking_desktop_view" if view_type == "desktop" else "racking_view"
+
     if not serial_number:
         flash("No serial number provided for push out.")
-        return redirect(url_for("racking_view"))
+        return redirect(url_for(redirect_endpoint))
 
     conn = get_conn()
     cur = conn.cursor()
@@ -486,7 +513,7 @@ def push_out():
         if not record:
             flash(f"Serial number {serial_number} not found.")
             conn.close()
-            return redirect(url_for("racking_view", tab="search"))
+            return redirect(url_for(redirect_endpoint, tab="search"))
 
         new_update_out = datetime.now()
 
@@ -529,7 +556,7 @@ def push_out():
     finally:
         conn.close()
 
-    return redirect(url_for("racking_view", tab="search"))
+    return redirect(url_for(redirect_endpoint, tab="search"))
 
 # Alternate route for debugging
 @app.route("/debug_locations")

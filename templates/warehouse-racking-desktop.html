@@ -34,7 +34,7 @@
         <!-- Compact Header -->
         <header class="app-header">
             <div class="header-left">
-                <a href="{{ url_for('racking_view') }}" class="brand">
+                <a href="{{ url_for('racking_desktop_view') }}" class="brand">
                     <img src="/static/img/forklift.png" alt="Logo" class="mini-logo">
                     <div class="brand-text">
                         <span class="brand-title">3rd Party Inspection Warehouse Racking</span>
@@ -105,7 +105,7 @@
                     <div id="p-registration" class="panel-tab-content active">
                         <form id="registrationForm" method="POST" action="{{ url_for('add_item_racking') }}"
                             onsubmit="return validateSerialNumber()">
-                            <input type="hidden" name="view_type" value="tablet">
+                            <input type="hidden" name="view_type" value="desktop">
                             <input type="hidden" name="confirmed" id="confirmed" value="no">
                             <input type="hidden" name="Status" value="In Storage">
 
@@ -159,7 +159,7 @@
                     <!-- Search Content -->
                     <div id="p-search" class="panel-tab-content">
                         <form method="POST" action="{{ url_for('search') }}" id="searchForm">
-                            <input type="hidden" name="view_type" value="tablet">
+                            <input type="hidden" name="view_type" value="desktop">
                             <div class="form-group">
                                 <label>Find Serial or Location</label>
                                 <input type="text" id="searchItemId" name="serial_number"
@@ -188,7 +188,7 @@
                                 </div>
                                 {% if search_result and not search_result.Last_Update_Out %}
                                 <form method="POST" action="{{ url_for('push_out') }}">
-                                    <input type="hidden" name="view_type" value="tablet">
+                                    <input type="hidden" name="view_type" value="desktop">
                                     <input type="hidden" name="serial_number" value="{{ search_result.Serial_Number }}">
                                     <button type="submit" class="btn-push-out">
                                         <i data-lucide="log-out"></i> Push Out Pallet
@@ -353,7 +353,7 @@
         </div>
         <script>
             function confirmMove() { document.getElementById('confirmed').value = 'yes'; document.getElementById('registrationForm').submit(); }
-            function cancelMove() { window.location.href = "{{ url_for('racking_view') }}"; }
+            function cancelMove() { window.location.href = "{{ url_for('racking_desktop_view') }}"; }
         </script>
         {% endif %}
 

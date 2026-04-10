@@ -434,7 +434,7 @@ function registerDummy() {
 
   const form = document.createElement('form');
   form.method = 'POST';
-  form.action = '/register_dummy';
+  form.action = '/register_dummy'; // This stays the same as it's a fixed route
   const input = document.createElement('input');
   input.type = 'hidden';
   input.name = 'kanban_location';
