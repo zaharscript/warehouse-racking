@@ -3,163 +3,445 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Warehouse Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Tracking System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/warehouse.css') }}">
+    <link rel="icon" type="images/jpeg" href="/static/img/forklift.png">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        form {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-        }
-
-        input,
-        select,
-        button {
-            margin: 5px;
-            padding: 5px;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        /* Flash Messages */
-        .flash-messages {
-            list-style-type: none;
-            padding: 0;
-            margin: 15px 0;
-        }
-
-        .flash-messages li {
-            padding: 12px 20px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .flash-messages li.success {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .flash-messages li.error {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .flash-messages li.warning {
-            background-color: #ffc107;
-            color: #333;
-        }
     </style>
+
+
 </head>
 
 <body>
-    <h1>Warehouse Management System</h1>
+    <div class="container">
+        <!-- Header with Navigation and Statistics -->
+        <div class="header">
+            <video autoplay muted loop playsinline class="header-video">
+                <source src="{{ url_for('static', filename='img/warehouse.mp4') }}" type="video/mp4">
+            </video>
+            <a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;">
+                <h1>3rd Party Racking Management</h1>
+            </a>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <ul class="flash-messages">
-        {% for category, message in messages %}
-        <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
+            <!-- Confirmation Modal -->
+            <div id="serialModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <h3>Invalid Serial Number</h3>
+                    <p>Serial number must be exactly 10 characters (F + 9 digits).</p>
+                    <button onclick="closeModal()">OK</button>
+                </div>
+            </div>
 
-    <!-- Form to add a new item -->
-    <h2>Add New Item</h2>
-    <form method="POST" action="{{ url_for('add_item') }}">
-        <label>Serial Number:</label>
-        <input type="text" name="serial_number" required><br>
 
-        <label>Kanban Location:</label>
-        <input type="text" name="kanban_location" required placeholder="e.g., R1_A4_01"><br>
 
-        <label>Status:</label>
-        <select name="Status" required>
-            <option value="">Select Status</option>
-            <option value="In Storage">In Storage</option>
-            <option value="Out Storage">Out Storage</option>
-        </select><br>
+            <div class="nav-tabs">
+                <button class="nav-tab {% if active_tab == 'registration' or not active_tab %}active{% endif %}"
+                    onclick="switchTab('registration', event)">Item Registration</button>
+                <button class="nav-tab {% if active_tab == 'search' %}active{% endif %}"
+                    onclick="switchTab('search', event)">Search & Remove</button>
+            </div>
 
-        <button type="submit">Add Item</button>
-    </form>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.total_slots }}</span>
+                    <span class="stat-label">Total Slots</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.slot_occupied }}</span>
+                    <span class="stat-label">Slot Occupied</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.finish_good }}</span>
+                    <span class="stat-label">Finish Good</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{136- stats.finish_good }}</span>
+                    <span class="stat-label">Slots Left</span>
+                </div>
+            </div>
+        </div>
 
-    <hr>
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul class="flash-messages">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            <!-- Form Section -->
+            <div class="form-section">
+                <!-- Registration Tab -->
+                <div id="registration"
+                    class="tab-content {% if active_tab == 'registration' or not active_tab %}active{% endif %}">
+                    <h2>Item Registration</h2>
+                    <form id="registrationForm" method="POST" action="{{ url_for('add_item_racking') }}"
+                        onsubmit="return validateSerialNumber()">
+                        <input type="hidden" name="confirmed" id="confirmed" value="no">
+                        <!-- ✅ Hidden input for Status - always "In Storage" -->
+                        <input type="hidden" name="Status" value="In Storage">
 
-    <!-- Display existing items -->
-    <h2>Current Inventory</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Serial Number</th>
-                <th>Kanban Location</th>
-                <th>Status</th>
-                <th>Last Update In</th>
-                <th>Last Update Out</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <td>{{ item[0] }}</td> <!-- Serial_Number -->
-                <td>{{ item[1] }}</td> <!-- Kanban_Location -->
-                <td>{{ item[2] }}</td> <!-- Status -->
-                <td>{{ item[3] if item[3] else 'N/A' }}</td> <!-- Last_Update_In -->
-                <td>{{ item[4] if item[4] else 'N/A' }}</td> <!-- Last_Update_Out -->
-                <td>
-                    <!-- Form to update status -->
-                    <!-- <form method="POST" action="{{ url_for('update_status', serial=item[0]) }}"
-                        style="display: inline;">
-                        <select name="status" onchange="this.form.submit()">
-                            <option value="">Change Status</option>
-                            <option value="In Storage" {% if item[2]=='In Storage' %}selected{% endif %}>In Storage
-                            </option>
-                            <option value="Out Storage" {% if item[2]=='Out Storage' %}selected{% endif %}>Out Storage
-                            </option>
-                        </select>
-                    </form> -->
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="6">No items found in warehouse</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="itemId">Serial Number</label>
+                                <input type="text" id="itemId" class="form-control" name="serial_number" maxlength="10"
+                                    oninput="this.value = this.value.toUpperCase().replace(/[^F0-9]/g, '')" required
+                                    placeholder="Enter Serial Number"
+                                    value="{{ confirm_serial if confirm_serial else '' }}"
+                                    oninput="this.value = this.value.toUpperCase()">
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn-scanner" onclick="openScanner()">
+                                    <img src="../static/img/scan.png" alt="Scan Icon" />
+                                    Scan Barcode
+                                </button>
+                                <div id="reader" style="width:150px;"></div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="location">Storage Location</label>
+                                <input type="text" id="location" class="form-control" name="kanban_location" required
+                                    placeholder="Select from map or type location"
+                                    value="{{ confirm_location if confirm_location else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <!-- Empty space for alignment -->
+                            </div>
+
+                        </div>
+                        <!-- option button -->
+                        <label for="item">Item Type</label>
+                        <div class="item-type-group" required>
+
+                            <div class="radio">
+                                <input id="radio-1" name="item_type" type="radio" value="Control Valve" {% if
+                                    confirm_item_type=='Control Valve' or not confirm_item_type %}checked{% endif %}>
+                                <label for="radio-1" class="radio-label">Control Valve</label>
+                            </div>
+
+                            <div class="radio">
+                                <input id="radio-2" name="item_type" type="radio" value="Unpainted Body" {% if
+                                    confirm_item_type=='Unpainted Body' %}checked{% endif %}>
+                                <label for="radio-2" class="radio-label">Unpainted Body</label>
+                            </div>
+                            <div class="radio">
+                                <input id="radio-3" name="item_type" type="radio" value="Level Troll" {% if
+                                    confirm_item_type=='Level Troll' %}checked{% endif %}>
+                                <label for="radio-3" class="radio-label">Level Troll</label>
+                            </div>
+                            <div class="radio">
+                                <input id="radio-4" name="item_type" type="radio" value="Whisper Disk" {% if
+                                    confirm_item_type=='Whisper Disk' %}checked{% endif %}>
+                                <label for="radio-4" class="radio-label">Whisper Disk</label>
+                            </div>
+                            <div class="radio">
+                                <input id="radio-5" name="item_type" type="radio" value="Diffuser" {% if
+                                    confirm_item_type=='Diffuser' %}checked{% endif %}>
+                                <label for="radio-5" class="radio-label">Diffuser</label>
+                            </div>
+
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <button type="submit" class="btn" onclick="processRegistration()">
+                            <span id="btnText">Register Item</span>
+                        </button>
+                        <button type="button" class="btn btn-dummy" onclick="registerDummy()">
+                            📦 Register as Dummy Slot
+                        </button>
+                    </form>
+
+                    <!-- Move Confirmation Modal -->
+                    {% if confirm_serial %}
+                    <div id="moveConfirmModal" class="modal" style="display:flex;">
+                        <div class="modal-content confirmation-modal">
+                            <h3>Confirm Move</h3>
+                            <p>
+                                Serial <strong>{{ confirm_serial }}</strong> already exists
+                                ({% if confirm_status == 'In Storage' %}at another location{% else %}marked as Out
+                                Storage{% endif %}).<br>
+                                Do you want to move it to <strong>{{ confirm_location }}</strong>?
+                            </p>
+                            <div class="modal-actions">
+                                <button class="btn-confirm-yes" onclick="confirmMove()">✅ Yes, Move It</button>
+                                <button class="btn-confirm-no" onclick="cancelMove()">❌ No, Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        function confirmMove() {
+                            document.getElementById('confirmed').value = 'yes';
+                            document.getElementById('registrationForm').submit();
+                        }
+                        function cancelMove() {
+                            window.location.href = "{{ url_for('index', tab='registration') }}";
+                        }
+                    </script>
+                    {% endif %}
+                </div>
+
+                <!-- Search Tab -->
+                <div id="search" class="tab-content {% if active_tab == 'search' %}active{% endif %}">
+                    <button
+                        class="accordion {% if active_tab == 'search' and not searched_location %}active{% endif %}">
+                        Search And Remove Items
+                    </button>
+                    <div class="panel {% if active_tab == 'search' and not searched_location %}show{% endif %}">
+                        <form method="POST" action="{{ url_for('search') }}">
+                            <div class="form-grid">
+                                <div class="form-group" style="flex: 2;">
+                                    <label for="searchItemId">Find the Serial Number</label>
+                                    <input type="text" id="searchItemId"
+                                        class="form-control {% if error_serial %}input-error{% endif %}"
+                                        name="serial_number" value="{% if error_serial %}{{ error_serial }}{% endif %}"
+                                        required placeholder="Enter Serial Number">
+                                </div>
+
+                                <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
+                                    <button type="submit" class="btn btn-search" onclick="findRecord()">Find Record
+                                        🔍</button>
+                                </div>
+                                <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
+                                    <button type="button" class="btn btn-clear" onclick="clearSearch()">Clear</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Search Results Table -->
+                        <div class="search-results">
+                            {% if search_result %}
+                            <table class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Serial Number</th>
+                                        <th>
+                                            {% if search_result.Last_Update_Out %}
+                                            Last Location
+                                            {% else %}
+                                            Location
+                                            {% endif %}
+                                        </th>
+                                        <th>Status</th>
+                                        <th>
+                                            {% if search_result.Last_Update_Out %}
+                                            Date Out
+                                            {% else %}
+                                            Date In
+                                            {% endif %}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ search_result.Serial_Number }}</td>
+                                        <td>{{ search_result.Kanban_Location }}</td>
+                                        <td class="{% if search_result.Status == 'Out Storage' %}status-out{% endif %}">
+                                            {{ search_result.Status }}</td>
+                                        <td>
+                                            {% if search_result.Last_Update_Out %}
+                                            {{ search_result.Last_Update_Out }}
+                                            {% else %}
+                                            {{ search_result.Last_Update_In }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            {% endif %}
+                        </div>
+
+                        <!-- Push Out Button -->
+                        {% if search_result and not search_result.Last_Update_Out %}
+                        <form method="POST" action="{{ url_for('push_out') }}">
+                            <input type="hidden" name="serial_number" id="serial_number_input"
+                                value="{{ search_result.Serial_Number }}">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <button class="accordion {% if searched_location %}active{% endif %}">
+                        Search History by Location
+                    </button>
+                    <div class="panel {% if searched_location %}show{% endif %}">
+                        <div class="location-history-search">
+                            <form method="POST" action="{{ url_for('search_location') }}" class="history-search-form">
+                                <div class="search-row">
+                                    <div class="input-container">
+                                        <input type="text" id="historyKanbanLocation" name="kanban_location"
+                                            class="form-control" placeholder="Enter the kanban location"
+                                            value="{{ searched_location if searched_location else '' }}" required>
+                                    </div>
+                                    <button type="submit" class="btn-location-search">
+                                        Search <img src="https://img.icons8.com/ios-filled/24/000000/search--v1.png"
+                                            alt="Search icon">
+                                    </button>
+                                    <button type="button" class="btn btn-clear-history"
+                                        onclick="clearHistorySearch()">Clear</button>
+                                </div>
+                            </form>
+
+                            {% if location_history_results is not none %}
+                            <div class="history-results-table-container fade-in">
+                                <table class="history-results-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Serial Number</th>
+                                            <th>Date In</th>
+                                            <th>Date Out</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if location_history_results %}
+                                        {% for res in location_history_results %}
+                                        <tr>
+                                            <td><strong>{{ res[0] }}</strong></td>
+                                            <td>{{ res[4] if res[4] else 'N/A' }}</td>
+                                            <td>{{ res[5] if res[5] else 'N/A' }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="3" class="no-results">No history records found for this
+                                                location.
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouse Map Section -->
+        <div class="map-section">
+            <div class="map-header">
+                <span>Warehouse Layout</span>
+                <span style="float: right;">Zoom: <button onclick="zoomMap(1.2)">+</button> <button
+                        onclick="zoomMap(0.8)">-</button></span>
+            </div>
+            <div class="map-container" id="mapContainer">
+                <div class="warehouse-map" id="warehouseMap">
+                    <div class="container">
+                        <div class="controls">
+                            <button class="control-btn" onclick="refreshMapData()">🔄 Refresh Map</button>
+                        </div>
+
+                        <div class="racking-section">
+                            <div class="racking-header">
+                                <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
+                                        style="height:30px; width:30px;" /></div>
+                                <div class="racking-title">RACKING 1</div>
+                            </div>
+                            <div class="racking-wrapper">
+                                <div class="racking-grid">
+                                    <div id="racking1" class="level-column"></div>
+                                    <div class="level-labels">
+                                        <div class="level-label">4th Level</div>
+                                        <div class="level-label">3rd Level</div>
+                                        <div class="level-label">2nd Level</div>
+                                        <div class="level-label">Floor Level</div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="racking-header">
+                                <div class="icon"><img src="../static/img/delivery-box.png" alt="Racking"
+                                        style="height:30px; width:30px;" /></div>
+                                <div class="racking-title">RACKING 2</div>
+                            </div>
+                            <div class="racking-wrapper">
+                                <div class="racking-grid">
+                                    <div id="racking2" class="level-column"></div>
+                                    <div class="level-labels">
+                                        <div class="level-label">4th Level</div>
+                                        <div class="level-label">3rd Level</div>
+                                        <div class="level-label">2nd Level</div>
+                                        <div class="level-label">Floor Level</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="legend">
+                            <div class="legend-item cell occupied">Occupied (Control Valve)</div>
+                            <div class="legend-item cell occupied item-unpainted-body">Occupied (Unpainted Body)</div>
+                            <div class="legend-item cell occupied item-level-troll">Occupied (Level Troll)</div>
+                            <div class="legend-item cell occupied item-whisper-disk">Occupied (Whisper Disk)</div>
+                            <div class="legend-item cell occupied item-diffuser">Occupied (Diffuser)</div>
+                            <div class="legend-item cell available">Available</div>
+                            <div class="legend-item cell reserved">Reserved (Dummy Pallet) 🎯</div>
+                        </div>
+                    </div>
+
+                    <div id="tooltip" class="tooltip"></div>
+
+
+                </div>
+            </div>
+        </div>
+
+
+        <footer>
+            <small>
+                &copy; 2026 Zaharscript 📎. All rights reserved.
+            </small>
+        </footer>
+
+        <script>
+            // Pass Flask data to JavaScript
+            console.log('Raw location_data type:', typeof {{ location_data | tojson | safe }});
+            const warehouseData = {{ location_data | tojson | safe }};
+            console.log('Warehouse data loaded:', warehouseData);
+            console.log('Total locations in database:', Object.keys(warehouseData).length);
+
+            // Show all keys if less than 10
+            if (Object.keys(warehouseData).length > 0 && Object.keys(warehouseData).length < 10) {
+                console.log('All location keys:', Object.keys(warehouseData));
+
+            }    
+        </script>
+        <script>
+
+        </script>
+
+
+        <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/warehouse-qr.js') }}"></script>
+
+        <script src="https://unpkg.com/html5-qrcode"></script>
+
+        <script> </script>
 </body>
+
 
 </html>
