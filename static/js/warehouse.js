@@ -212,6 +212,9 @@ function updateSearchBox(locationId) {
     }
   }
 
+  const historyLocationBox = document.getElementById("historyKanbanLocation");
+  if (historyLocationBox) historyLocationBox.value = locationId;
+
   document.querySelectorAll(".cell").forEach(cell => {
     cell.classList.toggle("selected", cell.dataset.id === locationId);
   });
@@ -264,6 +267,25 @@ function clearSearch() {
 }
 
 /*************************************************
+ * CLEAR HISTORY SEARCH
+ *************************************************/
+function clearHistorySearch() {
+  // 1. Clear input
+  const historyInput = document.getElementById("historyKanbanLocation");
+  if (historyInput) {
+    historyInput.value = "";
+  }
+
+  // 2. Remove history results table container
+  const historyResults = document.querySelector(".history-results-table-container");
+  if (historyResults) {
+    historyResults.remove();
+  }
+
+  console.log("🔍 History search reset complete");
+}
+
+/*************************************************
  * REFRESH MAP
  *************************************************/
 function refreshMapData() {
@@ -303,6 +325,33 @@ document.addEventListener("keydown", e => {
 });
 
 /*************************************************
+ * ACCORDION LOGIC
+ *************************************************/
+function initAccordions() {
+  const acc = document.querySelectorAll(".accordion");
+  acc.forEach(btn => {
+    btn.addEventListener("click", function () {
+      // If we are opening this one, close others
+      if (!this.classList.contains("active")) {
+        acc.forEach(otherBtn => {
+          if (otherBtn !== this) {
+            otherBtn.classList.remove("active");
+            const otherPanel = otherBtn.nextElementSibling;
+            if (otherPanel) otherPanel.classList.remove("show");
+          }
+        });
+      }
+
+      this.classList.toggle("active");
+      const panel = this.nextElementSibling;
+      if (panel) {
+        panel.classList.toggle("show");
+      }
+    });
+  });
+}
+
+/*************************************************
  * INIT
  *************************************************/
 document.addEventListener("DOMContentLoaded", () => {
@@ -313,6 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   createRacking(1, "racking1");
   createRacking(2, "racking2");
+  initAccordions();
 
   // Auto-highlight search result after reload
   setTimeout(() => {

@@ -128,7 +128,7 @@
                         </div>
                         <!-- option button -->
                         <label for="item">Item Type</label>
-                        <div class=".item-type-group" required>
+                        <div class="item-type-group" required>
 
                             <div class="radio">
                                 <input id="radio-1" name="item_type" type="radio" value="Control Valve" {% if
@@ -199,80 +199,139 @@
 
                 <!-- Search Tab -->
                 <div id="search" class="tab-content {% if active_tab == 'search' %}active{% endif %}">
-                    <h2>Search And Remove Items</h2>
-                    <form method="POST" action="{{ url_for('search') }}">
-                        <div class="form-grid">
-                            <div class="form-group" style="flex: 2;">
-                                <label for="searchItemId">Find the Serial Number</label>
-                                <input type="text" id="searchItemId"
-                                    class="form-control {% if error_serial %}input-error{% endif %}"
-                                    name="serial_number" value="{% if error_serial %}{{ error_serial }}{% endif %}"
-                                    required placeholder="Enter Serial Number">
-                            </div>
+                    <button
+                        class="accordion {% if active_tab == 'search' and not searched_location %}active{% endif %}">
+                        Search And Remove Items
+                    </button>
+                    <div class="panel {% if active_tab == 'search' and not searched_location %}show{% endif %}">
+                        <form method="POST" action="{{ url_for('search') }}">
+                            <div class="form-grid">
+                                <div class="form-group" style="flex: 2;">
+                                    <label for="searchItemId">Find the Serial Number</label>
+                                    <input type="text" id="searchItemId"
+                                        class="form-control {% if error_serial %}input-error{% endif %}"
+                                        name="serial_number" value="{% if error_serial %}{{ error_serial }}{% endif %}"
+                                        required placeholder="Enter Serial Number">
+                                </div>
 
-                            <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
-                                <button type="submit" class="btn btn-search" onclick="findRecord()">Find Record
-                                    🔍</button>
+                                <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
+                                    <button type="submit" class="btn btn-search" onclick="findRecord()">Find Record
+                                        🔍</button>
+                                </div>
+                                <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
+                                    <button type="reset" class="btn btn-clear" onclick="clearSearch()">Clear</button>
+                                </div>
                             </div>
-                            <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
-                                <button type="reset" class="btn btn-clear" onclick="clearSearch()">Clear</button>
-                            </div>
+                        </form>
+
+                        <!-- Search Results Table -->
+                        <div class="search-results">
+                            {% if search_result %}
+                            <table class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Serial Number</th>
+                                        <th>
+                                            {% if search_result.Last_Update_Out %}
+                                            Last Location
+                                            {% else %}
+                                            Location
+                                            {% endif %}
+                                        </th>
+                                        <th>Status</th>
+                                        <th>
+                                            {% if search_result.Last_Update_Out %}
+                                            Date Out
+                                            {% else %}
+                                            Date In
+                                            {% endif %}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ search_result.Serial_Number }}</td>
+                                        <td>{{ search_result.Kanban_Location }}</td>
+                                        <td class="{% if search_result.Status == 'Out Storage' %}status-out{% endif %}">
+                                            {{ search_result.Status }}</td>
+                                        <td>
+                                            {% if search_result.Last_Update_Out %}
+                                            {{ search_result.Last_Update_Out }}
+                                            {% else %}
+                                            {{ search_result.Last_Update_In }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            {% endif %}
                         </div>
-                    </form>
 
-                    <!-- Search Results Table -->
-                    <div class="search-results">
-                        {% if search_result %}
-                        <table class="results-table">
-                            <thead>
-                                <tr>
-                                    <th>Serial Number</th>
-                                    <th>
-                                        {% if search_result.Last_Update_Out %}
-                                        Last Location
-                                        {% else %}
-                                        Location
-                                        {% endif %}
-                                    </th>
-                                    <th>Status</th>
-                                    <th>
-                                        {% if search_result.Last_Update_Out %}
-                                        Date Out
-                                        {% else %}
-                                        Date In
-                                        {% endif %}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{{ search_result.Serial_Number }}</td>
-                                    <td>{{ search_result.Kanban_Location }}</td>
-                                    <td class="{% if search_result.Status == 'Out Storage' %}status-out{% endif %}">
-                                        {{ search_result.Status }}</td>
-                                    <td>
-                                        {% if search_result.Last_Update_Out %}
-                                        {{ search_result.Last_Update_Out }}
-                                        {% else %}
-                                        {{ search_result.Last_Update_In }}
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <!-- Push Out Button -->
+                        {% if search_result and not search_result.Last_Update_Out %}
+                        <form method="POST" action="{{ url_for('push_out') }}">
+                            <input type="hidden" name="serial_number" id="serial_number_input"
+                                value="{{ search_result.Serial_Number }}">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
+                            </div>
+                        </form>
+                        {% endif %}
                     </div>
 
-                    <!-- Push Out Button -->
-                    {% if search_result and not search_result.Last_Update_Out %}
-                    <form method="POST" action="{{ url_for('push_out') }}">
-                        <input type="hidden" name="serial_number" id="serial_number_input"
-                            value="{{ search_result.Serial_Number }}">
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-push-out">Push Out From Slot</button>
+                    <button class="accordion {% if searched_location %}active{% endif %}">
+                        Search History by Location
+                    </button>
+                    <div class="panel {% if searched_location %}show{% endif %}">
+                        <div class="location-history-search">
+                            <form method="POST" action="{{ url_for('search_location') }}" class="history-search-form">
+                                <div class="search-row">
+                                    <div class="input-container">
+                                        <input type="text" id="historyKanbanLocation" name="kanban_location"
+                                            class="form-control" placeholder="Enter the kanban location"
+                                            value="{{ searched_location if searched_location else '' }}" required>
+                                    </div>
+                                    <button type="submit" class="btn-location-search">
+                                        Search <img src="https://img.icons8.com/ios-filled/24/000000/search--v1.png"
+                                            alt="Search icon">
+                                    </button>
+                                    <button type="reset" class="btn btn-clear-history"
+                                        onclick="clearHistorySearch()">Clear</button>
+                                </div>
+                            </form>
+
+                            {% if location_history_results is not none %}
+                            <div class="history-results-table-container fade-in">
+                                <table class="history-results-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Serial Number</th>
+                                            <th>Date In</th>
+                                            <th>Date Out</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if location_history_results %}
+                                        {% for res in location_history_results %}
+                                        <tr>
+                                            <td><strong>{{ res[0] }}</strong></td>
+                                            <td>{{ res[4] if res[4] else 'N/A' }}</td>
+                                            <td>{{ res[5] if res[5] else 'N/A' }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="3" class="no-results">No history records found for this
+                                                location.
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% endif %}
                         </div>
-                    </form>
-                    {% endif %}
-                    {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -347,39 +406,41 @@
 
 
                 </div>
+            </div>
+        </div>
 
 
-                <footer>
-                    <small>
-                        &copy; 2026 Zaharscript 📎. All rights reserved.
-                    </small>
-                </footer>
+        <footer>
+            <small>
+                &copy; 2026 Zaharscript 📎. All rights reserved.
+            </small>
+        </footer>
 
-                <script>
-                    // Pass Flask data to JavaScript
-                    console.log('Raw location_data type:', typeof {{ location_data | tojson | safe }});
-                    const warehouseData = {{ location_data | tojson | safe }};
-                    console.log('Warehouse data loaded:', warehouseData);
-                    console.log('Total locations in database:', Object.keys(warehouseData).length);
+        <script>
+            // Pass Flask data to JavaScript
+            console.log('Raw location_data type:', typeof {{ location_data | tojson | safe }});
+            const warehouseData = {{ location_data | tojson | safe }};
+            console.log('Warehouse data loaded:', warehouseData);
+            console.log('Total locations in database:', Object.keys(warehouseData).length);
 
-                    // Show all keys if less than 10
-                    if (Object.keys(warehouseData).length > 0 && Object.keys(warehouseData).length < 10) {
-                        console.log('All location keys:', Object.keys(warehouseData));
+            // Show all keys if less than 10
+            if (Object.keys(warehouseData).length > 0 && Object.keys(warehouseData).length < 10) {
+                console.log('All location keys:', Object.keys(warehouseData));
 
-                    }    
-                </script>
-                <script>
+            }    
+        </script>
+        <script>
 
-                </script>
+        </script>
 
 
-                <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
-                <script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
-                <script src="{{ url_for('static', filename='js/warehouse-qr.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/warehouse.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/warehouse-qr.js') }}"></script>
 
-                <script src="https://unpkg.com/html5-qrcode"></script>
+        <script src="https://unpkg.com/html5-qrcode"></script>
 
-                <script> </script>
+        <script> </script>
 </body>
 
 

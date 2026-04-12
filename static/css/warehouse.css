@@ -277,9 +277,9 @@ body {
 /* Style for the item type dropdown */
 .item-type-group {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .radio {
@@ -468,8 +468,6 @@ body {
 /* Search Results */
 .search-results {
   margin-top: 20px;
-  max-height: 200px;
-  overflow-y: auto;
 }
 
 .search-result-item {
@@ -757,7 +755,8 @@ th {
   align-items: center;
   gap: 15px;
   margin-bottom: 20px;
-  margin-top: 50px; /* Added margin for separation */
+  margin-top: 50px;
+  /* Added margin for separation */
   background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../img/pexels-tiger-lily-4487365.jpg');
   background-size: cover;
   background-position: center;
@@ -770,7 +769,8 @@ th {
 }
 
 .racking-header:first-child {
-  margin-top: 0; /* No top margin for the first header */
+  margin-top: 0;
+  /* No top margin for the first header */
 }
 
 .racking-title {
@@ -1476,4 +1476,144 @@ footer {
 
 .btn-confirm-no:hover {
   background-color: #c82333;
+}
+
+/* --- Kanban Location History Search Styles --- */
+.location-history-search {
+  margin-top: 50px;
+  padding: 30px 0;
+  border-top: 1px solid #edf2f7;
+}
+
+.location-history-search h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 25px;
+}
+
+.history-results-container {
+  margin-top: 35px;
+}
+
+.history-results-container .results-table {
+  margin-top: 0;
+}
+
+/* History Search section */
+.search-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.input-container {
+  flex: 1;
+}
+
+.btn-location-search {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  height: 44px;
+  margin-top: 0 !important;
+}
+
+.btn-location-search:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-location-search img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+.btn-clear-history {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0 !important;
+}
+
+.btn-clear-history:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+
+/* --- Accordion Styles --- */
+.accordion {
+  background-color: #f8fafc;
+  color: #2d3748;
+  cursor: pointer;
+  padding: 15px 20px;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+  outline: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.accordion:hover {
+  background-color: #edf2f7;
+}
+
+.accordion.active {
+  background-color: #edf2f7;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+
+.accordion:after {
+  content: '\002B';
+  color: #718096;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.accordion.active:after {
+  content: "\2212";
+}
+
+.panel {
+  padding: 20px;
+  background-color: white;
+  display: none;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-top: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.panel.show {
+  display: block;
 }
