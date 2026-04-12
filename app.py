@@ -139,7 +139,56 @@ def racking_view():
                            location_data=location_data,
                            active_tab=active_tab, 
                            error_serial=error_serial,
-                           stats=stats)
+                           stats=stats,
+                           location_history_results=None,
+                           searched_location=None)
+
+@app.route("/search_location", methods=["POST"])
+def search_location():
+    kanban_location = request.form.get("kanban_location")
+    if not kanban_location:
+        flash("❌ No Kanban location provided!", "error")
+        return redirect(url_for("racking_view", tab="search"))
+
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        # Fetch from both active and old tables to get full location history
+        query = """
+            SELECT Serial_Number, Kanban_Location, Status, Item_Type, Last_Update_In, Last_Update_Out
+            FROM Warehouse_db
+            WHERE Kanban_Location = ?
+            UNION ALL
+            SELECT Serial_Number, Kanban_Location, Status, Item_Type, Last_Update_In, Last_Update_Out
+            FROM Warehouse_db_old
+            WHERE Kanban_Location = ?
+            ORDER BY Last_Update_In DESC
+        """
+        cur.execute(query, (kanban_location, kanban_location))
+        results = cur.fetchall()
+        
+        rows, location_data = get_location_data()
+        stats = get_statistics()
+        
+        if results:
+            flash(f"✅ Found {len(results)} records for location {kanban_location}.", "success")
+        else:
+            flash(f"ℹ️ No history found for location {kanban_location}.", "info")
+
+        return render_template(
+            "warehouse-racking.html",
+            location_history_results=results,
+            searched_location=kanban_location,
+            location_data=location_data,
+            items=rows,
+            active_tab="search",
+            stats=stats
+        )
+    except Exception as e:
+        flash(f"❌ Error: {str(e)}", "error")
+        return redirect(url_for("racking_view", tab="search"))
+    finally:
+        conn.close()
 
 
 # 🏓 UPDATE SEARCH ROUTE TO USE THE HELPER:
