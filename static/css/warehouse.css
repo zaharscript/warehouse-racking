@@ -1480,9 +1480,8 @@ footer {
 
 /* --- Kanban Location History Search Styles --- */
 .location-history-search {
-  margin-top: 50px;
-  padding: 30px 0;
-  border-top: 1px solid #edf2f7;
+  margin-top: 0;
+  padding: 10px 0;
 }
 
 .location-history-search h2 {

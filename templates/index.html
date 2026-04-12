@@ -283,54 +283,52 @@
                         Search History by Location
                     </button>
                     <div class="panel {% if searched_location %}show{% endif %}">
-                        <div class="location-history-search">
-                            <form method="POST" action="{{ url_for('search_location') }}" class="history-search-form">
-                                <div class="search-row">
-                                    <div class="input-container">
-                                        <input type="text" id="historyKanbanLocation" name="kanban_location"
-                                            class="form-control" placeholder="Enter the kanban location"
-                                            value="{{ searched_location if searched_location else '' }}" required>
-                                    </div>
-                                    <button type="submit" class="btn-location-search">
-                                        Search <img src="https://img.icons8.com/ios-filled/24/000000/search--v1.png"
-                                            alt="Search icon">
-                                    </button>
-                                    <button type="button" class="btn btn-clear-history"
-                                        onclick="clearHistorySearch()">Clear</button>
+                        <form method="POST" action="{{ url_for('search_location') }}" class="history-search-form">
+                            <div class="search-row">
+                                <div class="input-container">
+                                    <input type="text" id="historyKanbanLocation" name="kanban_location"
+                                        class="form-control" placeholder="Enter the kanban location"
+                                        value="{{ searched_location if searched_location else '' }}" required>
                                 </div>
-                            </form>
-
-                            {% if location_history_results is not none %}
-                            <div class="history-results-table-container fade-in">
-                                <table class="history-results-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Serial Number</th>
-                                            <th>Date In</th>
-                                            <th>Date Out</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% if location_history_results %}
-                                        {% for res in location_history_results %}
-                                        <tr>
-                                            <td><strong>{{ res[0] }}</strong></td>
-                                            <td>{{ res[4] if res[4] else 'N/A' }}</td>
-                                            <td>{{ res[5] if res[5] else 'N/A' }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                        {% else %}
-                                        <tr>
-                                            <td colspan="3" class="no-results">No history records found for this
-                                                location.
-                                            </td>
-                                        </tr>
-                                        {% endif %}
-                                    </tbody>
-                                </table>
+                                <button type="submit" class="btn-location-search">
+                                    Search <img src="https://img.icons8.com/ios-filled/24/000000/search--v1.png"
+                                        alt="Search icon">
+                                </button>
+                                <button type="button" class="btn btn-clear-history"
+                                    onclick="clearHistorySearch()">Clear</button>
                             </div>
-                            {% endif %}
+                        </form>
+
+                        {% if location_history_results is not none %}
+                        <div class="history-results-table-container fade-in">
+                            <table class="history-results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Serial Number</th>
+                                        <th>Date In</th>
+                                        <th>Date Out</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if location_history_results %}
+                                    {% for res in location_history_results %}
+                                    <tr>
+                                        <td><strong>{{ res[0] }}</strong></td>
+                                        <td>{{ res[4] if res[4] else 'N/A' }}</td>
+                                        <td>{{ res[5] if res[5] else 'N/A' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="no-results">No history records found for this
+                                            location.
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

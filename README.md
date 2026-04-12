@@ -3,6 +3,8 @@
 A comprehensive web-based solution for managing and tracking items within a warehouse racking system. This application provides real-time visibility into storage capacity, item locations, and history.
 
 ![Warehouse Racking System](warehouse-racking-system.png)
+![Warehouse Racking System](registration-form.png)
+![Warehouse Racking System](history-form.png)
 
 ## Overview
 
