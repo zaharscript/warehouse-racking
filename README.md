@@ -4,18 +4,19 @@ A comprehensive web-based solution for managing and tracking items within a ware
 
 ![Warehouse Racking System](warehouse-racking-system.png)
 
+## Overview
+
+Managing warehouse storage manually can be slow and error-prone. This project helps users manage rack positions, monitor inventory placement, and locate items faster through a structured digital system.
+
 ## 🚀 Key Features
 
-- **Item Registration**: Register new items with unique serial numbers (format: F + 9 digits) and categorize them by type.
-- **Interactive Warehouse Map**: A visual representation of Racking 1 and Racking 2, showing occupied, available, and reserved slots in real-time.
-- **Barcode/QR Scanner**: Integrated scanner using the device camera for quick item identification and registration.
-- **Advanced Search & Removal**:
-    - Search items by serial number.
-    - View current or last known location.
-    - "Push Out" functionality to mark items as out of storage and archive records.
-- **Location History**: Track the full history of items that have passed through a specific racking slot.
-- **Real-time Statistics**: Dashboard showing Total Slots, Occupies Slots, Finished Goods, and Available Slots.
-- **Dummy Pallet Reservation**: Ability to reserve slots with dummy pallets to manage space effectively.
+- **Manage warehouse racks, shelves, and storage locations**: Visualize and organize your physical storage space.
+- **Add, edit, and remove inventory records**: Full CRUD operations for item management.
+- **Search items by name, code, or location**: Quickly find exactly what you're looking for.
+- **Update stock information**: Real-time status updates (In Storage, Out Storage, Reserved).
+- **Organized dashboard for daily operations**: Statistical overview of warehouse occupancy.
+- **Responsive interface for desktop use**: Optimized for terminal and office workstations.
+- **Barcode/QR Scanner**: Integrated scanner support for rapid data entry.
 
 ## 🛠️ Tech Stack
 
@@ -30,14 +31,13 @@ A comprehensive web-based solution for managing and tracking items within a ware
 
 1.  **Python**: Ensure Python 3.x is installed.
 2.  **Microsoft Access Database Engine**: Required for the `pyodbc` driver to connect to `.accdb` files.
-    - Download and install from [Microsoft](https://www.microsoft.com/en-us/download/details.aspx?id=54920).
 3.  **ODBC Driver**: Ensure the "Microsoft Access Driver (*.mdb, *.accdb)" is available in your system's ODBC Data Source Administrator.
 
 ### Setup Steps
 
 1.  **Clone the Repository**:
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/zaharscript/warehouse-racking.git
     cd warehouse-racking
     ```
 
@@ -47,27 +47,38 @@ A comprehensive web-based solution for managing and tracking items within a ware
     ```
 
 3.  **Database Configuration**:
-    - Update the `DB_PATH` in `app.py` (line 13) to point to the absolute path of your `Warehouse-tracking.accdb` file.
-    ```python
-    DB_PATH = r"C:\path\to\your\project\static\Warehouse-tracking.accdb"
-    ```
+    - Update the `DB_PATH` in `app.py` to point to the absolute path of your `Warehouse-tracking.accdb` file.
 
 4.  **Run the Application**:
     ```bash
     python app.py
     ```
-    The application will be accessible at `http://localhost:5000`.
 
-## 📂 Project Structure
+## 📂 Usage
 
-- `app.py`: Main Flask application server and database logic.
-- `templates/`: HTML templates (Jinja2).
-- `static/`:
-    - `css/`: Application styles.
-    - `js/`: Client-side logic, including map rendering and scanner integration.
-    - `img/`: Static assets and icons.
-- `Warehouse-tracking.accdb`: Microsoft Access database file.
+1.  **Create storage racks and sections**: Define your warehouse layout in the database.
+2.  **Register inventory items**: Use the Item Registration tab to add new stock.
+3.  **Assign items to locations**: Select slots from the interactive map to place items.
+4.  **Search and update stock records**: Use the Search & Remove tab to locate and push out items.
+5.  **Maintain organized warehouse data**: Monitor the statistics bar to manage capacity.
 
-## 📝 License
+## 🗺️ Roadmap
 
+- [ ] **User Authentication**: Implement login and role-based access control (Admin/Staff).
+- [ ] **Mobile Optimization**: Progressive Web App (PWA) support for mobile handheld scanners.
+- [ ] **Multi-Warehouse Support**: Manage multiple physical locations from a single dashboard.
+- [ ] **Advanced Analytics**: Generate reports on storage trends and item turnover rates.
+- [ ] **API Integration**: RESTful API for integration with existing ERP or shipping systems.
+- [ ] **Automated Alerts**: Email or SMS notifications for low-stock or long-stored items.
+
+## 🤝 Contributing
+
+Suggestions and improvements are welcome. Fork the repo, create a feature branch, and submit a pull request.
+
+## 📝 Author
+
+Built by **zaharscript**
+GitHub: [https://github.com/zaharscript](https://github.com/zaharscript)
+
+---
 © 2026 Zaharscript 📎. All rights reserved.
