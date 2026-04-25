@@ -8,8 +8,8 @@ app = Flask(__name__)
 app.secret_key = "supersecret"  # needed for flash messages
 
 # === CONFIG ===
-DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
-#DB_PATH = r"D:\warehouse-racking\static\Warehouse-tracking.accdb"
+#DB_PATH = r"C:\Users\nilai.inspection\OneDrive - Emerson\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
+DB_PATH = r"D:\warehouse-racking\static\Warehouse-tracking.accdb"
 #DB_PATH = r"C:\Users\Admin\OneDrive\Desktop\warehouse-racking\static\Warehouse-tracking.accdb"
 CONN_STR = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
@@ -160,9 +160,12 @@ def old_dashboard():
 
 @app.route("/search_location", methods=["POST"])
 def search_location():
-    kanban_location = request.form.get("kanban_location")
+    kanban_location = request.form.get("kanban_location", "").strip().upper()
     if not kanban_location:
         flash("❌ No Kanban location provided!", "error")
+        return redirect(url_for("index", tab="search"))
+    if not re.fullmatch(r"R[12]_A[1-4]_(0[1-9]|1[0-8])", kanban_location):
+        flash("❌ Invalid location format! Use RX_AY_ZZ (e.g. R1_A2_05)", "error")
         return redirect(url_for("index", tab="search"))
 
     conn = get_conn()
@@ -366,7 +369,10 @@ def add_item_racking():
     if not re.fullmatch(r"F\d{9}", serial_number):
         flash("❌ Invalid Serial Number format! Use F followed by 9 digits (e.g. F002344321)", "error")
         return redirect(url_for("index", tab="registration"))
-    kanban_location = request.form.get("kanban_location", "").strip()
+    kanban_location = request.form.get("kanban_location", "").strip().upper()
+    if not re.fullmatch(r"R[12]_A[1-4]_(0[1-9]|1[0-8])", kanban_location):
+        flash("❌ Invalid location format! Use RX_AY_ZZ (e.g. R1_A2_05)", "error")
+        return redirect(url_for("index", tab="registration"))
     item_type = request.form.get("item_type", "").strip()   # ✅ capture dropdown
     status = "In Storage"  # Always "In Storage" for registration
     now = datetime.now()
@@ -458,10 +464,14 @@ def add_item_racking():
 
 @app.route("/register_dummy", methods=["POST"])
 def register_dummy():
-    kanban_location = request.form.get("kanban_location", "").strip()
+    kanban_location = request.form.get("kanban_location", "").strip().upper()
     
     if not kanban_location:
         flash("❌ Please select a location!", "error")
+        return redirect(url_for("index", tab="registration"))
+    
+    if not re.fullmatch(r"R[12]_A[1-4]_(0[1-9]|1[0-8])", kanban_location):
+        flash("❌ Invalid location format! Use RX_AY_ZZ (e.g. R1_A2_05)", "error")
         return redirect(url_for("index", tab="registration"))
     
     now = datetime.now()

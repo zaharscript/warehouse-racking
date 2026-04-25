@@ -419,6 +419,50 @@ function validateSerialNumber() {
 }
 
 /*************************************************
+ * VALIDATE KANBAN LOCATION
+ *************************************************/
+function validateKanbanLocation() {
+  const input = document.getElementById("location");
+  if (!input) return true;
+
+  const location = input.value.trim().toUpperCase();
+  input.value = location;
+
+  // Regex: RX_AY_ZZ (zero-padded), X=1-2, Y=1-4, ZZ=01-18
+  const locationRegex = /^R[12]_A[1-4]_(0[1-9]|1[0-8])$/;
+
+  if (!locationRegex.test(location)) {
+    showLocationModal();
+    input.classList.add("input-error");
+    return false; // ❌ block form submit
+  }
+
+  input.classList.remove("input-error");
+  return true; // ✅ allow submit
+}
+
+/*************************************************
+ * FORMAT KANBAN INPUT (live restriction)
+ *************************************************/
+function formatKanbanInput(input) {
+  // Allow only R, A, 0-9, and underscore
+  input.value = input.value.toUpperCase().replace(/[^RA0-9_]/g, "");
+}
+
+/*************************************************
+ * LOCATION MODAL HELPERS
+ *************************************************/
+function showLocationModal() {
+  const modal = document.getElementById("locationModal");
+  if (modal) modal.style.display = "block";
+}
+
+function closeLocationModal() {
+  const modal = document.getElementById("locationModal");
+  if (modal) modal.style.display = "none";
+}
+
+/*************************************************
  * SERIAL MODAL HELPERS
  *************************************************/
 function showSerialModal() {

@@ -45,6 +45,18 @@
                 </div>
             </div>
 
+            <!-- Location Validation Modal -->
+            <div id="locationModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <h3>Invalid Storage Location</h3>
+                    <p>Location must follow the format <strong>RX_AY_ZZ</strong></p>
+                    <p style="font-size: 0.85em; opacity: 0.8;">X = 1-2 &nbsp;|&nbsp; Y = 1-4 &nbsp;|&nbsp; ZZ = 01-18
+                    </p>
+                    <p style="font-size: 0.85em;">Example: <strong>R1_A2_05</strong></p>
+                    <button onclick="closeLocationModal()">OK</button>
+                </div>
+            </div>
+
 
 
             <div class="nav-tabs">
@@ -92,7 +104,7 @@
                     class="tab-content {% if active_tab == 'registration' or not active_tab %}active{% endif %}">
                     <h2>Item Registration</h2>
                     <form id="registrationForm" method="POST" action="{{ url_for('add_item_racking') }}"
-                        onsubmit="return validateSerialNumber()">
+                        onsubmit="return validateSerialNumber() && validateKanbanLocation()">
                         <input type="hidden" name="confirmed" id="confirmed" value="no">
                         <!-- ✅ Hidden input for Status - always "In Storage" -->
                         <input type="hidden" name="Status" value="In Storage">
@@ -118,7 +130,7 @@
                             <div class="form-group">
                                 <label for="location">Storage Location</label>
                                 <input type="text" id="location" class="form-control" name="kanban_location" required
-                                    placeholder="Select from map or type location"
+                                    maxlength="9" oninput="formatKanbanInput(this)" placeholder="e.g. R1_A2_05"
                                     value="{{ confirm_location if confirm_location else '' }}">
                             </div>
                             <div class="form-group">
@@ -287,7 +299,8 @@
                             <div class="search-row">
                                 <div class="input-container">
                                     <input type="text" id="historyKanbanLocation" name="kanban_location"
-                                        class="form-control" placeholder="Enter the kanban location"
+                                        class="form-control" placeholder="e.g. R1_A2_05" maxlength="9"
+                                        oninput="formatKanbanInput(this)"
                                         value="{{ searched_location if searched_location else '' }}" required>
                                 </div>
                                 <button type="submit" class="btn-location-search">
